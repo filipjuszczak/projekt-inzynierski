@@ -134,3 +134,22 @@ model SeatReservation {
   @@unique([showtimeId, row, seatNumber])
   @@map("seat_reservations")
 }
+
+enum EmployeeRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model Employee {
+  id           String       @id
+  email        String       @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         EmployeeRole @default(STAFF)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("employees")
+}
