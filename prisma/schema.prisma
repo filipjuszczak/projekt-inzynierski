@@ -14,15 +14,17 @@ datasource db {
 }
 
 model User {
-  id           String    @id
-  firstName    String
-  lastName     String
-  email        String    @unique
-  phoneNumber  String    @unique
-  passwordHash String?
-  sessions     Session[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id               String            @id
+  firstName        String
+  lastName         String
+  email            String            @unique
+  phoneNumber      String            @unique
+  passwordHash     String?
+  sessions         Session[]
+  seatReservations SeatReservation[]
+  tickets          Ticket[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@map("users")
 }
@@ -56,6 +58,7 @@ model Movie {
   duration    Int
   genres      Genre[]       @relation("MovieGenres")
   movieGenres MovieGenres[]
+  showtimes   Showtime[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -70,4 +73,64 @@ model MovieGenres {
 
   @@id([movieId, genreId])
   @@map("movie_genres")
+}
+
+model Room {
+  id          String     @id
+  number      Int
+  rows        Int
+  seatsPerRow Int
+  showtimes   Showtime[]
+
+  @@map("rooms")
+}
+
+enum TicketType {
+  NORMAL
+  REDUCED
+}
+
+model Ticket {
+  id         String   @id
+  userId     String
+  showtimeId String
+  price      Int
+  row        Int
+  seatNumber Int
+  user       User     @relation(fields: [userId], references: [id])
+  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@map("tickets")
+}
+
+model Showtime {
+  id           String            @id
+  movieId      String
+  roomId       String
+  startTime    DateTime
+  endTime      DateTime
+  movie        Movie             @relation(fields: [movieId], references: [id])
+  room         Room              @relation(fields: [roomId], references: [id])
+  reservations SeatReservation[]
+  tickets      Ticket[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@map("showtimes")
+}
+
+model SeatReservation {
+  id         String   @id
+  showtimeId String
+  userId     String
+  row        Int
+  seatNumber Int
+  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([showtimeId, row, seatNumber])
+  @@map("seat_reservations")
 }
