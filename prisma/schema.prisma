@@ -19,6 +19,7 @@ model User {
   lastName         String
   email            String            @unique
   phoneNumber      String            @unique
+  dateOfBirth      DateTime?
   passwordHash     String?
   sessions         Session[]
   seatReservations SeatReservation[]
