@@ -22,7 +22,7 @@ model User {
   passwordHash String?
   sessions     Session[]
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("users")
 }
@@ -34,4 +34,40 @@ model Session {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Genre {
+  id             String        @id
+  name           String        @unique
+  ageRestriction Int
+  movies         Movie[]       @relation("MovieGenres")
+  movieGenres    MovieGenres[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("genres")
+}
+
+model Movie {
+  id          String        @id
+  title       String
+  description String?
+  releaseYear Int
+  duration    Int
+  genres      Genre[]       @relation("MovieGenres")
+  movieGenres MovieGenres[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("movies")
+}
+
+model MovieGenres {
+  movieId String
+  genreId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
+  @@map("movie_genres")
 }
