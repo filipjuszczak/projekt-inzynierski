@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
+import ReactQueryProvider from "@/app/ReactQueryProvider";
 import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
 import type { Metadata } from "next";
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className={`bg-black text-zinc-400 ${inter.className}`}>
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
         <Toaster />
       </body>
     </html>
