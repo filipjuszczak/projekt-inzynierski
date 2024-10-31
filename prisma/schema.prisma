@@ -24,6 +24,7 @@ model User {
   firstName        String
   lastName         String
   email            String            @unique
+  username         String?           @unique
   dateOfBirth      DateTime?
   passwordHash     String?
   userType         UserType          @default(NORMAL)
