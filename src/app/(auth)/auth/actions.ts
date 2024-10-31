@@ -93,7 +93,7 @@ export async function logIn(
     });
 
     if (!existingUser || !existingUser.passwordHash) {
-      return { error: "Incorrect username or password" };
+      return { error: "Nieprawidłowy adres e-mail lub hasło" };
     }
 
     const isPasswordValid = await verify(existingUser.passwordHash, password, {

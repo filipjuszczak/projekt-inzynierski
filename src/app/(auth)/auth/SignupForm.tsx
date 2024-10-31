@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupFormSchema, type SignupValues } from "@/lib/validation";
-import { isValidDate, passwordsMatch } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,11 +20,14 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { signupFormSchema, type SignupValues } from "@/lib/validation";
+import { isValidDate, passwordsMatch } from "@/lib/utils";
 import { signUp } from "@/app/(auth)/auth/actions";
 import { useToast } from "@/hooks/use-toast";
+import LoadingButton from "@/components/LoadingButton";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SignupForm() {
-  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -41,14 +41,13 @@ export default function SignupForm() {
       monthOfBirth: "",
       yearOfBirth: "",
       password: "",
-      confirmedPassword: ""
+      confirmedPassword: "",
+      terms: false
     }
   });
 
   async function onSubmit(values: SignupValues) {
-    console.log(values);
-
-    setError(null);
+    let hasError = false;
 
     if (
       !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
@@ -57,7 +56,7 @@ export default function SignupForm() {
         type: "manual",
         message: "Nieprawidłowy dzień dla podanego miesiąca"
       });
-      setError("Nieprawidłowy dzień dla podanego miesiąca");
+      hasError = true;
     }
 
     if (!passwordsMatch(values.password, values.confirmedPassword)) {
@@ -65,15 +64,14 @@ export default function SignupForm() {
         type: "manual",
         message: "Hasła nie są identyczne"
       });
-      setError("Hasła nie są identyczne");
+      hasError = true;
     }
 
-    if (error) return;
+    if (hasError) return;
 
     startTransition(async () => {
       const { error } = await signUp(values);
       if (error) {
-        setError(error);
         toast({
           variant: "destructive",
           description: error
@@ -84,7 +82,7 @@ export default function SignupForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           name="firstName"
           control={form.control}
@@ -133,21 +131,24 @@ export default function SignupForm() {
             name="dayOfBirth"
             control={form.control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel htmlFor={field.name}>Dzień</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="01" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       {Array.from({ length: 31 }, (_, i) => i + 1).map(
                         (day) => (
-                          <SelectItem key={day} value={day.toString()}>
-                            {day}
+                          <SelectItem
+                            key={`day-${day.toString().padStart(2, "0")}`}
+                            value={day.toString().padStart(2, "0")}
+                          >
+                            {day.toString().padStart(2, "0")}
                           </SelectItem>
                         )
                       )}
@@ -162,21 +163,24 @@ export default function SignupForm() {
             name="monthOfBirth"
             control={form.control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel htmlFor={field.name}>Miesiąc</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="01" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       {Array.from({ length: 12 }, (_, i) => i + 1).map(
                         (month) => (
-                          <SelectItem key={month} value={month.toString()}>
-                            {month}
+                          <SelectItem
+                            key={`month-${month.toString().padStart(2, "0")}`}
+                            value={month.toString().padStart(2, "0")}
+                          >
+                            {month.toString().padStart(2, "0")}
                           </SelectItem>
                         )
                       )}
@@ -191,13 +195,13 @@ export default function SignupForm() {
             name="yearOfBirth"
             control={form.control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel htmlFor={field.name}>Rok</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="1990" />
                   </SelectTrigger>
                   <SelectContent>
@@ -244,9 +248,29 @@ export default function SignupForm() {
             </FormItem>
           )}
         />
-        <Button variant="default">
-          {isPending ? "Wysyłanie..." : "Utwórz konto"}
-        </Button>
+        <FormField
+          name="terms"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox onCheckedChange={field.onChange} id={field.name} />
+                </FormControl>
+                <FormLabel htmlFor={field.name} className="mt-0">
+                  Akceptuję regulamin
+                </FormLabel>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <LoadingButton
+          isPending={isPending}
+          idleText="Utwórz konto"
+          loadingText="Wysyłanie..."
+          className="w-full"
+        />
       </form>
     </Form>
   );

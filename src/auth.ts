@@ -40,7 +40,7 @@ declare module "lucia" {
   }
 }
 
-export const validateRequest = cache(
+export const authUser = cache(
   async (): Promise<
     { user: User; session: Session } | { user: null; session: null }
   > => {
