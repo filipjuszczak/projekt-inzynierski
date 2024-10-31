@@ -1,0 +1,101 @@
+"use client";
+
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AtSign, KeyRound } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/LoadingButton";
+import { loginFormSchema, type LoginValues } from "@/lib/validation";
+import { logIn } from "@/app/(staff)/staff/login/actions";
+import { useToast } from "@/hooks/use-toast";
+
+export default function LoginForm() {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
+
+  async function onSubmit(credentials: LoginValues) {
+    startTransition(async () => {
+      const { error } = await logIn(credentials);
+      if (error) {
+        toast({
+          variant: "destructive",
+          description: error
+        });
+      }
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          name="email"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
+              <FormControl>
+                <div className="relative flex items-center">
+                  <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    id={field.name}
+                    placeholder="jan.kowalski@email.com"
+                    className="pl-8"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>Hasło</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <KeyRound className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
+                  <Input
+                    type="password"
+                    id={field.name}
+                    placeholder="********"
+                    className="pl-8"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <LoadingButton
+          isPending={isPending}
+          idleText="Zaloguj się"
+          loadingText="Logowanie..."
+          className="w-full"
+        />
+      </form>
+    </Form>
+  );
+}
