@@ -6,19 +6,22 @@ import { isRedirectError } from "next/dist/client/components/redirect";
 import { verify } from "@node-rs/argon2";
 import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
-import { loginFormSchema, type LoginValues } from "@/lib/validation";
+import { loginFormSchema, type Credentials } from "@/lib/validation";
+import { isValidEmail } from "@/lib/utils";
 
 export async function logIn(
-  credentials: LoginValues
+  credentials: Credentials
 ): Promise<{ error: string }> {
   try {
-    const { email, password } = loginFormSchema.parse(credentials);
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { login, password } = loginFormSchema.parse(credentials);
+    const existingUser = isValidEmail(login)
+      ? await prisma.user.findUnique({ where: { email: login } })
+      : await prisma.user.findUnique({ where: { username: login } });
 
     if (!existingUser || !existingUser.passwordHash) {
-      return { error: "Nieprawidłowy adres e-mail lub hasło" };
+      return {
+        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
+      };
     }
 
     const isPasswordValid = await verify(existingUser.passwordHash, password, {
@@ -29,7 +32,9 @@ export async function logIn(
     });
 
     if (!isPasswordValid) {
-      return { error: "Nieprawidłowy adres e-mail lub hasło" };
+      return {
+        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
+      };
     }
 
     if (existingUser.userType === "NORMAL") {

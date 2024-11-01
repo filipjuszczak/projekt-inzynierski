@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const signupFormSchema = z.object({
+  username: z.string().optional(),
   firstName: z.string().min(1, "Pole nie może być puste"),
   lastName: z.string().min(1, "Pole nie może być puste"),
   email: z
@@ -20,11 +21,8 @@ export const signupFormSchema = z.object({
 export type SignupValues = z.infer<typeof signupFormSchema>;
 
 export const loginFormSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Pole nie może być puste")
-    .email("Niepoprawny adres email"),
+  login: z.string().min(1, "Pole nie może być puste"),
   password: z.string().min(1, "Pole nie może być puste")
 });
 
-export type LoginValues = z.infer<typeof loginFormSchema>;
+export type Credentials = z.infer<typeof loginFormSchema>;

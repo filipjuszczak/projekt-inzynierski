@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { UseFormReturn } from "react-hook-form";
+import type { SignupValues } from "@/lib/validation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,4 +18,105 @@ export function isValidDate(day: string, month: string, year: string) {
 
 export function passwordsMatch(password: string, confirmPassword: string) {
   return password === confirmPassword;
+}
+
+const validEmailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+export function isValidEmail(email: string) {
+  return validEmailRegex.test(email);
+}
+
+export const forbiddenUsernames = [
+  "admin",
+  "administrator",
+  "moderator",
+  "mod",
+  "superuser",
+  "super",
+  "root",
+  "user",
+  "users",
+  "username",
+  "usernames",
+  "name",
+  "names",
+  "login",
+  "logins",
+  "account",
+  "accounts",
+  "profile",
+  "profiles",
+  "signup",
+  "sign-up",
+  "register",
+  "registration",
+  "join",
+  "signin",
+  "sign-in",
+  "auth",
+  "authentication",
+  "authorize",
+  "helpdesk",
+  "support",
+  "bot",
+  "api",
+  "webmaster",
+  "null",
+  "undefined",
+  "anonymous",
+  "security",
+  "marketing",
+  "sales",
+  "contact",
+  "info",
+  "privacy",
+  "terms"
+];
+
+export const allowedUsernameRegex = /^[a-zA-Z0-9_]{2,20}$/;
+
+export function validateSignupValues(
+  form: UseFormReturn<SignupValues>,
+  values: SignupValues
+) {
+  let hasError = false;
+
+  if (values.username && !allowedUsernameRegex.test(values.username)) {
+    form.setError("username", {
+      type: "manual",
+      message: "Nazwa użytkownika zawiera niedozwolone znaki"
+    });
+    hasError = true;
+  }
+
+  if (
+    values.username &&
+    forbiddenUsernames.includes(values.username.toLowerCase())
+  ) {
+    form.setError("username", {
+      type: "manual",
+      message: "Ta nazwa użytkownika jest zablokowana"
+    });
+    hasError = true;
+  }
+
+  if (
+    !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
+  ) {
+    form.setError("dayOfBirth", {
+      type: "manual",
+      message: "Nieprawidłowy dzień dla podanego miesiąca"
+    });
+    hasError = true;
+  }
+
+  if (!passwordsMatch(values.password, values.confirmedPassword)) {
+    form.setError("confirmedPassword", {
+      type: "manual",
+      message: "Hasła nie są identyczne"
+    });
+    hasError = true;
+  }
+
+  return hasError;
 }
