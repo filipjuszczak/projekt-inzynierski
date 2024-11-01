@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginFormSchema, type LoginValues } from "@/lib/validation";
+import { loginFormSchema, type Credentials } from "@/lib/validation";
 import { useToast } from "@/hooks/use-toast";
 import { logIn } from "@/app/(auth)/auth/actions";
 import {
@@ -22,15 +22,15 @@ export default function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const form = useForm<LoginValues>({
+  const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      login: "",
       password: ""
     }
   });
 
-  async function onSubmit(credentials: LoginValues) {
+  async function onSubmit(credentials: Credentials) {
     startTransition(async () => {
       const { error } = await logIn(credentials);
       if (error) {
@@ -46,18 +46,19 @@ export default function LoginForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
-          name="email"
+          name="login"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Nazwa użytkownika lub adres e-mail
+              </FormLabel>
               <FormControl>
                 <div className="relative flex items-center">
                   <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
                   <Input
-                    type="email"
                     id={field.name}
-                    placeholder="jan.kowalski@email.com"
+                    placeholder="jkowalski / jan.kowalski@email.com"
                     className="pl-8"
                     {...field}
                   />

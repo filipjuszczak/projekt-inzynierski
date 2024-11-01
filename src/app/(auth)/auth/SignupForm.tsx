@@ -20,12 +20,12 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import LoadingButton from "@/components/LoadingButton";
 import { signupFormSchema, type SignupValues } from "@/lib/validation";
-import { isValidDate, passwordsMatch } from "@/lib/utils";
+import { validateSignupValues } from "@/lib/utils";
 import { signUp } from "@/app/(auth)/auth/actions";
 import { useToast } from "@/hooks/use-toast";
-import LoadingButton from "@/components/LoadingButton";
-import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SignupForm() {
   const [isPending, startTransition] = useTransition();
@@ -34,6 +34,7 @@ export default function SignupForm() {
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      username: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -47,27 +48,7 @@ export default function SignupForm() {
   });
 
   async function onSubmit(values: SignupValues) {
-    let hasError = false;
-
-    if (
-      !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
-    ) {
-      form.setError("dayOfBirth", {
-        type: "manual",
-        message: "Nieprawidłowy dzień dla podanego miesiąca"
-      });
-      hasError = true;
-    }
-
-    if (!passwordsMatch(values.password, values.confirmedPassword)) {
-      form.setError("confirmedPassword", {
-        type: "manual",
-        message: "Hasła nie są identyczne"
-      });
-      hasError = true;
-    }
-
-    if (hasError) return;
+    if (!validateSignupValues(form, values)) return;
 
     startTransition(async () => {
       const { error } = await signUp(values);
@@ -84,11 +65,24 @@ export default function SignupForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
+          name="username"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
+              <FormControl>
+                <Input placeholder="jkowalski" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
           name="firstName"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Imię</FormLabel>
+              <FormLabel htmlFor={field.name}>Imię (wymagane)</FormLabel>
               <FormControl>
                 <Input placeholder="Jan" {...field} />
               </FormControl>
@@ -101,7 +95,7 @@ export default function SignupForm() {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Nazwisko</FormLabel>
+              <FormLabel htmlFor={field.name}>Nazwisko (wymagane)</FormLabel>
               <FormControl>
                 <Input placeholder="Kowalski" {...field} />
               </FormControl>
@@ -114,7 +108,9 @@ export default function SignupForm() {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Adres e-mail (wymagane)
+              </FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -126,108 +122,111 @@ export default function SignupForm() {
             </FormItem>
           )}
         />
-        <div className="flex gap-2">
-          <FormField
-            name="dayOfBirth"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel htmlFor={field.name}>Dzień</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="01" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map(
-                        (day) => (
-                          <SelectItem
-                            key={`day-${day.toString().padStart(2, "0")}`}
-                            value={day.toString().padStart(2, "0")}
-                          >
-                            {day.toString().padStart(2, "0")}
+        <div className="space-y-2">
+          <div>Data urodzenia (wymagane)</div>
+          <div className="flex gap-2">
+            <FormField
+              name="dayOfBirth"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel htmlFor={field.name}>Dzień</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="01" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map(
+                          (day) => (
+                            <SelectItem
+                              key={`day-${day.toString().padStart(2, "0")}`}
+                              value={day.toString().padStart(2, "0")}
+                            >
+                              {day.toString().padStart(2, "0")}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="monthOfBirth"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel htmlFor={field.name}>Miesiąc</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="01" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                          (month) => (
+                            <SelectItem
+                              key={`month-${month.toString().padStart(2, "0")}`}
+                              value={month.toString().padStart(2, "0")}
+                            >
+                              {month.toString().padStart(2, "0")}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="yearOfBirth"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel htmlFor={field.name}>Rok</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="1990" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {Array.from(
+                          { length: 100 },
+                          (_, i) => new Date().getFullYear() - i
+                        ).map((year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
                           </SelectItem>
-                        )
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="monthOfBirth"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel htmlFor={field.name}>Miesiąc</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="01" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                        (month) => (
-                          <SelectItem
-                            key={`month-${month.toString().padStart(2, "0")}`}
-                            value={month.toString().padStart(2, "0")}
-                          >
-                            {month.toString().padStart(2, "0")}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="yearOfBirth"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel htmlFor={field.name}>Rok</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="1990" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {Array.from(
-                        { length: 100 },
-                        (_, i) => new Date().getFullYear() - i
-                      ).map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
         <FormField
           name="password"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Hasło</FormLabel>
+              <FormLabel htmlFor={field.name}>Hasło (wymagane)</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="********" {...field} />
               </FormControl>
@@ -240,7 +239,9 @@ export default function SignupForm() {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Potwierdź hasło</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Potwierdź hasło (wymagane)
+              </FormLabel>
               <FormControl>
                 <Input type="password" placeholder="********" {...field} />
               </FormControl>

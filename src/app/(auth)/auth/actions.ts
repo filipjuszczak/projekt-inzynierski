@@ -5,19 +5,26 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { generateIdFromEntropySize } from "lucia";
 import { hash, verify } from "@node-rs/argon2";
+import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
 import {
   loginFormSchema,
   signupFormSchema,
-  type LoginValues,
+  type Credentials,
   type SignupValues
 } from "@/lib/validation";
-import { isValidDate, passwordsMatch } from "@/lib/utils";
-import { lucia } from "@/auth";
+import {
+  forbiddenUsernames,
+  isValidDate,
+  isValidEmail,
+  passwordsMatch,
+  allowedUsernameRegex
+} from "@/lib/utils";
 
 export async function signUp(data: SignupValues): Promise<{ error: string }> {
   try {
     const {
+      username,
       firstName,
       lastName,
       email,
@@ -28,14 +35,27 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
       confirmedPassword
     } = signupFormSchema.parse(data);
 
+    // check if username doesn't contain forbidden characters
+    if (username && !allowedUsernameRegex.test(username)) {
+      return { error: "Nazwa użytkownika zawiera niedozwolone znaki" };
+    }
+
+    // check if username is not in the list of forbidden usernames
+    if (username && forbiddenUsernames.includes(username.toLowerCase())) {
+      return { error: "Nazwa użytkownika jest zablokowana" };
+    }
+
+    // check if date of birth is valid
     if (!isValidDate(dayOfBirth, monthOfBirth, yearOfBirth)) {
       return { error: "Nieprawidłowa data" };
     }
 
+    // check if passwords match
     if (!passwordsMatch(password, confirmedPassword)) {
       return { error: "Hasła nie są identyczne" };
     }
 
+    // check if user with the same email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
@@ -84,16 +104,20 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
 }
 
 export async function logIn(
-  credentials: LoginValues
+  credentials: Credentials
 ): Promise<{ error: string }> {
   try {
-    const { email, password } = loginFormSchema.parse(credentials);
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { login, password } = loginFormSchema.parse(credentials);
+
+    // check if user with the provided email or username exists
+    const existingUser = isValidEmail(login)
+      ? await prisma.user.findUnique({ where: { email: login } })
+      : await prisma.user.findUnique({ where: { username: login } });
 
     if (!existingUser || !existingUser.passwordHash) {
-      return { error: "Nieprawidłowy adres e-mail lub hasło" };
+      return {
+        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
+      };
     }
 
     const isPasswordValid = await verify(existingUser.passwordHash, password, {
@@ -104,7 +128,9 @@ export async function logIn(
     });
 
     if (!isPasswordValid) {
-      return { error: "Nieprawidłowy adres e-mail lub hasło" };
+      return {
+        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
+      };
     }
 
     const session = await lucia.createSession(existingUser.id, {});
