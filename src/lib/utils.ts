@@ -110,6 +110,32 @@ export function validateSignupValues(
     hasError = true;
   }
 
+  const now = new Date();
+  const birthDate = new Date(
+    Number(values.yearOfBirth),
+    Number(values.monthOfBirth) - 1,
+    Number(values.dayOfBirth)
+  );
+
+  const diff = now.getTime() - birthDate.getTime();
+  const isOldEnough = diff >= 12 * 365 * 24 * 60 * 60 * 1000;
+
+  if (!isOldEnough) {
+    form.setError("dayOfBirth", {
+      type: "manual",
+      message: ""
+    });
+    form.setError("monthOfBirth", {
+      type: "manual",
+      message: ""
+    });
+    form.setError("yearOfBirth", {
+      type: "manual",
+      message: "Musisz mieć co najmniej 12 lat"
+    });
+    hasError = true;
+  }
+
   if (!passwordsMatch(values.password, values.confirmedPassword)) {
     form.setError("confirmedPassword", {
       type: "manual",

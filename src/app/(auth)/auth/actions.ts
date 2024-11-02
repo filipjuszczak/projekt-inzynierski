@@ -50,6 +50,21 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
       return { error: "Nieprawidłowa data" };
     }
 
+    // check if user is at least 12 years old
+    const now = new Date();
+    const birthDate = new Date(
+      Number(yearOfBirth),
+      Number(monthOfBirth) - 1,
+      Number(dayOfBirth)
+    );
+
+    const diff = now.getTime() - birthDate.getTime();
+    const isOldEnough = diff >= 12 * 365 * 24 * 60 * 60 * 1000;
+
+    if (!isOldEnough) {
+      return { error: "Musisz mieć co najmniej 12 lat" };
+    }
+
     // check if passwords match
     if (!passwordsMatch(password, confirmedPassword)) {
       return { error: "Hasła nie są identyczne" };
