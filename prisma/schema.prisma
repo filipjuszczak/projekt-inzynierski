@@ -47,9 +47,10 @@ model Session {
 }
 
 model Genre {
-  id             String        @id
+  id             String        @id @default(cuid())
   name           String        @unique
   ageRestriction Int
+  createdBy      String
   movies         Movie[]       @relation("MovieGenres")
   movieGenres    MovieGenres[]
   createdAt      DateTime      @default(now())
@@ -59,11 +60,12 @@ model Genre {
 }
 
 model Movie {
-  id          String        @id
+  id          String        @id @default(cuid())
   title       String
   description String?
   releaseYear Int
   duration    Int
+  createdBy   String
   genres      Genre[]       @relation("MovieGenres")
   movieGenres MovieGenres[]
   showtimes   Showtime[]
@@ -76,19 +78,22 @@ model Movie {
 model MovieGenres {
   movieId String
   genreId String
-  movie   Movie  @relation(fields: [movieId], references: [id])
-  genre   Genre  @relation(fields: [genreId], references: [id])
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
   @@id([movieId, genreId])
   @@map("movie_genres")
 }
 
 model Room {
-  id          String     @id
+  id          String     @id @default(cuid())
   number      Int
   rows        Int
   seatsPerRow Int
+  createdBy   String
   showtimes   Showtime[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@map("rooms")
 }
@@ -99,7 +104,7 @@ enum TicketType {
 }
 
 model Ticket {
-  id         String   @id
+  id         String   @id @default(cuid())
   userId     String
   showtimeId String
   price      Int
@@ -113,13 +118,14 @@ model Ticket {
 }
 
 model Showtime {
-  id           String            @id
+  id           String            @id @default(cuid())
   movieId      String
   roomId       String
   startTime    DateTime
   endTime      DateTime
   movie        Movie             @relation(fields: [movieId], references: [id])
   room         Room              @relation(fields: [roomId], references: [id])
+  createdBy    String
   reservations SeatReservation[]
   tickets      Ticket[]
   createdAt    DateTime          @default(now())
@@ -129,7 +135,7 @@ model Showtime {
 }
 
 model SeatReservation {
-  id         String   @id
+  id         String   @id @default(cuid())
   showtimeId String
   userId     String
   row        Int
