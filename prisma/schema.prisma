@@ -20,19 +20,19 @@ enum UserType {
 }
 
 model User {
-  id               String            @id
-  username         String?           @unique
-  firstName        String
-  lastName         String
-  email            String            @unique
-  dateOfBirth      DateTime?
-  passwordHash     String?
-  userType         UserType          @default(NORMAL)
-  sessions         Session[]
-  seatReservations SeatReservation[]
-  tickets          Ticket[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id           String    @id
+  username     String?   @unique
+  firstName    String
+  lastName     String
+  email        String    @unique
+  dateOfBirth  DateTime
+  passwordHash String
+  userType     UserType  @default(NORMAL)
+  sessions     Session[]
+  seats        Seat[]
+  orders       Order[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("users")
 }
@@ -40,60 +40,77 @@ model User {
 model Session {
   id        String   @id
   userId    String
-  expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  expiresAt DateTime
 
   @@map("sessions")
 }
 
-model Genre {
-  id             String        @id @default(cuid())
-  name           String        @unique
-  ageRestriction Int
-  createdBy      String
-  movies         Movie[]       @relation("MovieGenres")
-  movieGenres    MovieGenres[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+model Showtime {
+  id        String   @id @default(cuid())
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  movieId   String
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    String
+  startTime DateTime
+  endTime   DateTime
+  createdBy String
+  seats     Seat[]
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("genres")
+  @@map("showtimes")
 }
 
 model Movie {
-  id          String        @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
-  description String?
+  description String
   releaseYear Int
   duration    Int
+  posterUrl   String?
   createdBy   String
-  genres      Genre[]       @relation("MovieGenres")
-  movieGenres MovieGenres[]
+  genres      GenresOnMovies[]
   showtimes   Showtime[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@map("movies")
 }
 
-model MovieGenres {
-  movieId String
-  genreId String
+model Genre {
+  id             String           @id @default(cuid())
+  name           String           @unique
+  ageRestriction Int
+  createdBy      String
+  movies         GenresOnMovies[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("genres")
+}
+
+model GenresOnMovies {
   movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId String
   genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId String
 
   @@id([movieId, genreId])
-  @@map("movie_genres")
+  @@map("genres_on_movies")
 }
 
 model Room {
-  id          String     @id @default(cuid())
-  number      Int
-  rows        Int
-  seatsPerRow Int
-  createdBy   String
-  showtimes   Showtime[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  number       Int
+  numberOfRows Int
+  seatsPerRow  Int
+  showtimes    Showtime[]
+  seats        Seat[]
+  createdBy    String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@map("rooms")
 }
@@ -104,47 +121,46 @@ enum TicketType {
 }
 
 model Ticket {
-  id         String   @id @default(cuid())
-  userId     String
-  showtimeId String
-  price      Int
-  row        Int
-  seatNumber Int
-  user       User     @relation(fields: [userId], references: [id])
-  showtime   Showtime @relation(fields: [showtimeId], references: [id])
-  createdAt  DateTime @default(now())
+  id         String     @id @default(cuid())
+  ticketType TicketType
+  price      Float
+  orders     Order[]
+  createdAt  DateTime   @default(now())
 
   @@map("tickets")
 }
 
-model Showtime {
-  id           String            @id @default(cuid())
-  movieId      String
-  roomId       String
-  startTime    DateTime
-  endTime      DateTime
-  movie        Movie             @relation(fields: [movieId], references: [id])
-  room         Room              @relation(fields: [roomId], references: [id])
-  createdBy    String
-  reservations SeatReservation[]
-  tickets      Ticket[]
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-
-  @@map("showtimes")
-}
-
-model SeatReservation {
+model Order {
   id         String   @id @default(cuid())
-  showtimeId String
   userId     String
-  row        Int
-  seatNumber Int
-  showtime   Showtime @relation(fields: [showtimeId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+  seatId     String
+  seat       Seat     @relation(fields: [seatId], references: [id])
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@unique([showtimeId, row, seatNumber])
-  @@map("seat_reservations")
+  @@map("orders")
+}
+
+model Seat {
+  id         String   @id @default(cuid())
+  rowNumber  Int
+  seatNumber Int
+  isBooked   Boolean  @default(false)
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  roomId     String
+  room       Room     @relation(fields: [roomId], references: [id])
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders     Order[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([showtimeId, rowNumber, seatNumber])
+  @@map("seats")
 }
