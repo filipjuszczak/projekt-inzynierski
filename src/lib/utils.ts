@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { UseFormReturn } from "react-hook-form";
-import type { SignupValues } from "@/lib/validation";
+import type { CreateMovieValues, SignupValues } from "@/lib/validation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -79,25 +79,24 @@ export function validateSignupValues(
   form: UseFormReturn<SignupValues>,
   values: SignupValues
 ) {
-  let hasError = false;
+  let isValid = true;
 
-  if (values.username && !allowedUsernameRegex.test(values.username)) {
-    form.setError("username", {
-      type: "manual",
-      message: "Nazwa użytkownika zawiera niedozwolone znaki"
-    });
-    hasError = true;
-  }
+  if (values.username) {
+    if (!allowedUsernameRegex.test(values.username)) {
+      form.setError("username", {
+        type: "manual",
+        message: "Nazwa użytkownika zawiera niedozwolone znaki"
+      });
+      isValid = false;
+    }
 
-  if (
-    values.username &&
-    forbiddenUsernames.includes(values.username.toLowerCase())
-  ) {
-    form.setError("username", {
-      type: "manual",
-      message: "Ta nazwa użytkownika jest zablokowana"
-    });
-    hasError = true;
+    if (forbiddenUsernames.includes(values.username.toLowerCase())) {
+      form.setError("username", {
+        type: "manual",
+        message: "Ta nazwa użytkownika jest zablokowana"
+      });
+      isValid = false;
+    }
   }
 
   if (
@@ -107,7 +106,7 @@ export function validateSignupValues(
       type: "manual",
       message: "Nieprawidłowy dzień dla podanego miesiąca"
     });
-    hasError = true;
+    isValid = false;
   }
 
   const now = new Date();
@@ -133,7 +132,7 @@ export function validateSignupValues(
       type: "manual",
       message: "Musisz mieć co najmniej 12 lat"
     });
-    hasError = true;
+    isValid = false;
   }
 
   if (!passwordsMatch(values.password, values.confirmedPassword)) {
@@ -141,8 +140,25 @@ export function validateSignupValues(
       type: "manual",
       message: "Hasła nie są identyczne"
     });
-    hasError = true;
+    isValid = false;
   }
 
-  return hasError;
+  return isValid;
+}
+
+export function validateMovieValues(
+  form: UseFormReturn<CreateMovieValues>,
+  values: CreateMovieValues
+) {
+  let isValid = true;
+
+  if (Number(values.duration) < 1) {
+    form.setError("duration", {
+      type: "manual",
+      message: "Czas trwania filmu musi być większy niż 0."
+    });
+    isValid = false;
+  }
+
+  return isValid;
 }

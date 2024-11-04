@@ -2,6 +2,7 @@ import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import ReactQueryProvider from "@/app/ReactQueryProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { UserStoreProvider } from "@/components/UserStoreProvider";
 import type { PropsWithChildren } from "react";
 import type { Metadata } from "next";
 
@@ -15,8 +16,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
-      <body className={`bg-black text-zinc-400 ${inter.className}`}>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+      <body className={`${inter.className}`}>
+        <ReactQueryProvider>
+          <UserStoreProvider>{children}</UserStoreProvider>
+        </ReactQueryProvider>
         <Toaster />
       </body>
     </html>

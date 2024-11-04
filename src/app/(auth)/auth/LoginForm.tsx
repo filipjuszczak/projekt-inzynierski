@@ -3,9 +3,8 @@
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginFormSchema, type Credentials } from "@/lib/validation";
-import { useToast } from "@/hooks/use-toast";
-import { logIn } from "@/app/(auth)/auth/actions";
+import { useShallow } from "zustand/react/shallow";
+import { AtSign, KeyRound } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -15,10 +14,16 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AtSign, KeyRound } from "lucide-react";
 import LoadingButton from "@/components/LoadingButton";
+import { loginFormSchema, type Credentials } from "@/lib/validation";
+import { useToast } from "@/hooks/use-toast";
+import { logIn } from "@/app/(auth)/auth/actions";
+import { redirect } from "next/navigation";
+import { useUserStore } from "@/hooks/use-user-store";
 
 export default function LoginForm() {
+  const setUserData = useUserStore(useShallow((state) => state.setUserData));
+
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -32,13 +37,23 @@ export default function LoginForm() {
 
   async function onSubmit(credentials: Credentials) {
     startTransition(async () => {
-      const { error } = await logIn(credentials);
-      if (error) {
+      const result = await logIn(credentials);
+      if ("error" in result) {
         toast({
           variant: "destructive",
-          description: error
+          description: result.error
         });
+        return;
       }
+
+      setUserData({
+        firstName: result.firstName,
+        lastName: result.lastName,
+        username: result.username,
+        email: result.email
+      });
+
+      redirect("/");
     });
   }
 

@@ -71,7 +71,7 @@ export default function SignupForm() {
             <FormItem>
               <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
               <FormControl>
-                <Input placeholder="jkowalski" {...field} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,7 +84,7 @@ export default function SignupForm() {
             <FormItem>
               <FormLabel htmlFor={field.name}>Imię (wymagane)</FormLabel>
               <FormControl>
-                <Input placeholder="Jan" {...field} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -97,7 +97,7 @@ export default function SignupForm() {
             <FormItem>
               <FormLabel htmlFor={field.name}>Nazwisko (wymagane)</FormLabel>
               <FormControl>
-                <Input placeholder="Kowalski" {...field} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -112,11 +112,7 @@ export default function SignupForm() {
                 Adres e-mail (wymagane)
               </FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="jan.kowalski@email.com"
-                  {...field}
-                />
+                <Input type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -228,7 +224,7 @@ export default function SignupForm() {
             <FormItem>
               <FormLabel htmlFor={field.name}>Hasło (wymagane)</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <Input type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -243,7 +239,7 @@ export default function SignupForm() {
                 Potwierdź hasło (wymagane)
               </FormLabel>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <Input type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
