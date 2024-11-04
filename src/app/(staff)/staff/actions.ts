@@ -6,12 +6,16 @@ import { isRedirectError } from "next/dist/client/components/redirect";
 import { verify } from "@node-rs/argon2";
 import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
-import { loginFormSchema, type Credentials } from "@/lib/validation";
+import { authEmployee } from "@/app/(staff)/staff/auth";
 import { isValidEmail } from "@/lib/utils";
+import { loginFormSchema, type Credentials } from "@/lib/validation";
 
 export async function logIn(
   credentials: Credentials
-): Promise<{ error: string }> {
+): Promise<
+  | { error: string }
+  | { firstName: string; lastName: string; username: string; email: string }
+> {
   try {
     const { login, password } = loginFormSchema.parse(credentials);
     const existingUser = isValidEmail(login)
@@ -49,7 +53,38 @@ export async function logIn(
       sessionCookie.attributes
     );
 
-    return redirect("/staff/dashboard");
+    // return redirect("/staff/dashboard");
+
+    return {
+      firstName: existingUser.firstName,
+      lastName: existingUser.lastName,
+      username: existingUser.username || "",
+      email: existingUser.email
+    };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    console.error(error);
+    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+  }
+}
+
+export async function logOut() {
+  try {
+    const { session } = await authEmployee();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    await lucia.invalidateSession(session.id);
+    const sessionCookie = lucia.createBlankSessionCookie();
+    (await cookies()).set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+
+    // return redirect("/staff/login");
+    return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
