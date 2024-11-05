@@ -1,8 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useShallow } from "zustand/react/shallow";
 import { AtSign, KeyRound } from "lucide-react";
 import {
   Form,
@@ -14,31 +16,49 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { loginFormSchema, type LoginValues } from "@/lib/validation";
-import { logIn } from "@/app/(staff)/staff/login/actions";
+import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
+import { logIn } from "@/app/(staff)/staff/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useUserStore } from "@/hooks/use-user-store";
 
 export default function LoginForm() {
+  const setUserData = useUserStore(useShallow((state) => state.setUserData));
+
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const form = useForm<LoginValues>({
+  const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      login: "",
       password: ""
     }
   });
 
-  async function onSubmit(credentials: LoginValues) {
+  async function onSubmit(credentials: Credentials) {
     startTransition(async () => {
-      const { error } = await logIn(credentials);
-      if (error) {
+      const result = await logIn(credentials);
+      if ("error" in result) {
         toast({
           variant: "destructive",
-          description: error
+          description: result.error
         });
+        return;
       }
+
+      setUserData({
+        firstName: result.firstName,
+        lastName: result.lastName,
+        username: result.username,
+        email: result.email
+      });
+
+      toast({
+        variant: "default",
+        description: "Zalogowano pomyślnie!"
+      });
+
+      redirect("/staff/dashboard");
     });
   }
 
@@ -46,21 +66,17 @@ export default function LoginForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
-          name="email"
+          name="login"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Nazwa użytkownika lub adres e-mail
+              </FormLabel>
               <FormControl>
                 <div className="relative flex items-center">
                   <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    id={field.name}
-                    placeholder="jan.kowalski@email.com"
-                    className="pl-8"
-                    {...field}
-                  />
+                  <Input id={field.name} className="pl-8" {...field} />
                 </div>
               </FormControl>
               <FormMessage />
@@ -79,7 +95,6 @@ export default function LoginForm() {
                   <Input
                     type="password"
                     id={field.name}
-                    placeholder="********"
                     className="pl-8"
                     {...field}
                   />

@@ -8,3 +8,11 @@ export const useFetchGenres = () => {
     queryFn: () => ky.get("/api/genres").json<Genre[]>()
   });
 };
+
+export const useFetchGenreById = (genreId: string | undefined) => {
+  return useQuery({
+    queryKey: ["genre", genreId],
+    queryFn: () => ky.get(`/api/genres/${genreId}`).json<Genre>(),
+    enabled: !!genreId
+  });
+};

@@ -1,16 +1,16 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import GenreForm from "@/app/(staff)/staff/dashboard/genres/GenreForm";
+import MovieForm from "@/app/(staff)/staff/dashboard/movies/MovieForm";
 
-export default function EditGenrePage() {
+export default function EditMoviePage() {
   const params = useParams<{ id: string }>();
 
   return (
     <main className="flex items-center justify-center">
       <div className="space-y-4">
-        <h1>Edit Genre</h1>
-        <GenreForm genreId={params.id} />
+        <h1 className="text-2xl">Edit Movie</h1>
+        <MovieForm movieId={params.id} />
       </div>
     </main>
   );

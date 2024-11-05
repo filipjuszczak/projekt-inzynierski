@@ -1,6 +1,7 @@
 "use client";
 
 import { useFetchGenres } from "@/app/(staff)/staff/dashboard/genres/queries";
+import Link from "next/link";
 
 export default function GenreList() {
   const { data, isPending } = useFetchGenres();
@@ -13,7 +14,9 @@ export default function GenreList() {
         <ul>
           {data.map((genre) => (
             <li key={genre.id}>
-              {genre.name} - {genre.ageRestriction}
+              <Link href={`/staff/dashboard/genres/${genre.id}/edit`}>
+                {genre.name} - {genre.ageRestriction}
+              </Link>
             </li>
           ))}
         </ul>

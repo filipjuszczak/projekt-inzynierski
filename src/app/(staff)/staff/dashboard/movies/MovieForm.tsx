@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useMemo, useTransition } from "react";
+import { Fragment, useEffect, useMemo, useTransition } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -23,13 +24,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { createMovieFormSchema, CreateMovieValues } from "@/lib/validation";
-import { useFetchMovieById } from "@/app/(staff)/staff/dashboard/movies/[id]/queries";
-import { useFetchGenres } from "@/app/(staff)/staff/dashboard/genres/queries";
 import { useToast } from "@/hooks/use-toast";
-import type { Genre } from "@/lib/types";
-import { createMovie } from "@/app/(staff)/staff/dashboard/movies/new/actions";
 import { validateMovieValues } from "@/lib/utils";
+import { useFetchMovieById } from "@/app/(staff)/staff/dashboard/movies/queries";
+import { useFetchGenres } from "@/app/(staff)/staff/dashboard/genres/queries";
+import {
+  createMovie,
+  editMovie
+} from "@/app/(staff)/staff/dashboard/movies/actions";
+import {
+  createMovieFormSchema,
+  type CreateMovieValues
+} from "@/lib/validation/movie";
+import type { Genre } from "@/lib/types";
 
 interface MovieFormProps {
   movieId?: string;
@@ -93,15 +100,56 @@ export default function MovieForm({ movieId }: MovieFormProps) {
     }
   });
 
+  useEffect(() => {
+    if (movieData) {
+      form.setValue("title", movieData.title);
+      form.setValue("description", movieData.description);
+      form.setValue("releaseYear", movieData.releaseYear.toString());
+      form.setValue("duration", movieData.duration.toString());
+      form.setValue(
+        "genres",
+        movieData.genres.map((genre) => genre.genreId)
+      );
+    }
+  }, [movieData, form]);
+
   async function onFormSubmit(values: CreateMovieValues) {
     if (!validateMovieValues(form, values)) return;
 
     startTransition(async () => {
-      const { error } = await createMovie(values);
+      let result;
+      let error;
+
+      if (movieId) {
+        result = await editMovie(movieId, values);
+        if ("error" in result) {
+          error = result.error;
+        }
+      } else {
+        result = await createMovie(values);
+        if ("error" in result) {
+          error = result.error;
+        }
+      }
+
       if (error) {
         toast({
           variant: "destructive",
           description: error
+        });
+        return;
+      }
+
+      if ("success" in result && result.success) {
+        toast({
+          variant: "default",
+          description: "Film został zapisany."
+        });
+        return redirect("/staff/dashboard/movies");
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Wystąpił błąd podczas zapisywania filmu."
         });
       }
     });

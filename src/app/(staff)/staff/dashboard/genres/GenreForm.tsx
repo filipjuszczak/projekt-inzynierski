@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useTransition } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,11 +22,16 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import LoadingButton from "@/components/LoadingButton";
-import createGenre from "@/app/(staff)/staff/dashboard/genres/new/actions";
-import editGenre from "@/app/(staff)/staff/dashboard/genres/[id]/edit/actions";
-import { createGenreFormSchema, type GenreValues } from "@/lib/validation";
 import { useToast } from "@/hooks/use-toast";
-import { useFetchGenreById } from "@/app/(staff)/staff/dashboard/genres/[id]/edit/queries";
+import {
+  createGenreFormSchema,
+  type CreateGenreValues
+} from "@/lib/validation/genre";
+import { useFetchGenreById } from "@/app/(staff)/staff/dashboard/genres/queries";
+import {
+  createGenre,
+  editGenre
+} from "@/app/(staff)/staff/dashboard/genres/actions";
 
 interface GenreFormProps {
   genreId?: string;
@@ -36,7 +42,7 @@ export default function GenreForm({ genreId }: GenreFormProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const form = useForm<GenreValues>({
+  const form = useForm<CreateGenreValues>({
     resolver: zodResolver(createGenreFormSchema),
     defaultValues: {
       name: "",
@@ -53,14 +59,20 @@ export default function GenreForm({ genreId }: GenreFormProps) {
     }
   }, [genreData, form]);
 
-  async function onFormSubmit(values: GenreValues) {
+  async function onFormSubmit(values: CreateGenreValues) {
     startTransition(async () => {
       let error;
 
       if (genreId) {
-        error = (await editGenre(genreId, values)).error;
+        const result = await editGenre(genreId, values);
+        if ("error" in result) {
+          error = result.error;
+        }
       } else {
-        error = (await createGenre(values)).error;
+        const result = await createGenre(values);
+        if ("error" in result) {
+          error = result.error;
+        }
       }
 
       if (error) {
@@ -68,7 +80,15 @@ export default function GenreForm({ genreId }: GenreFormProps) {
           variant: "destructive",
           description: error
         });
+        return;
       }
+
+      toast({
+        variant: "default",
+        description: "Gatunek został zapisany."
+      });
+
+      redirect("/staff/dashboard/genres");
     });
   }
 

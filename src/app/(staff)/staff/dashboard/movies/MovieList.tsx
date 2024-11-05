@@ -1,10 +1,10 @@
 "use client";
 
 import { useFetchMovies } from "@/app/(staff)/staff/dashboard/movies/queries";
+import Link from "next/link";
 
 export default function MovieList() {
   const { data: moviesData, isFetching } = useFetchMovies();
-  console.log(moviesData);
 
   return (
     <div>
@@ -14,7 +14,9 @@ export default function MovieList() {
         <ul>
           {moviesData.map((movie) => (
             <li key={movie.id}>
-              <div>{movie.title}</div>
+              <Link href={`/staff/dashboard/movies/${movie.id}/edit`}>
+                {movie.title}
+              </Link>
             </li>
           ))}
         </ul>

@@ -8,7 +8,7 @@ import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
 import { authEmployee } from "@/app/(staff)/staff/auth";
 import { isValidEmail } from "@/lib/utils";
-import { loginFormSchema, type Credentials } from "@/lib/validation";
+import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 
 export async function logIn(
   credentials: Credentials
