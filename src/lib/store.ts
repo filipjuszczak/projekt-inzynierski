@@ -1,5 +1,5 @@
 import { createStore } from "zustand/vanilla";
-import { persist } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 
 export type UserState = {
   firstName: string;
@@ -24,13 +24,15 @@ export const defaultState: UserState = {
 
 export const createUserStore = (initialState: UserState = defaultState) => {
   return createStore<UserStore>()(
-    persist(
-      (set) => ({
-        ...initialState,
-        setUserData: (data: UserState) => set(data),
-        resetUserData: () => set(defaultState)
-      }),
-      { name: "zustand-store" }
+    devtools(
+      persist(
+        (set) => ({
+          ...initialState,
+          setUserData: (data: UserState) => set(data),
+          resetUserData: () => set(defaultState)
+        }),
+        { name: "zustand-store" }
+      )
     )
   );
 };
