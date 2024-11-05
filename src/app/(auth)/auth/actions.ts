@@ -12,7 +12,7 @@ import {
   signupFormSchema,
   type Credentials,
   type SignupValues
-} from "@/lib/validation";
+} from "@/lib/validation/auth";
 import {
   forbiddenUsernames,
   isValidDate,
@@ -20,8 +20,11 @@ import {
   passwordsMatch,
   allowedUsernameRegex
 } from "@/lib/utils";
+import type { UserData } from "@/lib/types";
 
-export async function signUp(data: SignupValues): Promise<{ error: string }> {
+export async function signUp(
+  data: SignupValues
+): Promise<{ error: string } | UserData> {
   try {
     const {
       username,
@@ -87,7 +90,7 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
       parallelism: 1
     });
 
-    await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         id: userId,
         firstName,
@@ -110,7 +113,14 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
       sessionCookie.attributes
     );
 
-    return redirect("/");
+    // return redirect("/");
+
+    return {
+      firstName: createdUser.firstName,
+      lastName: createdUser.lastName,
+      username: createdUser.username || "",
+      email: createdUser.email
+    };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
@@ -118,15 +128,9 @@ export async function signUp(data: SignupValues): Promise<{ error: string }> {
   }
 }
 
-export async function logIn(credentials: Credentials): Promise<
-  | { error: string }
-  | {
-      firstName: string;
-      lastName: string;
-      username: string;
-      email: string;
-    }
-> {
+export async function logIn(
+  credentials: Credentials
+): Promise<{ error: string } | UserData> {
   try {
     const { login, password } = loginFormSchema.parse(credentials);
 

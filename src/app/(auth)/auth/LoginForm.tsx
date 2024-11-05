@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { loginFormSchema, type Credentials } from "@/lib/validation";
+import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import { useToast } from "@/hooks/use-toast";
 import { logIn } from "@/app/(auth)/auth/actions";
 import { redirect } from "next/navigation";
@@ -51,6 +51,11 @@ export default function LoginForm() {
         lastName: result.lastName,
         username: result.username,
         email: result.email
+      });
+
+      toast({
+        variant: "default",
+        description: "Zalogowano pomyślnie!"
       });
 
       redirect("/");

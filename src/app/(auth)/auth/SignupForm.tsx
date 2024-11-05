@@ -22,12 +22,17 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import LoadingButton from "@/components/LoadingButton";
-import { signupFormSchema, type SignupValues } from "@/lib/validation";
+import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
 import { signUp } from "@/app/(auth)/auth/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useUserStore } from "@/hooks/use-user-store";
+import { useShallow } from "zustand/react/shallow";
+import { redirect } from "next/navigation";
 
 export default function SignupForm() {
+  const setUserData = useUserStore(useShallow((state) => state.setUserData));
+
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -51,13 +56,28 @@ export default function SignupForm() {
     if (!validateSignupValues(form, values)) return;
 
     startTransition(async () => {
-      const { error } = await signUp(values);
-      if (error) {
+      const result = await signUp(values);
+      if ("error" in result) {
         toast({
           variant: "destructive",
-          description: error
+          description: result.error
         });
+        return;
       }
+
+      setUserData({
+        firstName: result.firstName,
+        lastName: result.lastName,
+        username: result.username,
+        email: result.email
+      });
+
+      toast({
+        variant: "default",
+        description: "Konto zostało utworzone!"
+      });
+
+      redirect("/");
     });
   }
 
