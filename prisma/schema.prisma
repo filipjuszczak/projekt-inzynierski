@@ -55,6 +55,7 @@ model Showtime {
   startTime DateTime
   endTime   DateTime
   createdBy String
+  updatedBy String
   seats     Seat[]
   orders    Order[]
   createdAt DateTime @default(now())
@@ -71,6 +72,7 @@ model Movie {
   duration    Int
   posterUrl   String?
   createdBy   String
+  updatedBy   String
   genres      GenresOnMovies[]
   showtimes   Showtime[]
   createdAt   DateTime         @default(now())
@@ -84,6 +86,7 @@ model Genre {
   name           String           @unique
   ageRestriction Int
   createdBy      String
+  updatedBy      String
   movies         GenresOnMovies[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -108,7 +111,8 @@ model Room {
   seatsPerRow  Int
   showtimes    Showtime[]
   seats        Seat[]
-  createdBy    String
+  createdById  String
+  updatedById  String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -121,11 +125,14 @@ enum TicketType {
 }
 
 model Ticket {
-  id         String     @id @default(cuid())
-  ticketType TicketType
-  price      Float
-  orders     Order[]
-  createdAt  DateTime   @default(now())
+  id          String     @id @default(cuid())
+  ticketType  TicketType
+  price       Float
+  orders      Order[]
+  createdById String
+  updatedById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@map("tickets")
 }
