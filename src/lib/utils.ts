@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { UseFormReturn } from "react-hook-form";
-import type { CreateMovieValues, SignupValues } from "@/lib/validation";
+import type { SignupValues } from "@/lib/validation/auth";
+import type { CreateMovieValues } from "@/lib/validation/movie";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
