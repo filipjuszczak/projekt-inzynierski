@@ -31,6 +31,7 @@ model User {
   sessions     Session[]
   seats        Seat[]
   orders       Order[]
+  ratings      Rating[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -46,20 +47,27 @@ model Session {
   @@map("sessions")
 }
 
+enum ShowtimeStatus {
+  UPCOMING
+  ONGOING
+  FINISHED
+}
+
 model Showtime {
-  id        String   @id @default(cuid())
-  movie     Movie    @relation(fields: [movieId], references: [id])
+  id        String         @id @default(cuid())
+  movie     Movie          @relation(fields: [movieId], references: [id])
   movieId   String
-  room      Room     @relation(fields: [roomId], references: [id])
+  room      Room           @relation(fields: [roomId], references: [id])
   roomId    String
   startTime DateTime
   endTime   DateTime
+  status    ShowtimeStatus
   createdBy String
-  updatedBy String
+  updatedBy String?
   seats     Seat[]
   orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@map("showtimes")
 }
@@ -72,9 +80,10 @@ model Movie {
   duration    Int
   posterUrl   String?
   createdBy   String
-  updatedBy   String
+  updatedBy   String?
   genres      GenresOnMovies[]
   showtimes   Showtime[]
+  ratings     Rating[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -86,7 +95,7 @@ model Genre {
   name           String           @unique
   ageRestriction Int
   createdBy      String
-  updatedBy      String
+  updatedBy      String?
   movies         GenresOnMovies[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -111,8 +120,8 @@ model Room {
   seatsPerRow  Int
   showtimes    Showtime[]
   seats        Seat[]
-  createdById  String
-  updatedById  String
+  createdBy    String
+  updatedBy    String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -125,14 +134,14 @@ enum TicketType {
 }
 
 model Ticket {
-  id          String     @id @default(cuid())
-  ticketType  TicketType
-  price       Float
-  orders      Order[]
-  createdById String
-  updatedById String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id         String     @id @default(cuid())
+  ticketType TicketType
+  price      Float
+  orders     Order[]
+  createdBy  String
+  updatedBy  String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@map("tickets")
 }
@@ -170,4 +179,18 @@ model Seat {
 
   @@unique([showtimeId, rowNumber, seatNumber])
   @@map("seats")
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, movieId])
+  @@map("ratings")
 }
