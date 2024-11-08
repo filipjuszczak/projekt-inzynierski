@@ -38,22 +38,18 @@ export async function signUp(
       confirmedPassword
     } = signupFormSchema.parse(data);
 
-    // check if username doesn't contain forbidden characters
     if (username && !allowedUsernameRegex.test(username)) {
       return { error: "Nazwa użytkownika zawiera niedozwolone znaki" };
     }
 
-    // check if username is not in the list of forbidden usernames
     if (username && forbiddenUsernames.includes(username.toLowerCase())) {
       return { error: "Nazwa użytkownika jest zablokowana" };
     }
 
-    // check if date of birth is valid
     if (!isValidDate(dayOfBirth, monthOfBirth, yearOfBirth)) {
       return { error: "Nieprawidłowa data" };
     }
 
-    // check if user is at least 12 years old
     const now = new Date();
     const birthDate = new Date(
       Number(yearOfBirth),
@@ -68,12 +64,10 @@ export async function signUp(
       return { error: "Musisz mieć co najmniej 12 lat" };
     }
 
-    // check if passwords match
     if (!passwordsMatch(password, confirmedPassword)) {
       return { error: "Hasła nie są identyczne" };
     }
 
-    // check if user with the same email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
     });
@@ -101,7 +95,8 @@ export async function signUp(
           Number(monthOfBirth) - 1,
           Number(dayOfBirth)
         ),
-        passwordHash
+        passwordHash,
+        username: username || null
       }
     });
 
@@ -113,13 +108,15 @@ export async function signUp(
       sessionCookie.attributes
     );
 
-    // return redirect("/");
-
     return {
-      firstName: createdUser.firstName,
-      lastName: createdUser.lastName,
-      username: createdUser.username || "",
-      email: createdUser.email
+      success: true,
+      userData: {
+        firstName: createdUser.firstName,
+        lastName: createdUser.lastName,
+        username: createdUser.username || "",
+        email: createdUser.email,
+        userType: createdUser.userType
+      }
     };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -134,7 +131,6 @@ export async function logIn(
   try {
     const { login, password } = loginFormSchema.parse(credentials);
 
-    // check if user with the provided email or username exists
     const existingUser = isValidEmail(login)
       ? await prisma.user.findUnique({ where: { email: login } })
       : await prisma.user.findUnique({ where: { username: login } });
@@ -166,12 +162,15 @@ export async function logIn(
       sessionCookie.attributes
     );
 
-    // return redirect("/");
     return {
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
-      username: existingUser.username || "",
-      email: existingUser.email
+      success: true,
+      userData: {
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        username: existingUser.username || "",
+        email: existingUser.email,
+        userType: existingUser.userType
+      }
     };
   } catch (error) {
     if (isRedirectError(error)) throw error;

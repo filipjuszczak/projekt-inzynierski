@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
 import { AtSign, KeyRound } from "lucide-react";
 import {
   Form,
@@ -16,16 +17,13 @@ import {
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
-import { useToast } from "@/hooks/use-toast";
 import { logIn } from "@/app/(auth)/auth/actions";
 import { redirect } from "next/navigation";
 import { useUserStore } from "@/hooks/use-user-store";
 
 export default function LoginForm() {
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
-
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
@@ -35,36 +33,34 @@ export default function LoginForm() {
     }
   });
 
-  async function onSubmit(credentials: Credentials) {
+  async function onFormSubmit(credentials: Credentials) {
     startTransition(async () => {
       const result = await logIn(credentials);
+
       if ("error" in result) {
-        toast({
-          variant: "destructive",
-          description: result.error
-        });
+        toast.error(result.error);
         return;
       }
 
-      setUserData({
-        firstName: result.firstName,
-        lastName: result.lastName,
-        username: result.username,
-        email: result.email
-      });
-
-      toast({
-        variant: "default",
-        description: "Zalogowano pomyślnie!"
-      });
-
-      redirect("/");
+      if ("success" in result && result.success) {
+        setUserData({
+          firstName: result.userData.firstName,
+          lastName: result.userData.lastName,
+          username: result.userData.username,
+          email: result.userData.email,
+          userType: result.userData.userType
+        });
+        toast.success("Zalogowano pomyślnie!");
+        return redirect("/");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      }
     });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
         <FormField
           name="login"
           control={form.control}

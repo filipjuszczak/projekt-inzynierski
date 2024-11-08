@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -25,16 +26,13 @@ import LoadingButton from "@/components/LoadingButton";
 import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
 import { signUp } from "@/app/(auth)/auth/actions";
-import { useToast } from "@/hooks/use-toast";
 import { useUserStore } from "@/hooks/use-user-store";
 import { useShallow } from "zustand/react/shallow";
 import { redirect } from "next/navigation";
 
 export default function SignupForm() {
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
-
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupFormSchema),
@@ -52,38 +50,35 @@ export default function SignupForm() {
     }
   });
 
-  async function onSubmit(values: SignupValues) {
+  async function onFormSubmit(values: SignupValues) {
     if (!validateSignupValues(form, values)) return;
 
     startTransition(async () => {
       const result = await signUp(values);
       if ("error" in result) {
-        toast({
-          variant: "destructive",
-          description: result.error
-        });
+        toast.error(result.error);
         return;
       }
 
-      setUserData({
-        firstName: result.firstName,
-        lastName: result.lastName,
-        username: result.username,
-        email: result.email
-      });
-
-      toast({
-        variant: "default",
-        description: "Konto zostało utworzone!"
-      });
-
-      redirect("/");
+      if ("success" in result && result.success) {
+        setUserData({
+          firstName: result.userData.firstName,
+          lastName: result.userData.lastName,
+          username: result.userData.username,
+          email: result.userData.email,
+          userType: result.userData.userType
+        });
+        toast.success("Konto zostało utworzone pomyślnie.");
+        return redirect("/");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      }
     });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
         <FormField
           name="username"
           control={form.control}
@@ -152,7 +147,7 @@ export default function SignupForm() {
                     defaultValue={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="01" />
+                      <SelectValue placeholder="Wybierz..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -184,7 +179,7 @@ export default function SignupForm() {
                     defaultValue={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="01" />
+                      <SelectValue placeholder="Wybierz..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -216,7 +211,7 @@ export default function SignupForm() {
                     defaultValue={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="1990" />
+                      <SelectValue placeholder="Wybierz..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
