@@ -1,11 +1,13 @@
 import { createStore } from "zustand/vanilla";
 import { devtools, persist } from "zustand/middleware";
+import { UserType } from "@prisma/client";
 
 export type UserState = {
   firstName: string;
   lastName: string;
   username: string;
   email: string;
+  userType: UserType | null;
 };
 
 export type UserActions = {
@@ -19,7 +21,8 @@ export const defaultState: UserState = {
   firstName: "",
   lastName: "",
   username: "",
-  email: ""
+  email: "",
+  userType: null
 };
 
 export const createUserStore = (initialState: UserState = defaultState) => {
