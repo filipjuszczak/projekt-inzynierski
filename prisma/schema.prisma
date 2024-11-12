@@ -28,10 +28,12 @@ model User {
   dateOfBirth  DateTime
   passwordHash String
   userType     UserType  @default(NORMAL)
+  isActivated  Boolean   @default(false)
   sessions     Session[]
   seats        Seat[]
   orders       Order[]
   ratings      Rating[]
+  tokens       Token[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -45,6 +47,25 @@ model Session {
   expiresAt DateTime
 
   @@map("sessions")
+}
+
+enum TokenType {
+  ACTIVATION
+  PASSWORD_RESET
+}
+
+model Token {
+  id        String    @id @default(cuid())
+  userId    String
+  type      TokenType
+  value     String
+  isActive  Boolean   @default(true)
+  expiresAt DateTime
+  User      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("tokens")
 }
 
 enum ShowtimeStatus {
