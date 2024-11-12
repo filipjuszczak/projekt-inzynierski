@@ -4,21 +4,16 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { authEmployee } from "@/app/(staff)/staff/auth";
 import prisma from "@/lib/prisma";
-import {
-  createGenreFormSchema,
-  editGenreFormSchema,
-  type CreateGenreValues,
-  type EditGenreValues
-} from "@/lib/validation/genre";
+import { genreSchema, type GenreValues } from "@/lib/validation/genre";
 
-export async function createGenre(values: CreateGenreValues) {
+export async function createGenre(values: GenreValues) {
   try {
     const { session } = await authEmployee();
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
 
-    const { name, ageRestriction } = createGenreFormSchema.parse(values);
+    const { name, ageRestriction } = genreSchema.parse(values);
 
     const existingGenre = await prisma.genre.findFirst({
       where: { name }
@@ -32,7 +27,8 @@ export async function createGenre(values: CreateGenreValues) {
       data: {
         name,
         ageRestriction: Number(ageRestriction),
-        createdBy: session.userId
+        createdBy: session.userId,
+        updatedBy: null
       }
     });
 
@@ -44,28 +40,30 @@ export async function createGenre(values: CreateGenreValues) {
   }
 }
 
-export async function editGenre(id: string, values: EditGenreValues) {
+export async function editGenre(id: string, values: GenreValues) {
   try {
     const { session } = await authEmployee();
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
 
-    const { name, ageRestriction } = editGenreFormSchema.parse(values);
+    const { name, ageRestriction } = genreSchema.parse(values);
 
-    if (name) {
-      const existingGenre = await prisma.genre.findFirst({
-        where: { name }
-      });
+    const existingGenre = await prisma.genre.findFirst({
+      where: { name }
+    });
 
-      if (existingGenre && existingGenre.id !== id) {
-        return { error: "Gatunek o tej nazwie już istnieje." };
-      }
+    if (existingGenre && existingGenre.id !== id) {
+      return { error: "Gatunek o tej nazwie już istnieje." };
     }
 
     await prisma.genre.update({
       where: { id },
-      data: { name, ageRestriction: Number(ageRestriction) }
+      data: {
+        name,
+        ageRestriction: Number(ageRestriction),
+        updatedBy: session.userId
+      }
     });
 
     return { success: true };
@@ -83,7 +81,16 @@ export async function deleteGenre(id: string) {
       return redirect("/staff/login");
     }
 
+    const existingGenre = await prisma.genre.findFirst({
+      where: { id }
+    });
+
+    if (!existingGenre) {
+      return { error: "Gatunek nie istnieje." };
+    }
+
     await prisma.genre.delete({ where: { id } });
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;

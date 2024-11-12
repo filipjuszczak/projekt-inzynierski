@@ -4,6 +4,7 @@ import { useEffect, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -22,11 +23,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import LoadingButton from "@/components/LoadingButton";
-import { useToast } from "@/hooks/use-toast";
-import {
-  createGenreFormSchema,
-  type CreateGenreValues
-} from "@/lib/validation/genre";
+import { genreSchema, type GenreValues } from "@/lib/validation/genre";
 import { useFetchGenreById } from "@/app/(staff)/staff/dashboard/genres/queries";
 import {
   createGenre,
@@ -40,10 +37,9 @@ interface GenreFormProps {
 export default function GenreForm({ genreId }: GenreFormProps) {
   const { data: genreData, isFetching, isError } = useFetchGenreById(genreId);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
-  const form = useForm<CreateGenreValues>({
-    resolver: zodResolver(createGenreFormSchema),
+  const form = useForm<GenreValues>({
+    resolver: zodResolver(genreSchema),
     defaultValues: {
       name: "",
       ageRestriction: ""
@@ -59,36 +55,34 @@ export default function GenreForm({ genreId }: GenreFormProps) {
     }
   }, [genreData, form]);
 
-  async function onFormSubmit(values: CreateGenreValues) {
+  async function onFormSubmit(values: GenreValues) {
     startTransition(async () => {
+      let result;
       let error;
 
       if (genreId) {
-        const result = await editGenre(genreId, values);
+        result = await editGenre(genreId, values);
         if ("error" in result) {
           error = result.error;
         }
       } else {
-        const result = await createGenre(values);
+        result = await createGenre(values);
         if ("error" in result) {
           error = result.error;
         }
       }
 
       if (error) {
-        toast({
-          variant: "destructive",
-          description: error
-        });
+        toast.error(error);
         return;
       }
 
-      toast({
-        variant: "default",
-        description: "Gatunek został zapisany."
-      });
-
-      redirect("/staff/dashboard/genres");
+      if ("success" in result && result.success) {
+        toast.success("Gatunek został pomyślnie zapisany.");
+        return redirect("/staff/dashboard/genres");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      }
     });
   }
 
@@ -100,7 +94,9 @@ export default function GenreForm({ genreId }: GenreFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Nazwa gatunku</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Nazwa gatunku (wymagane)
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder={isFetching ? "Ładowanie..." : ""}
@@ -117,7 +113,9 @@ export default function GenreForm({ genreId }: GenreFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem className="flex-1">
-              <FormLabel htmlFor={field.name}>Ograniczenie wiekowe</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Ograniczenie wiekowe (wymagane)
+              </FormLabel>
               <Select
                 onValueChange={field.onChange}
                 value={field.value}

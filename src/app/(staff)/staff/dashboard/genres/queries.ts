@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import ky from "ky";
-import type { Genre } from "@/lib/types";
+import type { Genre, GenreWithMovieCount } from "@/lib/types";
 
 export const useFetchGenres = () => {
   return useQuery({
     queryKey: ["genres"],
-    queryFn: () => ky.get("/api/genres").json<Genre[]>()
+    queryFn: () => ky.get("/api/genres").json<GenreWithMovieCount[]>()
   });
 };
 
