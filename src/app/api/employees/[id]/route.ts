@@ -12,23 +12,21 @@ export async function GET(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const movieId = (await params).id;
-    const movie = await prisma.movie.findFirst({
-      where: { id: movieId },
+    const employeeId = (await params).id;
+    const employee = await prisma.user.findUnique({
+      where: { id: employeeId },
       select: {
         id: true,
-        title: true,
-        description: true,
-        releaseYear: true,
-        duration: true,
-        posterUrl: true,
-        genres: {
-          select: { genreId: true }
-        }
+        username: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        dateOfBirth: true,
+        userType: true
       }
     });
 
-    return Response.json(movie);
+    return Response.json(employee);
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

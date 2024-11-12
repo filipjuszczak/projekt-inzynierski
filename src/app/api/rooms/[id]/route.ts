@@ -14,7 +14,13 @@ export async function GET(
 
     const roomId = (await params).id;
     const room = await prisma.room.findFirst({
-      where: { id: roomId }
+      where: { id: roomId },
+      select: {
+        id: true,
+        number: true,
+        numberOfRows: true,
+        seatsPerRow: true
+      }
     });
 
     return Response.json(room);

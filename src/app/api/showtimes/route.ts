@@ -9,7 +9,7 @@ export async function GET() {
     }
 
     const showtimes = await prisma.showtime.findMany({
-      include: {
+      select: {
         movie: {
           select: {
             id: true,
@@ -39,6 +39,7 @@ export async function GET() {
         }
       }
     });
+
     return Response.json(showtimes);
   } catch (error) {
     console.error(error);

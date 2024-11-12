@@ -8,8 +8,20 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const genres = await prisma.genre.findMany();
-    return Response.json(genres);
+    const genresWithMovieCount = await prisma.genre.findMany({
+      select: {
+        id: true,
+        name: true,
+        ageRestriction: true,
+        _count: {
+          select: {
+            movies: true
+          }
+        }
+      }
+    });
+
+    return Response.json(genresWithMovieCount);
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

@@ -8,7 +8,15 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rooms = await prisma.room.findMany();
+    const rooms = await prisma.room.findMany({
+      select: {
+        id: true,
+        number: true,
+        numberOfRows: true,
+        seatsPerRow: true
+      }
+    });
+
     return Response.json(rooms);
   } catch (error) {
     console.error(error);

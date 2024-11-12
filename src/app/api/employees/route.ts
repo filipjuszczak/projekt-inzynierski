@@ -1,28 +1,32 @@
 import prisma from "@/lib/prisma";
 import { authEmployee } from "@/app/(staff)/staff/auth";
-import type { NextRequest } from "next/server";
+import { UserType } from "@prisma/client";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET() {
   try {
     const { user } = await authEmployee();
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const genreId = (await params).id;
-    const genre = await prisma.genre.findFirst({
-      where: { id: genreId },
+    const employees = await prisma.user.findMany({
+      where: {
+        userType: {
+          in: [UserType.EMPLOYEE, UserType.ADMIN]
+        }
+      },
       select: {
         id: true,
-        name: true,
-        ageRestriction: true
+        username: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        dateOfBirth: true,
+        userType: true
       }
     });
 
-    return Response.json(genre);
+    return Response.json(employees);
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
