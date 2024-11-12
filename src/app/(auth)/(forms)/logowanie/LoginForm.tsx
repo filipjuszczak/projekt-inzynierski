@@ -17,9 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
-import { logIn } from "@/app/(auth)/auth/actions";
+import { logIn } from "@/app/(auth)/(forms)/actions";
 import { redirect } from "next/navigation";
 import { useUserStore } from "@/hooks/use-user-store";
+import Link from "next/link";
 
 export default function LoginForm() {
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
@@ -106,6 +107,11 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
+        <div>
+          <Link href="/zresetuj-haslo" className="underline">
+            Nie pamiętasz hasła?
+          </Link>
+        </div>
         <LoadingButton
           isPending={isPending}
           idleText="Zaloguj się"

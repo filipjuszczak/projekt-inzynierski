@@ -25,13 +25,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import LoadingButton from "@/components/LoadingButton";
 import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
-import { signUp } from "@/app/(auth)/auth/actions";
-import { useUserStore } from "@/hooks/use-user-store";
-import { useShallow } from "zustand/react/shallow";
-import { redirect } from "next/navigation";
+import { signUp } from "@/app/(auth)/(forms)/actions";
 
-export default function SignupForm() {
-  const setUserData = useUserStore(useShallow((state) => state.setUserData));
+interface SignupFormProps {
+  onSuccessfulSignUp: () => void;
+}
+
+export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<SignupValues>({
@@ -61,15 +61,10 @@ export default function SignupForm() {
       }
 
       if ("success" in result && result.success) {
-        setUserData({
-          firstName: result.userData.firstName,
-          lastName: result.userData.lastName,
-          username: result.userData.username,
-          email: result.userData.email,
-          userType: result.userData.userType
-        });
-        toast.success("Konto zostało utworzone pomyślnie.");
-        return redirect("/");
+        onSuccessfulSignUp();
+        toast.success(
+          "Konto zostało utworzone pomyślnie! Sprawdź swoją skrzynkę e-mail, aby aktywować konto."
+        );
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }
