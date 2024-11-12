@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useTransition } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -33,9 +34,10 @@ import { useFetchShowtimeById } from "@/app/(staff)/staff/dashboard/showtimes/qu
 import { useFetchMovies } from "@/app/(staff)/staff/dashboard/movies/queries";
 import { useFetchRooms } from "@/app/(staff)/staff/dashboard/rooms/queries";
 import {
-  createShowtimeFormSchema,
-  type CreateShowtimeValues
-} from "@/lib/validation/showtime";
+  createShowtime,
+  editShowtime
+} from "@/app/(staff)/staff/dashboard/showtimes/actions";
+import { showtimeSchema, type ShowtimeValues } from "@/lib/validation/showtime";
 import { cn } from "@/lib/utils";
 
 interface ShowtimeFormProps {
@@ -59,10 +61,9 @@ export default function ShowtimeForm({ showtimeId }: ShowtimeFormProps) {
     isError: roomsDataIsError
   } = useFetchRooms();
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
-  const form = useForm<CreateShowtimeValues>({
-    resolver: zodResolver(createShowtimeFormSchema),
+  const form = useForm<ShowtimeValues>({
+    resolver: zodResolver(showtimeSchema),
     defaultValues: {
       movieId: "",
       roomId: "",
@@ -74,7 +75,7 @@ export default function ShowtimeForm({ showtimeId }: ShowtimeFormProps) {
 
   useEffect(() => {
     if (showtimeData) {
-      const date = new Date(showtimeData.startDate);
+      const date = new Date(showtimeData.startTime);
       form.reset({
         movieId: showtimeData.movie.id,
         roomId: showtimeData.room.id,
@@ -89,8 +90,35 @@ export default function ShowtimeForm({ showtimeId }: ShowtimeFormProps) {
     }
   }, [showtimeData, form]);
 
-  async function onFormSubmit(values: CreateShowtimeValues) {
-    console.log(values);
+  async function onFormSubmit(values: ShowtimeValues) {
+    startTransition(async () => {
+      let result;
+      let error;
+
+      if (showtimeId) {
+        result = await editShowtime(showtimeId, values);
+        if ("error" in result) {
+          error = result.error;
+        }
+      } else {
+        result = await createShowtime(values);
+        if ("error" in result) {
+          error = result.error;
+        }
+      }
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      if ("success" in result && result.success) {
+        toast.success("Seans został zapisany.");
+        return redirect("/staff/dashboard/showtimes");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      }
+    });
   }
 
   return (
@@ -198,6 +226,56 @@ export default function ShowtimeForm({ showtimeId }: ShowtimeFormProps) {
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            name="startTimeHour"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex flex-col gap-2">
+                <FormLabel htmlFor={field.name}>Godzina</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Wybierz..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 24 }, (_, i) => (
+                        <SelectItem key={`hour-${i}`} value={i.toString()}>
+                          {i.toString().padStart(2, "0")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="startTimeMinute"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex flex-col gap-2">
+                <FormLabel htmlFor={field.name}>Minuta</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Wybierz..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 60 }, (_, i) => (
+                        <SelectItem key={`minute-${i}`} value={i.toString()}>
+                          {i.toString().padStart(2, "0")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <LoadingButton
           isPending={isPending}
           isFetching={
@@ -206,7 +284,7 @@ export default function ShowtimeForm({ showtimeId }: ShowtimeFormProps) {
             roomsDataIsFetching
           }
           isError={showtimeDataIsError || moviesDataIsError || roomsDataIsError}
-          idleText="Utwórz"
+          idleText={showtimeId ? "Zapisz" : "Utwórz"}
           loadingText="Wysyłanie..."
           className="w-full"
         />
