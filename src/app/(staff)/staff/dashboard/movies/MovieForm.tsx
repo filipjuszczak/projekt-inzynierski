@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   Form,
   FormField,
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { useToast } from "@/hooks/use-toast";
 import { validateMovieValues } from "@/lib/utils";
 import { useFetchMovieById } from "@/app/(staff)/staff/dashboard/movies/queries";
 import { useFetchGenres } from "@/app/(staff)/staff/dashboard/genres/queries";
@@ -32,10 +32,7 @@ import {
   createMovie,
   editMovie
 } from "@/app/(staff)/staff/dashboard/movies/actions";
-import {
-  createMovieFormSchema,
-  type CreateMovieValues
-} from "@/lib/validation/movie";
+import { movieSchema, type MovieValues } from "@/lib/validation/movie";
 import type { Genre } from "@/lib/types";
 
 interface MovieFormProps {
@@ -54,7 +51,6 @@ export default function MovieForm({ movieId }: MovieFormProps) {
     isError: genresDataIsError
   } = useFetchGenres();
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const genresLabels = useMemo(
     () => ({
@@ -89,10 +85,11 @@ export default function MovieForm({ movieId }: MovieFormProps) {
     form.setValue("genres", updatedGenres);
   }
 
-  const form = useForm<CreateMovieValues>({
-    resolver: zodResolver(createMovieFormSchema),
+  const form = useForm<MovieValues>({
+    resolver: zodResolver(movieSchema),
     defaultValues: {
       title: "",
+      posterUrl: "",
       description: "",
       releaseYear: "",
       duration: "",
@@ -103,6 +100,7 @@ export default function MovieForm({ movieId }: MovieFormProps) {
   useEffect(() => {
     if (movieData) {
       form.setValue("title", movieData.title);
+      form.setValue("posterUrl", movieData.posterUrl);
       form.setValue("description", movieData.description);
       form.setValue("releaseYear", movieData.releaseYear.toString());
       form.setValue("duration", movieData.duration.toString());
@@ -113,7 +111,7 @@ export default function MovieForm({ movieId }: MovieFormProps) {
     }
   }, [movieData, form]);
 
-  async function onFormSubmit(values: CreateMovieValues) {
+  async function onFormSubmit(values: MovieValues) {
     if (!validateMovieValues(form, values)) return;
 
     startTransition(async () => {
@@ -133,24 +131,17 @@ export default function MovieForm({ movieId }: MovieFormProps) {
       }
 
       if (error) {
-        toast({
-          variant: "destructive",
-          description: error
-        });
+        toast.error(error);
         return;
       }
 
       if ("success" in result && result.success) {
-        toast({
-          variant: "default",
-          description: "Film został zapisany."
-        });
+        toast.success("Film został zapisany.");
         return redirect("/staff/dashboard/movies");
       } else {
-        toast({
-          variant: "destructive",
-          description: "Wystąpił błąd podczas zapisywania filmu."
-        });
+        toast.error(
+          "Wystąpił błąd podczas zapisywania filmu. Spróbuj później."
+        );
       }
     });
   }
@@ -163,7 +154,24 @@ export default function MovieForm({ movieId }: MovieFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Tytuł filmu</FormLabel>
+              <FormLabel htmlFor={field.name}>Tytuł filmu (wymagane)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={movieDataIsFetching ? "Ładowanie..." : ""}
+                  disabled={movieDataIsFetching || movieDataIsError}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="posterUrl"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>Link do plakatu</FormLabel>
               <FormControl>
                 <Input
                   placeholder={movieDataIsFetching ? "Ładowanie..." : ""}
@@ -180,7 +188,7 @@ export default function MovieForm({ movieId }: MovieFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Opis filmu</FormLabel>
+              <FormLabel htmlFor={field.name}>Opis filmu (wymagane)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder={movieDataIsFetching ? "Ładowanie..." : ""}
@@ -198,7 +206,9 @@ export default function MovieForm({ movieId }: MovieFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Rok produkcji</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Rok produkcji (wymagane)
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder={movieDataIsFetching ? "Ładowanie..." : ""}
@@ -216,7 +226,7 @@ export default function MovieForm({ movieId }: MovieFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel htmlFor={field.name}>
-                Czas trwania (w minutach)
+                Czas trwania (w minutach, wymagane)
               </FormLabel>
               <FormControl>
                 <Input
@@ -234,7 +244,9 @@ export default function MovieForm({ movieId }: MovieFormProps) {
           control={form.control}
           render={({ field }) => (
             <FormItem className="flex flex-col gap-2">
-              <FormLabel htmlFor={field.name}>Gatunki</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Gatunki (wymagane min. 1)
+              </FormLabel>
               <FormControl>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

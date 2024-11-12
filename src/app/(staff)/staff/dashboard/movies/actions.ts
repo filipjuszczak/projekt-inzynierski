@@ -2,22 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
-import prisma from "@/lib/prisma";
 import { authEmployee } from "@/app/(staff)/staff/auth";
-import {
-  createMovieFormSchema,
-  type CreateMovieValues
-} from "@/lib/validation/movie";
+import prisma from "@/lib/prisma";
+import { movieSchema, type MovieValues } from "@/lib/validation/movie";
 
-export async function createMovie(values: CreateMovieValues) {
+export async function createMovie(values: MovieValues) {
   try {
     const { session } = await authEmployee();
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
 
-    const { title, description, duration, releaseYear, genres } =
-      createMovieFormSchema.parse(values);
+    const { title, posterUrl, description, duration, releaseYear, genres } =
+      movieSchema.parse(values);
 
     const existingMovie = await prisma.movie.findFirst({
       where: { title }
@@ -34,10 +31,12 @@ export async function createMovie(values: CreateMovieValues) {
     const createdMovie = await prisma.movie.create({
       data: {
         title,
+        posterUrl,
         description,
         duration: Number(duration),
         releaseYear: Number(releaseYear),
-        createdBy: session.userId
+        createdBy: session.userId,
+        updatedBy: null
       }
     });
 
@@ -56,9 +55,56 @@ export async function createMovie(values: CreateMovieValues) {
   }
 }
 
-export async function editMovie(movieId: string, values: EditMovieValues) {
+export async function editMovie(movieId: string, values: MovieValues) {
   try {
-    return { success: true };
+    const { session } = await authEmployee();
+    if (!session || !session.userId) {
+      return redirect("/staff/login");
+    }
+
+    const { title, posterUrl, description, duration, releaseYear, genres } =
+      movieSchema.parse(values);
+
+    const existingMovie = await prisma.movie.findFirst({
+      where: { title }
+    });
+
+    if (existingMovie && existingMovie.id !== movieId) {
+      return { error: "Film o takim tytule już istnieje." };
+    }
+
+    if (Number(duration) < 1) {
+      return { error: "Czas trwania filmu musi być większy niż 0." };
+    }
+
+    if (Number(releaseYear) <= 1888) {
+      return { error: "Rok premiery filmu musi być większy niż 1888." };
+    }
+
+    await prisma.movie.update({
+      where: { id: movieId },
+      data: {
+        title,
+        posterUrl,
+        description,
+        duration: Number(duration),
+        releaseYear: Number(releaseYear),
+        updatedBy: session.userId
+      }
+    });
+
+    await prisma.genresOnMovies.deleteMany({
+      where: { movieId }
+    });
+
+    await prisma.genresOnMovies.createMany({
+      data: genres.map((genreId) => ({
+        movieId,
+        genreId
+      }))
+    });
+
+    return redirect("/staff/dashboard/movies");
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
