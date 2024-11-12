@@ -8,6 +8,7 @@ export default function RoomList() {
   return (
     <div>
       {isPending && <div>Loading...</div>}
+      {roomsData && roomsData.length === 0 && <div>No rooms found...</div>}
       {roomsData && (
         <ul>
           {roomsData.map((room) => (

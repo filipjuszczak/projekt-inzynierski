@@ -4,22 +4,16 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { authEmployee } from "@/app/(staff)/staff/auth";
 import prisma from "@/lib/prisma";
-import {
-  createRoomFormSchema,
-  editRoomFormSchema,
-  type CreateRoomValues,
-  type EditRoomValues
-} from "@/lib/validation/room";
+import { roomSchema, type RoomValues } from "@/lib/validation/room";
 
-export async function createRoom(values: CreateRoomValues) {
+export async function createRoom(values: RoomValues) {
   try {
     const { session } = await authEmployee();
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
 
-    const { number, numberOfRows, seatsPerRow } =
-      createRoomFormSchema.parse(values);
+    const { number, numberOfRows, seatsPerRow } = roomSchema.parse(values);
 
     const existingRoom = await prisma.room.findFirst({
       where: { number: Number(number) }
@@ -46,10 +40,9 @@ export async function createRoom(values: CreateRoomValues) {
   }
 }
 
-export async function editRoom(id: string, values: EditRoomValues) {
+export async function editRoom(id: string, values: RoomValues) {
   try {
-    const { number, numberOfRows, seatsPerRow } =
-      editRoomFormSchema.parse(values);
+    const { number, numberOfRows, seatsPerRow } = roomSchema.parse(values);
 
     if (number) {
       const existingRoom = await prisma.room.findFirst({

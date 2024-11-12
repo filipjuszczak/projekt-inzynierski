@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useTransition } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -13,13 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { useToast } from "@/hooks/use-toast";
 import { useFetchRoomById } from "@/app/(staff)/staff/dashboard/rooms/queries";
 import {
   createRoom,
   editRoom
 } from "@/app/(staff)/staff/dashboard/rooms/actions";
-import { createRoomFormSchema, CreateRoomValues } from "@/lib/validation/room";
+import { roomSchema, RoomValues } from "@/lib/validation/room";
 
 interface RoomFormProps {
   roomId?: string;
@@ -28,10 +29,9 @@ interface RoomFormProps {
 export default function RoomForm({ roomId }: RoomFormProps) {
   const { data: roomData, isFetching, isError } = useFetchRoomById(roomId);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
-  const form = useForm<CreateRoomValues>({
-    resolver: zodResolver(createRoomFormSchema),
+  const form = useForm<RoomValues>({
+    resolver: zodResolver(roomSchema),
     defaultValues: {
       number: "",
       numberOfRows: "",
@@ -49,21 +49,33 @@ export default function RoomForm({ roomId }: RoomFormProps) {
     }
   }, [roomData, form]);
 
-  async function onFormSubmit(values: CreateRoomValues) {
+  async function onFormSubmit(values: RoomValues) {
     startTransition(async () => {
+      let result;
       let error;
 
       if (roomId) {
-        error = (await editRoom(roomId, values)).error;
+        result = await editRoom(roomId, values);
+        if ("error" in result) {
+          error = result.error;
+        }
       } else {
-        error = (await createRoom(values)).error;
+        result = await createRoom(values);
+        if ("error" in result) {
+          error = result.error;
+        }
       }
 
       if (error) {
-        toast({
-          variant: "destructive",
-          description: error
-        });
+        toast.error(error);
+        return;
+      }
+
+      if ("success" in result && result.success) {
+        toast.success("Sala została zapisana.");
+        return redirect("/staff/dashboard/rooms");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }
     });
   }
