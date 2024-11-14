@@ -20,22 +20,23 @@ enum UserType {
 }
 
 model User {
-  id           String    @id
-  username     String?   @unique
-  firstName    String
-  lastName     String
-  email        String    @unique
-  dateOfBirth  DateTime
-  passwordHash String
-  userType     UserType  @default(NORMAL)
-  isActivated  Boolean   @default(false)
-  sessions     Session[]
-  seats        Seat[]
-  orders       Order[]
-  ratings      Rating[]
-  tokens       Token[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                 String    @id
+  username           String?   @unique
+  firstName          String
+  lastName           String
+  email              String    @unique
+  dateOfBirth        DateTime
+  passwordHash       String
+  userType           UserType  @default(NORMAL)
+  isActivated        Boolean   @default(false)
+  mustChangePassword Boolean   @default(false)
+  sessions           Session[]
+  seats              Seat[]
+  orders             Order[]
+  ratings            Rating[]
+  tokens             Token[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@map("users")
 }
@@ -97,7 +98,7 @@ model Movie {
   id          String           @id @default(cuid())
   title       String
   description String
-  releaseYear Int
+  releaseDate DateTime
   duration    Int
   posterUrl   String?
   createdBy   String
