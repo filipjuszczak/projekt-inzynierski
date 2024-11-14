@@ -10,13 +10,16 @@ export async function GET() {
 
     const showtimes = await prisma.showtime.findMany({
       select: {
+        id: true,
+        startTime: true,
+        endTime: true,
         movie: {
           select: {
             id: true,
             title: true,
             posterUrl: true,
             description: true,
-            releaseYear: true,
+            releaseDate: true,
             duration: true,
             genres: {
               include: {

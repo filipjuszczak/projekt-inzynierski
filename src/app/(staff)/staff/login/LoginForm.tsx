@@ -1,11 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
-import { AtSign, KeyRound } from "lucide-react";
+import { AtSign, EyeIcon, EyeOffIcon, KeyRound } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -15,17 +16,16 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import { logIn } from "@/app/(staff)/staff/actions";
-import { useToast } from "@/hooks/use-toast";
 import { useUserStore } from "@/hooks/use-user-store";
+import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 
 export default function LoginForm() {
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
-
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
@@ -35,36 +35,34 @@ export default function LoginForm() {
     }
   });
 
-  async function onSubmit(credentials: Credentials) {
+  async function onFormSubmit(credentials: Credentials) {
     startTransition(async () => {
       const result = await logIn(credentials);
+
       if ("error" in result) {
-        toast({
-          variant: "destructive",
-          description: result.error
-        });
+        toast.error(result.error);
         return;
       }
 
-      setUserData({
-        firstName: result.firstName,
-        lastName: result.lastName,
-        username: result.username,
-        email: result.email
-      });
-
-      toast({
-        variant: "default",
-        description: "Zalogowano pomyślnie!"
-      });
-
-      redirect("/staff/dashboard");
+      if ("success" in result && result.success) {
+        setUserData({
+          firstName: result.userData.firstName,
+          lastName: result.userData.lastName,
+          username: result.userData.username,
+          email: result.userData.email,
+          userType: result.userData.userType
+        });
+        toast.success("Zalogowano pomyślnie.");
+        return redirect("/staff/dashboard");
+      } else {
+        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      }
     });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
         <FormField
           name="login"
           control={form.control}
@@ -93,11 +91,32 @@ export default function LoginForm() {
                 <div className="relative">
                   <KeyRound className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     id={field.name}
                     className="pl-8"
                     {...field}
                   />
+                  {isPasswordVisible ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                      className="absolute right-0 top-0"
+                    >
+                      <EyeOffIcon className="cursor-pointer" />
+                      <span className="sr-only">Hide password</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                      className="absolute right-0 top-0"
+                    >
+                      <EyeIcon className="cursor-pointer" />
+                      <span className="sr-only">Show password</span>
+                    </Button>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />

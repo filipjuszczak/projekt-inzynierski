@@ -1,8 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import crypto from "crypto";
+import { addMinutes } from "date-fns";
 import type { UseFormReturn } from "react-hook-form";
 import type { SignupValues } from "@/lib/validation/auth";
-import type { CreateMovieValues } from "@/lib/validation/movie";
+import type { MovieValues } from "@/lib/validation/movie";
+import type { EmployeeValues } from "@/lib/validation/employee";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -148,8 +151,8 @@ export function validateSignupValues(
 }
 
 export function validateMovieValues(
-  form: UseFormReturn<CreateMovieValues>,
-  values: CreateMovieValues
+  form: UseFormReturn<MovieValues>,
+  values: MovieValues
 ) {
   let isValid = true;
 
@@ -162,4 +165,34 @@ export function validateMovieValues(
   }
 
   return isValid;
+}
+
+export function validateEmployeeValues(
+  form: UseFormReturn<EmployeeValues>,
+  values: EmployeeValues
+) {
+  let isValid = true;
+
+  if (
+    !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
+  ) {
+    form.setError("dayOfBirth", {
+      type: "manual",
+      message: "Nieprawidłowy dzień dla podanego miesiąca"
+    });
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function generateToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+export function createActivationToken() {
+  const token = generateToken();
+  const tokenExpiresAt = addMinutes(new Date(), 15);
+
+  return { token, tokenExpiresAt };
 }

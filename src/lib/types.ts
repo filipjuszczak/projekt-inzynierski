@@ -1,14 +1,26 @@
+import type { UserType } from "@prisma/client";
+
 export interface UserData {
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
+  success: boolean;
+  userData: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    userType: UserType;
+  };
 }
 
 export interface Genre {
   id: string;
   name: string;
   ageRestriction: number;
+}
+
+export interface GenreWithMovieCount extends Genre {
+  _count: {
+    movies: number;
+  };
 }
 
 export interface Room {
@@ -21,6 +33,7 @@ export interface Room {
 export interface Movie {
   id: string;
   title: string;
+  posterUrl: string;
   description: string;
   releaseYear: string;
   duration: number;
@@ -33,8 +46,9 @@ export interface MovieWithGenres extends Movie {
 
 export interface EditMovieValues {
   title: string;
+  // posterUrl: string;
   description: string;
-  releaseYear: string;
+  releaseDate: string;
   duration: string;
   genres: { genreId: string }[];
 }
@@ -43,6 +57,16 @@ export interface Showtime {
   id: string;
   movie: Movie;
   room: Room;
-  startDate: string;
-  endDate: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface Employee {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateOfBirth: string;
+  userType: UserType;
 }

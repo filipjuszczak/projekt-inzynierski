@@ -19,7 +19,7 @@ export async function GET(
         id: true,
         title: true,
         description: true,
-        releaseYear: true,
+        releaseDate: true,
         duration: true,
         posterUrl: true,
         genres: {

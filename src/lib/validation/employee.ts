@@ -14,3 +14,10 @@ export const employeeSchema = z.object({
 });
 
 export type EmployeeValues = z.infer<typeof employeeSchema>;
+
+export const changePasswordSchema = z.object({
+  newPassword: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
+  repeatNewPassword: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków")
+});
+
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;

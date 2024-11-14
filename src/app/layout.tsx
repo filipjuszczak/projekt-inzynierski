@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
-import ReactQueryProvider from "@/app/ReactQueryProvider";
-import { Toaster } from "@/components/ui/toaster";
+import ReactQueryProvider from "@/components/ReactQueryProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { UserStoreProvider } from "@/components/UserStoreProvider";
+import { Toaster } from "@/components/ui/sonner";
 import type { PropsWithChildren } from "react";
 import type { Metadata } from "next";
 
@@ -15,12 +16,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className}`}>
         <ReactQueryProvider>
-          <UserStoreProvider>{children}</UserStoreProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <UserStoreProvider>{children}</UserStoreProvider>
+          </ThemeProvider>
         </ReactQueryProvider>
-        <Toaster />
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          toastOptions={{ duration: 5000 }}
+        />
       </body>
     </html>
   );

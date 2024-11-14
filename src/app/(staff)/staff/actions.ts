@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { verify } from "@node-rs/argon2";
@@ -9,18 +8,32 @@ import prisma from "@/lib/prisma";
 import { authEmployee } from "@/app/(staff)/staff/auth";
 import { isValidEmail } from "@/lib/utils";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
+import type { UserData } from "@/lib/types";
+
+const userSelect = {
+  id: true,
+  username: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  passwordHash: true,
+  userType: true
+};
 
 export async function logIn(
   credentials: Credentials
-): Promise<
-  | { error: string }
-  | { firstName: string; lastName: string; username: string; email: string }
-> {
+): Promise<{ error: string } | UserData> {
   try {
     const { login, password } = loginFormSchema.parse(credentials);
     const existingUser = isValidEmail(login)
-      ? await prisma.user.findUnique({ where: { email: login } })
-      : await prisma.user.findUnique({ where: { username: login } });
+      ? await prisma.user.findUnique({
+          where: { email: login },
+          select: userSelect
+        })
+      : await prisma.user.findUnique({
+          where: { username: login },
+          select: userSelect
+        });
 
     if (!existingUser || !existingUser.passwordHash) {
       return {
@@ -53,13 +66,15 @@ export async function logIn(
       sessionCookie.attributes
     );
 
-    // return redirect("/staff/dashboard");
-
     return {
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
-      username: existingUser.username || "",
-      email: existingUser.email
+      success: true,
+      userData: {
+        username: existingUser.username || "",
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        email: existingUser.email,
+        userType: existingUser.userType
+      }
     };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -83,7 +98,6 @@ export async function logOut() {
       sessionCookie.attributes
     );
 
-    // return redirect("/staff/login");
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
