@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -23,15 +23,18 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import LoadingButton from "@/components/LoadingButton";
+import { signUp } from "@/app/(auth)/(forms)/actions";
 import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
-import { signUp } from "@/app/(auth)/(forms)/actions";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface SignupFormProps {
   onSuccessfulSignUp: () => void;
 }
 
 export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<SignupValues>({
@@ -81,7 +84,7 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
             <FormItem>
               <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input id={field.name} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,7 +97,7 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
             <FormItem>
               <FormLabel htmlFor={field.name}>Imię (wymagane)</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input id={field.name} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,7 +110,7 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
             <FormItem>
               <FormLabel htmlFor={field.name}>Nazwisko (wymagane)</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input id={field.name} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -122,7 +125,7 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
                 Adres e-mail (wymagane)
               </FormLabel>
               <FormControl>
-                <Input type="email" {...field} />
+                <Input type="email" id={field.name} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -147,14 +150,17 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
                     <SelectContent>
                       <SelectGroup>
                         {Array.from({ length: 31 }, (_, i) => i + 1).map(
-                          (day) => (
-                            <SelectItem
-                              key={`day-${day.toString().padStart(2, "0")}`}
-                              value={day.toString().padStart(2, "0")}
-                            >
-                              {day.toString().padStart(2, "0")}
-                            </SelectItem>
-                          )
+                          (day) => {
+                            const dayString = day.toString().padStart(2, "0");
+                            return (
+                              <SelectItem
+                                key={`day-${dayString}`}
+                                value={dayString}
+                              >
+                                {dayString}
+                              </SelectItem>
+                            );
+                          }
                         )}
                       </SelectGroup>
                     </SelectContent>
@@ -179,14 +185,19 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
                     <SelectContent>
                       <SelectGroup>
                         {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                          (month) => (
-                            <SelectItem
-                              key={`month-${month.toString().padStart(2, "0")}`}
-                              value={month.toString().padStart(2, "0")}
-                            >
-                              {month.toString().padStart(2, "0")}
-                            </SelectItem>
-                          )
+                          (month) => {
+                            const monthString = month
+                              .toString()
+                              .padStart(2, "0");
+                            return (
+                              <SelectItem
+                                key={`month-${monthString}`}
+                                value={monthString}
+                              >
+                                {monthString}
+                              </SelectItem>
+                            );
+                          }
                         )}
                       </SelectGroup>
                     </SelectContent>
@@ -214,7 +225,10 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
                           { length: 100 },
                           (_, i) => new Date().getFullYear() - i
                         ).map((year) => (
-                          <SelectItem key={year} value={year.toString()}>
+                          <SelectItem
+                            key={`year-${year}`}
+                            value={year.toString()}
+                          >
                             {year}
                           </SelectItem>
                         ))}
@@ -234,7 +248,35 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
             <FormItem>
               <FormLabel htmlFor={field.name}>Hasło (wymagane)</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <div className="flex items-center gap-4">
+                  <Input
+                    type={isPasswordVisible ? "text" : "password"}
+                    id={field.name}
+                    {...field}
+                  />
+                  {isPasswordVisible ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                    >
+                      <EyeOffIcon className="cursor-pointer" />
+                      <span className="sr-only">Hide password</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                    >
+                      <EyeIcon
+                        className="cursor-pointer"
+                        onClick={() => setIsPasswordVisible((i) => !i)}
+                      />
+                      <span className="sr-only">Show password</span>
+                    </Button>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -249,7 +291,35 @@ export default function SignupForm({ onSuccessfulSignUp }: SignupFormProps) {
                 Potwierdź hasło (wymagane)
               </FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <div className="flex items-center gap-4">
+                  <Input
+                    type={isPasswordVisible ? "text" : "password"}
+                    id={field.name}
+                    {...field}
+                  />
+                  {isPasswordVisible ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                    >
+                      <EyeOffIcon className="cursor-pointer" />
+                      <span className="sr-only">Hide password</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                    >
+                      <EyeIcon
+                        className="cursor-pointer"
+                        onClick={() => setIsPasswordVisible((i) => !i)}
+                      />
+                      <span className="sr-only">Show password</span>
+                    </Button>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,11 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
-import { AtSign, KeyRound } from "lucide-react";
+import { AtSign, EyeIcon, EyeOffIcon, KeyRound } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -15,15 +17,15 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import { logIn } from "@/app/(auth)/(forms)/actions";
-import { redirect } from "next/navigation";
 import { useUserStore } from "@/hooks/use-user-store";
-import Link from "next/link";
+import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 
 export default function LoginForm() {
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<Credentials>({
@@ -73,12 +75,7 @@ export default function LoginForm() {
               <FormControl>
                 <div className="relative flex items-center">
                   <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
-                  <Input
-                    id={field.name}
-                    placeholder="jkowalski / jan.kowalski@email.com"
-                    className="pl-8"
-                    {...field}
-                  />
+                  <Input id={field.name} className="pl-8" {...field} />
                 </div>
               </FormControl>
               <FormMessage />
@@ -95,12 +92,32 @@ export default function LoginForm() {
                 <div className="relative">
                   <KeyRound className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     id={field.name}
-                    placeholder="********"
                     className="pl-8"
                     {...field}
                   />
+                  {isPasswordVisible ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                      className="absolute right-0 top-0"
+                    >
+                      <EyeOffIcon className="cursor-pointer" />
+                      <span className="sr-only">Hide password</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsPasswordVisible((i) => !i)}
+                      className="absolute right-0 top-0"
+                    >
+                      <EyeIcon className="cursor-pointer" />
+                      <span className="sr-only">Show password</span>
+                    </Button>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />
