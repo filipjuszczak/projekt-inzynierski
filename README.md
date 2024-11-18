@@ -1,4 +1,4 @@
-# Projekt inżynierski WAB 2025
+# Projekt inżynierski
 
 ## Temat pracy: Aplikacja internetowa dla lokalnego kina
 
@@ -10,6 +10,7 @@ Zastosowane technologie:
 - Postgres
 - Prisma
 - TanStack Query
+- TanStack Table
 - Tailwind CSS
 - shadcn/ui
 - Lucia Auth
