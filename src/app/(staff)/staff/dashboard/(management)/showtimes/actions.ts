@@ -15,7 +15,7 @@ export async function createShowtime(values: ShowtimeValues) {
       return redirect("/staff/login");
     }
 
-    const { movieId, roomId, startDate } = showtimeSchema.parse(values);
+    const { movieId, roomId, startTime } = showtimeSchema.parse(values);
 
     const movie = await prisma.movie.findUnique({
       where: { id: movieId }
@@ -35,7 +35,7 @@ export async function createShowtime(values: ShowtimeValues) {
     }
 
     const fifteenMinutes = 15 * 60 * 1000;
-    const showtimeDate = new Date(startDate.getTime());
+    const showtimeDate = new Date(startTime.getTime());
 
     const prevShowtimeInRoom = await prisma.showtime.findFirst({
       where: {
@@ -129,7 +129,7 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
       return redirect("/staff/login");
     }
 
-    const { movieId, roomId, startDate } = showtimeSchema.parse(values);
+    const { movieId, roomId, startTime } = showtimeSchema.parse(values);
 
     const movie = await prisma.movie.findUnique({
       where: { id: movieId }
@@ -141,7 +141,7 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
 
     const fifteenMinutes = 15 * 60 * 1000;
 
-    const showtimeDate = new Date(startDate.getTime());
+    const showtimeDate = new Date(startTime.getTime());
 
     const prevShowtimeInRoom = await prisma.showtime.findFirst({
       where: {
