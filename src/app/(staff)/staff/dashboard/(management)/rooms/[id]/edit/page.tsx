@@ -18,10 +18,10 @@ export default async function EditRoomPage({ params }: EditRoomPageProps) {
     <div className="flex flex-grow flex-col items-center justify-center gap-8">
       <h1 className="text-3xl font-bold">Edytuj salę</h1>
       <RoomForm
-        id={room.id}
-        number={room.number.toString()}
-        numberOfRows={room.numberOfRows.toString()}
-        seatsPerRow={room.seatsPerRow.toString()}
+        id={room.room.id}
+        number={room.room.number.toString()}
+        numberOfRows={room.room.numberOfRows.toString()}
+        seatsPerRow={room.room.seatsPerRow.toString()}
       />
     </div>
   );
