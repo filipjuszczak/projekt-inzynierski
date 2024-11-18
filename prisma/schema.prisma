@@ -20,7 +20,7 @@ enum UserType {
 }
 
 model User {
-  id                 String    @id
+  id                 String    @id @default(uuid())
   username           String?   @unique
   firstName          String
   lastName           String
@@ -33,7 +33,6 @@ model User {
   sessions           Session[]
   seats              Seat[]
   orders             Order[]
-  ratings            Rating[]
   tokens             Token[]
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
@@ -42,7 +41,7 @@ model User {
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(uuid())
   userId    String
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
   expiresAt DateTime
@@ -56,7 +55,7 @@ enum TokenType {
 }
 
 model Token {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   userId    String
   type      TokenType
   value     String
@@ -76,7 +75,7 @@ enum ShowtimeStatus {
 }
 
 model Showtime {
-  id        String         @id @default(cuid())
+  id        String         @id @default(uuid())
   movie     Movie          @relation(fields: [movieId], references: [id])
   movieId   String
   room      Room           @relation(fields: [roomId], references: [id])
@@ -95,7 +94,7 @@ model Showtime {
 }
 
 model Movie {
-  id          String           @id @default(cuid())
+  id          String           @id @default(uuid())
   title       String
   description String
   releaseDate DateTime
@@ -105,7 +104,6 @@ model Movie {
   updatedBy   String?
   genres      GenresOnMovies[]
   showtimes   Showtime[]
-  ratings     Rating[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -113,7 +111,7 @@ model Movie {
 }
 
 model Genre {
-  id             String           @id @default(cuid())
+  id             String           @id @default(uuid())
   name           String           @unique
   ageRestriction Int
   createdBy      String
@@ -136,8 +134,8 @@ model GenresOnMovies {
 }
 
 model Room {
-  id           String     @id @default(cuid())
-  number       Int
+  id           String     @id @default(uuid())
+  number       String
   numberOfRows Int
   seatsPerRow  Int
   showtimes    Showtime[]
@@ -156,7 +154,7 @@ enum TicketType {
 }
 
 model Ticket {
-  id         String     @id @default(cuid())
+  id         String     @id @default(uuid())
   ticketType TicketType
   price      Float
   orders     Order[]
@@ -169,7 +167,7 @@ model Ticket {
 }
 
 model Order {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id])
   showtimeId String
@@ -185,7 +183,7 @@ model Order {
 }
 
 model Seat {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
   rowNumber  Int
   seatNumber Int
   isBooked   Boolean  @default(false)
@@ -201,18 +199,4 @@ model Seat {
 
   @@unique([showtimeId, rowNumber, seatNumber])
   @@map("seats")
-}
-
-model Rating {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  movieId   String
-  movie     Movie    @relation(fields: [movieId], references: [id])
-  rating    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, movieId])
-  @@map("ratings")
 }
