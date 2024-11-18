@@ -34,9 +34,24 @@ const polishMonths = {
   December: "Grudzień"
 };
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+];
+
 interface DatePickerProps {
   onValueChange: (date: Date) => void;
-  value: string;
+  value: Date;
   startYear?: number;
   endYear?: number;
 }
@@ -44,44 +59,24 @@ interface DatePickerProps {
 export function DatePicker({
   onValueChange,
   value,
-  startYear = getYear(new Date()) - 200,
-  endYear = getYear(new Date()) + 200
+  startYear = getYear(new Date()) - 100,
+  endYear = getYear(new Date()) + 100
 }: DatePickerProps) {
-  // const [date, setDate] = React.useState<Date>(
-  //   value ? new Date(value) : new Date()
-  // );
+  const date = value;
 
-  const date = new Date(value);
-
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
-
-  const years = Array.from(
-    { length: endYear - startYear + 1 },
-    (_, i) => startYear + i
+  const years = React.useMemo(
+    () =>
+      Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i),
+    [startYear, endYear]
   );
 
   const handleMonthChange = (month: string) => {
     const newDate = setMonth(date, months.indexOf(month));
-    // setDate(newDate);
     onValueChange(newDate);
   };
 
   const handleYearChange = (year: string) => {
     const newDate = setYear(date, Number(year));
-    // setDate(newDate);
     onValueChange(newDate);
   };
 
@@ -97,7 +92,7 @@ export function DatePicker({
         <Button
           variant={"outline"}
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >

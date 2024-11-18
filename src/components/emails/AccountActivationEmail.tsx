@@ -9,10 +9,10 @@ export default function AccountActivationEmail({
 }: AccountActivationEmailProps) {
   return (
     <div>
-      <h1>Welcome to our cinema, {firstName}!</h1>
+      <h1>Witaj, {firstName}!</h1>
       <p>
-        To activate your account, please click on the following link:{" "}
-        <a href={link}>{link}</a> (it will expire in 15 minutes.)
+        Aby aktywować konto, kliknij w link <a href={link}>{link}</a> (wygaśnie
+        za 15 min.)
       </p>
     </div>
   );

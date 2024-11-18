@@ -22,7 +22,7 @@ export async function GET(
             title: true,
             posterUrl: true,
             description: true,
-            releaseYear: true,
+            releaseDate: true,
             duration: true,
             genres: {
               include: {

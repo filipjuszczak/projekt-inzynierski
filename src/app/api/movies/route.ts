@@ -8,22 +8,6 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // const moviesWithGenres = await prisma.movie.findMany({
-    //   include: {
-    //     genres: {
-    //       include: {
-    //         genre: {
-    //           select: {
-    //             id: true,
-    //             name: true,
-    //             ageRestriction: true
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // });
-
     const moviesWithGenres = await prisma.movie.findMany({
       select: {
         id: true,

@@ -25,7 +25,7 @@ export interface GenreWithMovieCount extends Genre {
 
 export interface Room {
   id: string;
-  number: number;
+  number: string;
   numberOfRows: number;
   seatsPerRow: number;
 }
@@ -33,40 +33,41 @@ export interface Room {
 export interface Movie {
   id: string;
   title: string;
-  posterUrl: string;
+  posterUrl: string | null;
   description: string;
-  releaseYear: string;
+  releaseDate: Date;
   duration: number;
-  genres: Genre[];
-}
-
-export interface MovieWithGenres extends Movie {
   genres: Genre[];
 }
 
 export interface EditMovieValues {
   title: string;
-  // posterUrl: string;
   description: string;
-  releaseDate: string;
+  releaseDate: Date;
   duration: string;
   genres: { genreId: string }[];
 }
 
 export interface Showtime {
   id: string;
-  movie: Movie;
-  room: Room;
-  startTime: string;
-  endTime: string;
+  movie: {
+    id: string;
+    title: string;
+  };
+  room: {
+    id: string;
+    number: string;
+  };
+  startTime: Date;
+  endTime: Date;
 }
 
 export interface Employee {
   id: string;
-  username: string;
+  username: string | null;
   firstName: string;
   lastName: string;
   email: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   userType: UserType;
 }

@@ -5,7 +5,8 @@ const requiredString = z.string().trim().min(1, "Pole nie może być puste");
 export const showtimeSchema = z.object({
   movieId: requiredString,
   roomId: requiredString,
-  startDate: z.date().min(new Date(), "Data musi być w przyszłości")
+  // startDate: z.date().min(new Date(), "Data musi być w przyszłości")
+  startTime: z.date()
   // startTimeHour: requiredString.refine(
   //   (value) => Number(value) >= 0 && Number(value) <= 23,
   //   { message: "Godzina musi być w zakresie od 0 do 23" }

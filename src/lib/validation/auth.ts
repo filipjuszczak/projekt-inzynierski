@@ -1,19 +1,29 @@
 import { z } from "zod";
 
+const requiredString = z.string().min(1, "Pole nie może być puste");
+const now = new Date();
+const twelveYearsAgo = new Date(
+  now.getFullYear() - 12,
+  now.getMonth(),
+  now.getDate(),
+  23,
+  59,
+  59,
+  999
+);
+
 export const signupFormSchema = z.object({
   username: z.string().optional(),
-  firstName: z.string().min(1, "Pole nie może być puste"),
-  lastName: z.string().min(1, "Pole nie może być puste"),
+  firstName: requiredString,
+  lastName: requiredString,
   email: z
     .string()
     .min(1, "Pole nie może być puste")
     .email("Niepoprawny adres email"),
-  dayOfBirth: z.string().min(1, "Pole nie może być puste"),
-  monthOfBirth: z.string().min(1, "Pole nie może być puste"),
-  yearOfBirth: z.string().min(1, "Pole nie może być puste"),
+  dateOfBirth: z.date().max(twelveYearsAgo, "Musisz mieć co najmniej 12 lat"),
   password: z.string().min(8, "Hasło musi mieć minimum 8 znaków"),
-  confirmedPassword: z.string().min(8, "Hasło musi mieć minimum 8 znaków"),
-  terms: z
+  repeatPassword: z.string().min(8, "Hasło musi mieć minimum 8 znaków"),
+  termsAccepted: z
     .boolean()
     .refine((value) => value, { message: "Musisz zaakceptować regulamin" })
 });
@@ -21,8 +31,8 @@ export const signupFormSchema = z.object({
 export type SignupValues = z.infer<typeof signupFormSchema>;
 
 export const loginFormSchema = z.object({
-  login: z.string().min(1, "Pole nie może być puste"),
-  password: z.string().min(1, "Pole nie może być puste")
+  login: requiredString,
+  password: requiredString
 });
 
 export type Credentials = z.infer<typeof loginFormSchema>;

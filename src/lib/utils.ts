@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import crypto from "crypto";
-import { addMinutes } from "date-fns";
+import { addMinutes, isValid as isValidDate } from "date-fns";
 import type { UseFormReturn } from "react-hook-form";
 import type { SignupValues } from "@/lib/validation/auth";
 import type { MovieValues } from "@/lib/validation/movie";
@@ -11,17 +11,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function isValidDate(day: string, month: string, year: string) {
-  const date = new Date(Number(year), Number(month) - 1, Number(day));
-  return (
-    date.getDate() === Number(day) &&
-    date.getMonth() === Number(month) - 1 &&
-    date.getFullYear() === Number(year)
-  );
-}
-
-export function passwordsMatch(password: string, confirmPassword: string) {
-  return password === confirmPassword;
+export function passwordsMatch(password: string, repeatPassword: string) {
+  return password === repeatPassword;
 }
 
 const validEmailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -88,7 +79,7 @@ export function validateSignupValues(
   if (values.username) {
     if (!allowedUsernameRegex.test(values.username)) {
       form.setError("username", {
-        type: "manual",
+        type: "value",
         message: "Nazwa użytkownika zawiera niedozwolone znaki"
       });
       isValid = false;
@@ -96,52 +87,37 @@ export function validateSignupValues(
 
     if (forbiddenUsernames.includes(values.username.toLowerCase())) {
       form.setError("username", {
-        type: "manual",
+        type: "value",
         message: "Ta nazwa użytkownika jest zablokowana"
       });
       isValid = false;
     }
   }
 
-  if (
-    !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
-  ) {
-    form.setError("dayOfBirth", {
-      type: "manual",
-      message: "Nieprawidłowy dzień dla podanego miesiąca"
+  if (!isValidDate(values.dateOfBirth)) {
+    form.setError("dateOfBirth", {
+      type: "value",
+      message: "Nieprawidłowa data"
     });
     isValid = false;
   }
 
   const now = new Date();
-  const birthDate = new Date(
-    Number(values.yearOfBirth),
-    Number(values.monthOfBirth) - 1,
-    Number(values.dayOfBirth)
-  );
-
-  const diff = now.getTime() - birthDate.getTime();
-  const isOldEnough = diff >= 12 * 365 * 24 * 60 * 60 * 1000;
+  const diff = now.getTime() - values.dateOfBirth.getTime();
+  const twelveYears = 12 * 365 * 24 * 60 * 60 * 1000;
+  const isOldEnough = diff >= twelveYears;
 
   if (!isOldEnough) {
-    form.setError("dayOfBirth", {
-      type: "manual",
-      message: ""
-    });
-    form.setError("monthOfBirth", {
-      type: "manual",
-      message: ""
-    });
-    form.setError("yearOfBirth", {
-      type: "manual",
+    form.setError("dateOfBirth", {
+      type: "value",
       message: "Musisz mieć co najmniej 12 lat"
     });
     isValid = false;
   }
 
-  if (!passwordsMatch(values.password, values.confirmedPassword)) {
-    form.setError("confirmedPassword", {
-      type: "manual",
+  if (!passwordsMatch(values.password, values.repeatPassword)) {
+    form.setError("repeatPassword", {
+      type: "value",
       message: "Hasła nie są identyczne"
     });
     isValid = false;
@@ -158,7 +134,7 @@ export function validateMovieValues(
 
   if (Number(values.duration) < 1) {
     form.setError("duration", {
-      type: "manual",
+      type: "value",
       message: "Czas trwania filmu musi być większy niż 0."
     });
     isValid = false;
@@ -173,12 +149,10 @@ export function validateEmployeeValues(
 ) {
   let isValid = true;
 
-  if (
-    !isValidDate(values.dayOfBirth, values.monthOfBirth, values.yearOfBirth)
-  ) {
-    form.setError("dayOfBirth", {
-      type: "manual",
-      message: "Nieprawidłowy dzień dla podanego miesiąca"
+  if (!isValidDate(values.dateOfBirth)) {
+    form.setError("dateOfBirth", {
+      type: "value",
+      message: "Nieprawidłowa data"
     });
     isValid = false;
   }

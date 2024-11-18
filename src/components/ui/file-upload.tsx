@@ -183,7 +183,7 @@ export const FileUploader = forwardRef<
           for (let i = 0; i < rejectedFiles.length; i++) {
             if (rejectedFiles[i].errors[0]?.code === "file-too-large") {
               toast.error(
-                `Plik jest za duży. Maksymalny rozmiar to ${maxSize / 1024 / 1024}MB`
+                `Plik jest za duży. Maksymalny rozmiar to ${maxSize / 1024 / 1024}MB.`
               );
               break;
             }

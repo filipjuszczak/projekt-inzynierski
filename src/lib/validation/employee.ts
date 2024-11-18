@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-const requiredString = z.string().trim().min(1, "Pole nie może być puste");
+const requiredString = z.string().min(1, "Pole nie może być puste");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 export const employeeSchema = z.object({
   userType: requiredString,
@@ -8,9 +10,7 @@ export const employeeSchema = z.object({
   firstName: requiredString,
   lastName: requiredString,
   email: requiredString.email("Niepoprawny adres email"),
-  dayOfBirth: z.string().min(1, "Pole nie może być puste"),
-  monthOfBirth: z.string().min(1, "Pole nie może być puste"),
-  yearOfBirth: z.string().min(1, "Pole nie może być puste")
+  dateOfBirth: z.date().max(today, "Data musi być w przeszłości")
 });
 
 export type EmployeeValues = z.infer<typeof employeeSchema>;

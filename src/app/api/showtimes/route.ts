@@ -1,5 +1,5 @@
-import { authEmployee } from "@/app/(staff)/staff/auth";
 import prisma from "@/lib/prisma";
+import { authEmployee } from "@/app/(staff)/staff/auth";
 
 export async function GET() {
   try {
