@@ -1,20 +1,25 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
-import { generateIdFromEntropySize } from "lucia";
 import { isValid as isValidDate } from "date-fns";
 import { hash } from "@node-rs/argon2";
 import { UserType } from "@prisma/client";
 import EmployeeUserCreationEmail from "@/components/emails/EmployeeUserCreationEmail";
 import prisma from "@/lib/prisma";
 import { authAdmin } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import { resend } from "@/lib/resend";
+import { hashingConfig } from "@/lib/constants";
 import { employeeSchema, type EmployeeValues } from "@/lib/validation/employee";
 
 export async function createEmployee(values: EmployeeValues) {
   try {
-    const { session } = await authAdmin();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authAdmin(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -48,19 +53,12 @@ export async function createEmployee(values: EmployeeValues) {
       return { error: "Nieprawidłowy typ użytkownika." };
     }
 
-    // const userId = generateIdFromEntropySize(10);
     const randomPassword = Math.random().toString(36).slice(-8);
 
-    const passwordHash = await hash(randomPassword, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const passwordHash = await hash(randomPassword, hashingConfig);
 
     const createdUser = await prisma.user.create({
       data: {
-        // id: userId,
         userType: userType as UserType,
         username: username || null,
         firstName,
@@ -71,6 +69,9 @@ export async function createEmployee(values: EmployeeValues) {
         mustChangePassword: true
       }
     });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/employees");
 
     const link = `${process.env.NEXT_PUBLIC_URL}/staff/login`;
 
@@ -88,7 +89,10 @@ export async function createEmployee(values: EmployeeValues) {
     });
 
     if (resendError) {
-      return { error: "Nie udało się wysłać e-maila z danymi logowania." };
+      return {
+        error:
+          "Konto zostało utworzone, ale nie udało się wysłać e-maila z danymi logowania."
+      };
     }
 
     return { success: true };
@@ -101,7 +105,10 @@ export async function createEmployee(values: EmployeeValues) {
 
 export async function editEmployee(id: string, values: EmployeeValues) {
   try {
-    const { session } = await authAdmin();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authAdmin(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -146,6 +153,9 @@ export async function editEmployee(id: string, values: EmployeeValues) {
         dateOfBirth
       }
     });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/employees");
 
     return { success: true };
   } catch (error) {

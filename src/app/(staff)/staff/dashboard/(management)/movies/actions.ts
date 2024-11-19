@@ -1,16 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { UTApi } from "uploadthing/server";
 import { ShowtimeStatus } from "@prisma/client";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import prisma from "@/lib/prisma";
 import { movieSchema, type MovieValues } from "@/lib/validation/movie";
 
 export async function createMovie(values: MovieValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -52,6 +57,9 @@ export async function createMovie(values: MovieValues) {
       }))
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/movies");
+
     return { success: true, movieId: createdMovie.id };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -62,7 +70,10 @@ export async function createMovie(values: MovieValues) {
 
 export async function editMovie(movieId: string, values: MovieValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -108,6 +119,9 @@ export async function editMovie(movieId: string, values: MovieValues) {
       }))
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/movies");
+
     return { success: true, movieId: updatedMovie.id };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -118,7 +132,10 @@ export async function editMovie(movieId: string, values: MovieValues) {
 
 export async function deleteMovie(movieId: string) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -146,6 +163,9 @@ export async function deleteMovie(movieId: string) {
       where: { id: movieId }
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/movies");
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -156,7 +176,10 @@ export async function deleteMovie(movieId: string) {
 
 export async function updatePosterUrl(movieId: string, posterUrl: string) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }

@@ -1,14 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import prisma from "@/lib/prisma";
 import { roomSchema, type RoomValues } from "@/lib/validation/room";
 
 export async function createRoom(values: RoomValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -31,6 +36,9 @@ export async function createRoom(values: RoomValues) {
         createdBy: session.userId
       }
     });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/rooms");
 
     return { success: true };
   } catch (error) {
@@ -105,6 +113,9 @@ export async function editRoom(id: string, values: RoomValues) {
       });
     }
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/rooms");
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -115,7 +126,10 @@ export async function editRoom(id: string, values: RoomValues) {
 
 export async function deleteRoom(id: string) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -129,6 +143,9 @@ export async function deleteRoom(id: string) {
     }
 
     await prisma.room.delete({ where: { id } });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/rooms");
 
     return { success: true };
   } catch (error) {

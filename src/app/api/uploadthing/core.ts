@@ -4,13 +4,16 @@ import {
 } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 
 const f = createUploadThing();
 
 export const imageFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async () => {
-      const { session } = await authEmployee();
+      const requestSessionCookie = await getSessionCookie();
+
+      const { session } = await authEmployee(requestSessionCookie);
 
       if (!session || !session.userId) {
         throw new UploadThingError("Unauthorized");

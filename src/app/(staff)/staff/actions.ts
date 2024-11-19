@@ -9,6 +9,7 @@ import { authEmployee } from "@/app/(staff)/staff/auth";
 import { isValidEmail } from "@/lib/utils";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import type { UserData } from "@/lib/types";
+import { hashingConfig } from "@/lib/constants";
 
 const userSelect = {
   id: true,
@@ -41,12 +42,11 @@ export async function logIn(
       };
     }
 
-    const isPasswordValid = await verify(existingUser.passwordHash, password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const isPasswordValid = await verify(
+      existingUser.passwordHash,
+      password,
+      hashingConfig
+    );
 
     if (!isPasswordValid) {
       return {
@@ -60,6 +60,7 @@ export async function logIn(
 
     const session = await lucia.createSession(existingUser.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
+
     (await cookies()).set(
       sessionCookie.name,
       sessionCookie.value,
@@ -85,17 +86,26 @@ export async function logIn(
 
 export async function logOut() {
   try {
-    const { session } = await authEmployee();
+    const requestCookies = await cookies();
+    const requestSessionCookie = requestCookies.get("auth_session");
+
+    if (!requestSessionCookie) {
+      return { success: false };
+    }
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session) {
       throw new Error("Unauthorized");
     }
 
     await lucia.invalidateSession(session.id);
-    const sessionCookie = lucia.createBlankSessionCookie();
+
+    const blankSessionCookie = lucia.createBlankSessionCookie();
     (await cookies()).set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
+      blankSessionCookie.name,
+      blankSessionCookie.value,
+      blankSessionCookie.attributes
     );
 
     return { success: true };

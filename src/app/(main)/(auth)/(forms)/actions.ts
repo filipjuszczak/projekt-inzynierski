@@ -2,14 +2,14 @@
 
 import { cookies } from "next/headers";
 import { isRedirectError } from "next/dist/client/components/redirect";
-import { generateIdFromEntropySize } from "lucia";
 import { hash, verify } from "@node-rs/argon2";
 import { addMinutes, isValid as isValidDate } from "date-fns";
+import ky from "ky";
 import { TokenType } from "@prisma/client";
 import AccountActivationEmail from "@/components/emails/AccountActivationEmail";
 import ResetPasswordEmail from "@/components/emails/ResetPasswordEmail";
 import ConfirmPasswordResetEmail from "@/components/emails/ConfirmPasswordResetEmail";
-import { authUser, lucia } from "@/auth";
+import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import {
@@ -25,7 +25,9 @@ import {
   type Credentials,
   type SignupValues
 } from "@/lib/validation/auth";
+import type { Session } from "lucia";
 import type { UserData } from "@/lib/types";
+import { hashingConfig } from "@/lib/constants";
 
 export async function signUp(
   data: SignupValues
@@ -89,17 +91,10 @@ export async function signUp(
       return { error: "Musisz zaakceptować regulamin" };
     }
 
-    // const userId = generateIdFromEntropySize(10);
-    const passwordHash = await hash(password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const passwordHash = await hash(password, hashingConfig);
 
     const createdUser = await prisma.user.create({
       data: {
-        // id: userId,
         username: username || null,
         firstName,
         lastName,
@@ -181,12 +176,11 @@ export async function logIn(
       };
     }
 
-    const isPasswordValid = await verify(existingUser.passwordHash, password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const isPasswordValid = await verify(
+      existingUser.passwordHash,
+      password,
+      hashingConfig
+    );
 
     if (!isPasswordValid) {
       return {
@@ -224,17 +218,28 @@ export async function logIn(
 }
 
 export async function logOut() {
-  const { session } = await authUser();
-  if (!session) {
-    throw new Error("Unauthorized");
+  const requestCookies = await cookies();
+  const sessionCookie = requestCookies.get("auth_session");
+
+  if (!sessionCookie) {
+    return { success: false };
+  }
+
+  const { session } = await ky
+    .post("/api/auth/users", { json: { sessionCookie } })
+    .json<{ session: Session }>();
+
+  if (!session || !session.userId) {
+    return { success: false };
   }
 
   await lucia.invalidateSession(session.id);
-  const sessionCookie = lucia.createBlankSessionCookie();
-  (await cookies()).set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
+
+  const blankSessionCookie = lucia.createBlankSessionCookie();
+  requestCookies.set(
+    blankSessionCookie.name,
+    blankSessionCookie.value,
+    blankSessionCookie.attributes
   );
 
   return { success: true };
@@ -318,12 +323,7 @@ export async function setNewPassword(token: string, newPassword: string) {
       return { error: "Token wygasł." };
     }
 
-    const newPasswordHash = await hash(newPassword, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const newPasswordHash = await hash(newPassword, hashingConfig);
 
     const user = await prisma.user.update({
       where: { id: existingToken.userId },

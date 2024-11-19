@@ -3,22 +3,27 @@
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { hash, verify } from "@node-rs/argon2";
+import PasswordChangedEmail from "@/components/emails/PasswordChangedEmail";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import {
   changePasswordSchema,
   type ChangePasswordValues
 } from "@/lib/validation/employee";
 import { isValidEmail, passwordsMatch } from "@/lib/utils";
-import PasswordChangedEmail from "@/components/emails/PasswordChangedEmail";
+import { hashingConfig } from "@/lib/constants";
 
 export async function changePassword(
   email: string,
   values: ChangePasswordValues
 ) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -46,24 +51,14 @@ export async function changePassword(
     const isPreviousPassword = await verify(
       existingUser.passwordHash,
       newPassword,
-      {
-        memoryCost: 19456,
-        timeCost: 2,
-        outputLen: 32,
-        parallelism: 1
-      }
+      hashingConfig
     );
 
     if (isPreviousPassword) {
       return { error: "Hasło nie może być takie samo jak aktualne" };
     }
 
-    const newPasswordHash = await hash(newPassword, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1
-    });
+    const newPasswordHash = await hash(newPassword, hashingConfig);
 
     await prisma.user.update({
       where: { id: existingUser.id },

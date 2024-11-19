@@ -1,14 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import prisma from "@/lib/prisma";
 import { genreSchema, type GenreValues } from "@/lib/validation/genre";
 
 export async function createGenre(values: GenreValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -32,6 +37,9 @@ export async function createGenre(values: GenreValues) {
       }
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/genres");
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -42,7 +50,10 @@ export async function createGenre(values: GenreValues) {
 
 export async function editGenre(id: string, values: GenreValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -66,6 +77,9 @@ export async function editGenre(id: string, values: GenreValues) {
       }
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/genres");
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -76,7 +90,10 @@ export async function editGenre(id: string, values: GenreValues) {
 
 export async function deleteGenre(id: string) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -90,6 +107,9 @@ export async function deleteGenre(id: string) {
     }
 
     await prisma.genre.delete({ where: { id } });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/genres");
 
     return { success: true };
   } catch (error) {

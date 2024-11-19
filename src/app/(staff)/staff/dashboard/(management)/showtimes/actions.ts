@@ -1,16 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { format } from "date-fns";
 import { ShowtimeStatus } from "@prisma/client";
 import { authEmployee } from "@/app/(staff)/staff/auth";
+import { getSessionCookie } from "@/app/(staff)/staff/session";
 import prisma from "@/lib/prisma";
 import { showtimeSchema, type ShowtimeValues } from "@/lib/validation/showtime";
 
 export async function createShowtime(values: ShowtimeValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -96,23 +101,26 @@ export async function createShowtime(values: ShowtimeValues) {
       select: { id: true }
     });
 
-    const seatsToCreate = [];
+    // const seatsToCreate = [];
 
-    for (let i = 1; i <= existingRoom.numberOfRows; i++) {
-      for (let j = 1; j <= existingRoom.seatsPerRow; j++) {
-        seatsToCreate.push({
-          rowNumber: i,
-          seatNumber: j,
-          isBooked: false,
-          showtimeId: createdShowtime.id,
-          roomId: existingRoom.id
-        });
-      }
-    }
+    // for (let i = 1; i <= existingRoom.numberOfRows; i++) {
+    //   for (let j = 1; j <= existingRoom.seatsPerRow; j++) {
+    //     seatsToCreate.push({
+    //       rowNumber: i,
+    //       seatNumber: j,
+    //       isBooked: false,
+    //       showtimeId: createdShowtime.id,
+    //       roomId: existingRoom.id
+    //     });
+    //   }
+    // }
 
-    await prisma.seat.createMany({
-      data: seatsToCreate
-    });
+    // await prisma.seat.createMany({
+    //   data: seatsToCreate
+    // });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/showtimes");
 
     return { success: true };
   } catch (error) {
@@ -124,7 +132,10 @@ export async function createShowtime(values: ShowtimeValues) {
 
 export async function editShowtime(id: string, values: ShowtimeValues) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -205,6 +216,9 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
       }
     });
 
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/showtimes");
+
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -215,7 +229,10 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
 
 export async function deleteShowtime(id: string) {
   try {
-    const { session } = await authEmployee();
+    const requestSessionCookie = await getSessionCookie();
+
+    const { session } = await authEmployee(requestSessionCookie);
+
     if (!session || !session.userId) {
       return redirect("/staff/login");
     }
@@ -243,6 +260,9 @@ export async function deleteShowtime(id: string) {
     await prisma.seat.deleteMany({
       where: { showtimeId: id }
     });
+
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/dashboard/showtimes");
 
     return { success: true };
   } catch (error) {
