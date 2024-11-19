@@ -1,11 +1,11 @@
-import { UserType } from "@prisma/client";
+import { Role } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export async function getEmployees() {
   const employees = await prisma.user.findMany({
     where: {
-      userType: {
-        in: [UserType.EMPLOYEE, UserType.ADMIN]
+      role: {
+        in: [Role.EMPLOYEE, Role.ADMIN]
       }
     },
     select: {
@@ -15,7 +15,7 @@ export async function getEmployees() {
       lastName: true,
       email: true,
       dateOfBirth: true,
-      userType: true
+      role: true
     }
   });
 
@@ -36,7 +36,7 @@ export async function getEmployeeById(id: string) {
       lastName: true,
       email: true,
       dateOfBirth: true,
-      userType: true
+      role: true
     }
   });
 

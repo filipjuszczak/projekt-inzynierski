@@ -150,7 +150,7 @@ const userSelect = {
   lastName: true,
   email: true,
   passwordHash: true,
-  userType: true,
+  role: true,
   isActivated: true
 };
 
@@ -207,7 +207,7 @@ export async function logIn(
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         email: existingUser.email,
-        userType: existingUser.userType
+        role: existingUser.role
       }
     };
   } catch (error) {

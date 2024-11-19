@@ -56,7 +56,7 @@ export default function SetNewPasswordForm({ token }: SetNewPasswordFormProps) {
   async function onFormSubmit(values: SetNewPasswordValues) {
     if (values.password !== values.confirmedPassword) {
       form.setError("confirmedPassword", {
-        type: "manual",
+        type: "value",
         message: "Hasła nie są takie same"
       });
       return;

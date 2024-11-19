@@ -5,7 +5,7 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 export const employeeSchema = z.object({
-  userType: requiredString,
+  role: requiredString,
   username: z.string().optional(),
   firstName: requiredString,
   lastName: requiredString,

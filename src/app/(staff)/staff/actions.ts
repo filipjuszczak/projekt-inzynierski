@@ -18,7 +18,7 @@ const userSelect = {
   lastName: true,
   email: true,
   passwordHash: true,
-  userType: true
+  role: true
 };
 
 export async function logIn(
@@ -54,7 +54,7 @@ export async function logIn(
       };
     }
 
-    if (existingUser.userType === "NORMAL") {
+    if (existingUser.role === "NORMAL") {
       return { error: "Nie masz dostępu do panelu pracownika" };
     }
 
@@ -74,7 +74,7 @@ export async function logIn(
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         email: existingUser.email,
-        userType: existingUser.userType
+        role: existingUser.role
       }
     };
   } catch (error) {

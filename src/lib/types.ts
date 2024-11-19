@@ -1,4 +1,4 @@
-import type { UserType } from "@prisma/client";
+import type { Role } from "@prisma/client";
 
 export interface UserData {
   success: boolean;
@@ -7,7 +7,7 @@ export interface UserData {
     lastName: string;
     username: string;
     email: string;
-    userType: UserType;
+    role: Role;
   };
 }
 
@@ -69,5 +69,5 @@ export interface Employee {
   lastName: string;
   email: string;
   dateOfBirth: Date;
-  userType: UserType;
+  role: Role;
 }

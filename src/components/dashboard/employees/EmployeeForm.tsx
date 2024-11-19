@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useTransition } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { UserType } from "@prisma/client";
+import { Role } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -29,23 +29,23 @@ import {
   createEmployee,
   editEmployee
 } from "@/app/(staff)/staff/dashboard/(management)/employees/actions";
-import { employeeSchema, EmployeeValues } from "@/lib/validation/employee";
 import { validateEmployeeValues } from "@/lib/utils";
+import { employeeSchema, EmployeeValues } from "@/lib/validation/employee";
 
-const userTypeLabels = [
+const userRoleLabels = [
   {
-    type: UserType.ADMIN,
+    role: Role.ADMIN,
     label: "Administrator"
   },
   {
-    type: UserType.EMPLOYEE,
+    role: Role.EMPLOYEE,
     label: "Pracownik"
   }
 ];
 
 interface EmployeeFormProps {
   id?: string;
-  userType?: UserType;
+  role?: Role;
   username?: string;
   firstName?: string;
   lastName?: string;
@@ -55,7 +55,7 @@ interface EmployeeFormProps {
 
 export default function EmployeeForm({
   id = "",
-  userType = UserType.EMPLOYEE,
+  role = Role.EMPLOYEE,
   username = "",
   firstName = "",
   lastName = "",
@@ -67,7 +67,7 @@ export default function EmployeeForm({
   const form = useForm<EmployeeValues>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
-      userType,
+      role,
       username,
       firstName,
       lastName,
@@ -113,7 +113,7 @@ export default function EmployeeForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
         <FormField
-          name="userType"
+          name="role"
           control={form.control}
           render={({ field }) => (
             <FormItem>
@@ -124,9 +124,9 @@ export default function EmployeeForm({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {userTypeLabels.map((type) => (
-                      <SelectItem key={type.type} value={type.type}>
-                        {type.label}
+                    {userRoleLabels.map((label) => (
+                      <SelectItem key={label.role} value={label.role}>
+                        {label.label}
                       </SelectItem>
                     ))}
                   </SelectGroup>

@@ -39,6 +39,7 @@ export async function createGenre(values: GenreValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/genres");
+    revalidatePath("/staff/dashboard/movie/new");
 
     return { success: true };
   } catch (error) {
@@ -79,6 +80,7 @@ export async function editGenre(id: string, values: GenreValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/genres");
+    revalidatePath("/staff/dashboard/movie/new");
 
     return { success: true };
   } catch (error) {
@@ -110,6 +112,7 @@ export async function deleteGenre(id: string) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/genres");
+    revalidatePath("/staff/dashboard/movie/new");
 
     return { success: true };
   } catch (error) {

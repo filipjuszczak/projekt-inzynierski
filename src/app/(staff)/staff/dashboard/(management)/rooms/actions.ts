@@ -39,6 +39,7 @@ export async function createRoom(values: RoomValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/rooms");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true };
   } catch (error) {
@@ -115,6 +116,7 @@ export async function editRoom(id: string, values: RoomValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/rooms");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true };
   } catch (error) {
@@ -146,6 +148,7 @@ export async function deleteRoom(id: string) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/rooms");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true };
   } catch (error) {

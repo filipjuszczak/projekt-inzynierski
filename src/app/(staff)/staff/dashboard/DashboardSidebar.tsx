@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useTheme } from "next-themes";
-import { useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import {
   Home,
   ChartColumnStacked,
@@ -13,12 +9,6 @@ import {
   Armchair,
   Popcorn,
   BookOpen,
-  User2,
-  ChevronUp,
-  LogOut,
-  Sun,
-  Moon,
-  Monitor,
   ChevronDown,
   List,
   Film
@@ -38,22 +28,13 @@ import {
   SidebarMenuSubItem
 } from "@/components/ui/sidebar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent
-} from "@/components/ui/dropdown-menu";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-import { logOut } from "@/app/(staff)/staff/actions";
+import AdminSidebarSection from "@/components/dashboard/AdminSidebarSection";
+import UserMenu from "@/components/dashboard/UserMenu";
 import { useUserStore } from "@/hooks/use-user-store";
-import { UserType } from "@prisma/client";
 
 const menuItems = [
   {
@@ -136,60 +117,23 @@ const menuItems = [
   }
 ];
 
-const employeesMenuItems = [
-  {
-    title: "Pracownicy",
-    url: "/staff/dashboard/employees",
-    icon: User2,
-    children: [
-      {
-        title: "Lista",
-        url: "/staff/dashboard/employees",
-        icon: List
-      },
-      {
-        title: "Dodaj",
-        url: "/staff/dashboard/employees/new",
-        icon: FilePlus
-      }
-    ]
-  }
-];
-
 export default function DashboardSidebar() {
-  const userStore = useUserStore(
+  const user = useUserStore(
     useShallow((state) => ({
-      firstName: state.firstName,
-      lastName: state.lastName,
       username: state.username,
-      email: state.email,
-      userType: state.userType,
-      resetStore: state.resetUserData
+      firstName: state.firstName,
+      lastName: state.lastName
     }))
   );
-  const { setTheme } = useTheme();
-  const queryClient = useQueryClient();
-
-  async function handleLogout() {
-    const result = await logOut();
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-
-    if ("success" in result && result.success) {
-      queryClient.clear();
-      userStore.resetStore();
-      toast.success("Wylogowano pomyślnie!");
-      return redirect("/staff/login");
-    } else {
-      toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
-    }
-  }
 
   return (
     <Sidebar>
-      <SidebarHeader>Cinema</SidebarHeader>
+      <SidebarHeader>
+        <div className="flex gap-2">
+          <Film className="h-6 w-6" />
+          CinemaPlus
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -209,7 +153,7 @@ export default function DashboardSidebar() {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <SidebarMenuSub>
-                            {item?.children?.map((child) => (
+                            {item.children.map((child) => (
                               <SidebarMenuSubItem key={child.title}>
                                 <SidebarMenuButton asChild>
                                   <Link href={child.url}>
@@ -240,103 +184,10 @@ export default function DashboardSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {userStore.userType === UserType.ADMIN && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Zarządzanie pracownikami</SidebarGroupLabel>
-            <SidebarMenu>
-              {employeesMenuItems.map((item) => {
-                if (item.children) {
-                  return (
-                    <Collapsible key={item.title} className="group/collapsible">
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton>
-                            <item.icon />
-                            {item.title}
-                            <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item?.children?.map((child) => (
-                              <SidebarMenuSubItem key={child.title}>
-                                <SidebarMenuButton asChild>
-                                  <Link href={child.url}>
-                                    <child.icon />
-                                    <span>{child.title}</span>
-                                  </Link>
-                                </SidebarMenuButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  );
-                } else {
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                }
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
+        <AdminSidebarSection />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <User2 />{" "}
-                  {userStore.username
-                    ? userStore.username
-                    : `${userStore.firstName} ${userStore.lastName}`}
-                  <ChevronUp className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                className="w-[--radix-popper-anchor-width]"
-              >
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <Sun /> Zmień motyw
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => setTheme("light")}>
-                      <Sun />
-                      Jasny
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("dark")}>
-                      <Moon />
-                      Ciemny
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme("system")}>
-                      <Monitor />
-                      System
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuItem asChild>
-                  <Link href="/staff/dashboard/change-password"></Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut />
-                  <span>Wyloguj się</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <UserMenu />
       </SidebarFooter>
     </Sidebar>
   );

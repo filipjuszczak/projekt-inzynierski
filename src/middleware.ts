@@ -4,15 +4,15 @@ import type { Session } from "lucia";
 
 export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/staff/dashboard")) {
-    const sessionCookie = request.cookies.get("auth_session");
+    const requestSessionCookie = request.cookies.get("auth_session");
 
-    if (!sessionCookie) {
+    if (!requestSessionCookie) {
       return NextResponse.redirect(new URL("/staff/login", request.url));
     }
 
     const { session } = await ky
       .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie },
+        json: { sessionCookie: requestSessionCookie },
         headers: {
           secret: process.env.AUTH_API_SECREY_KEY
         }
@@ -25,36 +25,34 @@ export async function middleware(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname.startsWith("/staff/login")) {
-    const sessionCookie = request.cookies.get("auth_session");
+    const requestSessionCookie = request.cookies.get("auth_session");
 
-    if (!sessionCookie) {
-      return NextResponse.redirect(new URL("/staff/login", request.url));
-    }
+    if (requestSessionCookie) {
+      const { session } = await ky
+        .post(new URL("/api/auth/employee", request.url), {
+          json: { sessionCookie: requestSessionCookie },
+          headers: {
+            secret: process.env.AUTH_API_SECREY_KEY
+          }
+        })
+        .json<{ session: Session }>();
 
-    const { session } = await ky
-      .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
-    if (session) {
-      return NextResponse.redirect(new URL("/staff/dashboard", request.url));
+      if (session) {
+        return NextResponse.redirect(new URL("/staff/dashboard", request.url));
+      }
     }
   }
 
   if (request.nextUrl.pathname.startsWith("/staff/change-password")) {
-    const sessionCookie = request.cookies.get("auth_session");
+    const requestSessionCookie = request.cookies.get("auth_session");
 
-    if (!sessionCookie) {
+    if (!requestSessionCookie) {
       return NextResponse.redirect(new URL("/staff/login", request.url));
     }
 
     const { session } = await ky
       .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie },
+        json: { sessionCookie: requestSessionCookie },
         headers: {
           secret: process.env.AUTH_API_SECREY_KEY
         }

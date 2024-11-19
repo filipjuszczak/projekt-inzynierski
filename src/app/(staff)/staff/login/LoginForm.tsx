@@ -50,7 +50,7 @@ export default function LoginForm() {
           lastName: result.userData.lastName,
           username: result.userData.username,
           email: result.userData.email,
-          userType: result.userData.userType
+          role: result.userData.role
         });
         toast.success("Zalogowano pomyślnie.");
         return redirect("/staff/dashboard");

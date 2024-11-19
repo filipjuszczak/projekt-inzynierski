@@ -21,7 +21,7 @@ export default async function EditEmployeePage({
       <h1 className="text-3xl font-bold">Edytuj konto pracownika</h1>
       <EmployeeForm
         id={employee.id}
-        userType={employee.userType}
+        role={employee.role}
         username={employee.username || ""}
         firstName={employee.firstName}
         lastName={employee.lastName}

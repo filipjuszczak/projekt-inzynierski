@@ -59,6 +59,7 @@ export async function createMovie(values: MovieValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/movies");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true, movieId: createdMovie.id };
   } catch (error) {
@@ -121,6 +122,7 @@ export async function editMovie(movieId: string, values: MovieValues) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/movies");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true, movieId: updatedMovie.id };
   } catch (error) {
@@ -165,6 +167,7 @@ export async function deleteMovie(movieId: string) {
 
     revalidatePath("/staff/dashboard");
     revalidatePath("/staff/dashboard/movies");
+    revalidatePath("/staff/dashboard/showtimes/new");
 
     return { success: true };
   } catch (error) {

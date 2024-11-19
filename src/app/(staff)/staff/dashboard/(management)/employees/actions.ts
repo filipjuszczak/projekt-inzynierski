@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { isValid as isValidDate } from "date-fns";
 import { hash } from "@node-rs/argon2";
-import { UserType } from "@prisma/client";
+import { Role } from "@prisma/client";
 import EmployeeUserCreationEmail from "@/components/emails/EmployeeUserCreationEmail";
 import prisma from "@/lib/prisma";
 import { authAdmin } from "@/app/(staff)/staff/auth";
@@ -24,7 +24,7 @@ export async function createEmployee(values: EmployeeValues) {
       return redirect("/staff/login");
     }
 
-    const { userType, username, firstName, lastName, email, dateOfBirth } =
+    const { role, username, firstName, lastName, email, dateOfBirth } =
       employeeSchema.parse(values);
 
     if (username) {
@@ -49,7 +49,7 @@ export async function createEmployee(values: EmployeeValues) {
       return { error: "Nieprawidłowa data." };
     }
 
-    if (!Object.values(UserType).includes(userType as UserType)) {
+    if (!Object.values(Role).includes(role as Role)) {
       return { error: "Nieprawidłowy typ użytkownika." };
     }
 
@@ -59,7 +59,7 @@ export async function createEmployee(values: EmployeeValues) {
 
     const createdUser = await prisma.user.create({
       data: {
-        userType: userType as UserType,
+        role: role as Role,
         username: username || null,
         firstName,
         lastName,
@@ -113,7 +113,7 @@ export async function editEmployee(id: string, values: EmployeeValues) {
       return redirect("/staff/login");
     }
 
-    const { userType, username, firstName, lastName, email, dateOfBirth } =
+    const { role, username, firstName, lastName, email, dateOfBirth } =
       employeeSchema.parse(values);
 
     if (username) {
@@ -138,14 +138,14 @@ export async function editEmployee(id: string, values: EmployeeValues) {
       return { error: "Nieprawidłowa data." };
     }
 
-    if (!Object.values(UserType).includes(userType as UserType)) {
+    if (!Object.values(Role).includes(role as Role)) {
       return { error: "Nieprawidłowy typ użytkownika." };
     }
 
     await prisma.user.update({
       where: { id },
       data: {
-        userType: userType as UserType,
+        role: role as Role,
         username: username || null,
         firstName,
         lastName,

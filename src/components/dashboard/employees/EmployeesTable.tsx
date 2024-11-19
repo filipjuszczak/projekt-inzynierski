@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { MoreVertical } from "lucide-react";
-import { UserType } from "@prisma/client";
+import { Role } from "@prisma/client";
 import {
   Table,
   TableBody,
@@ -27,9 +27,9 @@ interface EmployeeTableProps {
   employees: Employee[];
 }
 
-const userTypeLabels = {
-  [UserType.ADMIN]: "Administrator",
-  [UserType.EMPLOYEE]: "Pracownik"
+const roleLabels = {
+  [Role.ADMIN]: "Administrator",
+  [Role.EMPLOYEE]: "Pracownik"
 };
 
 export default function EmployeeTable({ employees }: EmployeeTableProps) {
@@ -59,7 +59,7 @@ export default function EmployeeTable({ employees }: EmployeeTableProps) {
               {format(new Date(employee.dateOfBirth), "dd.MM.yyyy")}
             </TableCell>
             <TableCell>
-              {userTypeLabels[employee.userType as keyof typeof userTypeLabels]}
+              {roleLabels[employee.role as keyof typeof roleLabels]}
             </TableCell>
             <TableCell className="text-right">
               <DropdownMenu>

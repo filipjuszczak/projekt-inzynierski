@@ -7,7 +7,7 @@ datasource db {
   url      = env("POSTGRES_PRISMA_URL")
 }
 
-enum UserType {
+enum Role {
   NORMAL
   EMPLOYEE
   ADMIN
@@ -21,7 +21,7 @@ model User {
   email              String    @unique
   dateOfBirth        DateTime
   passwordHash       String
-  userType           UserType  @default(NORMAL)
+  role               Role      @default(NORMAL)
   isActivated        Boolean   @default(false)
   mustChangePassword Boolean   @default(false)
   sessions           Session[]
