@@ -31,10 +31,14 @@ export const createUserStore = (initialState: UserState = defaultState) => {
       persist(
         (set) => ({
           ...initialState,
-          setUserData: (data: UserState) => set(data),
+          setUserData: (data: UserState) =>
+            set((state) => ({
+              ...state,
+              ...data
+            })),
           resetUserData: () => set(defaultState)
         }),
-        { name: "zustand-store" }
+        { name: "user-data" }
       )
     )
   );
