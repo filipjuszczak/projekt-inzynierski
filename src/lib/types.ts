@@ -1,4 +1,9 @@
-import type { Role } from "@prisma/client";
+import type {
+  Role,
+  ScreenFormat,
+  TicketType,
+  ViewingMode
+} from "@prisma/client";
 
 export interface UserData {
   success: boolean;
@@ -37,15 +42,15 @@ export interface Movie {
   description: string;
   releaseDate: Date;
   duration: number;
+  viewingModes: {
+    id: number;
+    viewingMode: ViewingMode;
+  }[];
+  screenFormats: {
+    id: number;
+    screenFormat: ScreenFormat;
+  }[];
   genres: Genre[];
-}
-
-export interface EditMovieValues {
-  title: string;
-  description: string;
-  releaseDate: Date;
-  duration: string;
-  genres: { genreId: string }[];
 }
 
 export interface Showtime {
@@ -60,6 +65,8 @@ export interface Showtime {
   };
   startTime: Date;
   endTime: Date;
+  screenFormat: ScreenFormat;
+  viewingMode: ViewingMode;
 }
 
 export interface Employee {
@@ -70,4 +77,27 @@ export interface Employee {
   email: string;
   dateOfBirth: Date;
   role: Role;
+}
+
+export interface Reservation {
+  id: string;
+  createdAt: Date;
+  showtime: {
+    room: {
+      number: string;
+    };
+    movie: {
+      id: string;
+      title: string;
+    };
+    startTime: Date;
+  };
+  seats: {
+    rowNumber: number;
+    seatNumber: number;
+  }[];
+  ticket: {
+    ticketType: TicketType;
+    price: number;
+  };
 }
