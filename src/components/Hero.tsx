@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default async function Hero() {
   return (
-    <section className="w-full py-12 text-white md:py-24 lg:py-32 xl:py-48">
+    <section className="w-full py-12 text-foreground md:py-24 lg:py-32 xl:py-48">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <Image

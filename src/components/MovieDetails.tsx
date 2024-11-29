@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { format } from "date-fns";
-import { Calendar, Clock, Star } from "lucide-react";
+import { Calendar, Clock, Headphones, Monitor, Star } from "lucide-react";
+import { ScreenFormat, ViewingMode } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Tooltip,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { Genre } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 
 interface MovieDetailsProps {
   posterUrl: string;
@@ -17,6 +19,14 @@ interface MovieDetailsProps {
   releaseDate: Date;
   duration: number;
   description: string;
+  viewingModes: {
+    id: number;
+    viewingMode: ViewingMode;
+  }[];
+  screenFormats: {
+    id: number;
+    screenFormat: ScreenFormat;
+  }[];
   genres: Genre[];
   rating: string | null;
   director: string | null;
@@ -29,6 +39,8 @@ export default function MovieDetails({
   releaseDate,
   duration,
   description,
+  viewingModes,
+  screenFormats,
   genres,
   rating,
   director,
@@ -64,6 +76,40 @@ export default function MovieDetails({
             <Tooltip>
               <TooltipTrigger>
                 <div className="flex items-center">
+                  <Headphones className="mr-2 h-4 w-4" />
+                  <div className="flex items-center gap-2">
+                    {viewingModes.map((mode) => (
+                      <Badge key={mode.id}>
+                        {VIEWING_MODE_LABELS[mode.viewingMode]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Dostępne rodzaje audio</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center">
+                  <Monitor className="mr-2 h-4 w-4" />
+                  <div className="flex items-center gap-2">
+                    {screenFormats.map((format) => (
+                      <Badge key={format.id}>
+                        {SCREEN_FORMAT_LABELS[format.screenFormat]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Dostępne formaty ekranu</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center">
                   <Clock className="mr-2 h-4 w-4" />
                   {duration} min
                 </div>
@@ -83,17 +129,20 @@ export default function MovieDetails({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="flex items-center gap-2">
-          {genres.map((genre) => (
-            <Badge key={genre.id}>{genre.name}</Badge>
-          ))}
-        </div>
         <Card>
           <CardContent className="p-4">
             <h2 className="mb-2 text-xl font-semibold">Opis</h2>
             <p>{description}</p>
           </CardContent>
         </Card>
+        <div>
+          <h2 className="mb-2 text-xl font-semibold">Gatunki</h2>
+          <div className="flex items-center gap-2">
+            {genres.map((genre) => (
+              <Badge key={genre.id}>{genre.name}</Badge>
+            ))}
+          </div>
+        </div>
         <div>
           <h2 className="mb-2 text-xl font-semibold">Reżyser</h2>
           <p>{director ? director : "Brak danych."}</p>

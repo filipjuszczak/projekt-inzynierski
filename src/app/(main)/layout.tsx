@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { Film, Menu } from "lucide-react";
+import { BookOpen, Film, Menu, User } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -12,8 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import AuthButtons from "@/components/AuthButtons";
+import { useCheckAuth } from "@/app/(main)/queries";
+import LogoutButton from "@/components/LogoutButton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Layout({ children }: React.PropsWithChildren) {
+  const { data, isPending } = useCheckAuth();
+
   return (
     <Drawer>
       <div className="container mx-auto flex min-h-screen flex-col">
@@ -26,9 +33,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
               </Link>
               <div className="mr-4 hidden md:flex">
                 <nav className="flex items-center space-x-6 text-sm font-medium">
-                  <Link href="/movies">Movies</Link>
-                  <Link href="/cinemas">Cinemas</Link>
-                  <Link href="/offers">Offers</Link>
+                  <Link href="/filmy">Filmy</Link>
+                  <Link href="/repertuar">Repertuar</Link>
                 </nav>
               </div>
             </div>
@@ -49,12 +55,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <h3 className="text-lg font-semibold">About Us</h3>
                 <ul className="space-y-1">
                   <li>
-                    <Link href="/about" className="text-sm hover:underline">
+                    <Link href="/about" className="text-sm">
                       Our Story
                     </Link>
                   </li>
                   <li>
-                    <Link href="/careers" className="text-sm hover:underline">
+                    <Link href="/careers" className="text-sm">
                       Careers
                     </Link>
                   </li>
@@ -64,12 +70,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <h3 className="text-lg font-semibold">Help</h3>
                 <ul className="space-y-1">
                   <li>
-                    <Link href="/faq" className="text-sm hover:underline">
+                    <Link href="/faq" className="text-sm">
                       FAQ
                     </Link>
                   </li>
                   <li>
-                    <Link href="/contact" className="text-sm hover:underline">
+                    <Link href="/contact" className="text-sm">
                       Contact Us
                     </Link>
                   </li>
@@ -79,12 +85,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <h3 className="text-lg font-semibold">Legal</h3>
                 <ul className="space-y-1">
                   <li>
-                    <Link href="/terms" className="text-sm hover:underline">
+                    <Link href="/terms" className="text-sm">
                       Terms of Service
                     </Link>
                   </li>
                   <li>
-                    <Link href="/privacy" className="text-sm hover:underline">
+                    <Link href="/privacy" className="text-sm">
                       Privacy Policy
                     </Link>
                   </li>
@@ -127,16 +133,52 @@ export default function Layout({ children }: React.PropsWithChildren) {
             </ul>
           </nav>
           <Separator />
-          <Button asChild>
-            <Link href="/logowanie" className="w-full">
-              Zaloguj się
-            </Link>
-          </Button>
-          <Button variant="secondary" asChild>
-            <Link href="/rejestracja" className="w-full">
-              Zarejestruj się
-            </Link>
-          </Button>
+          {data?.isAuthenticated ? (
+            <div>
+              <nav>
+                <ul>
+                  <li>
+                    <Link
+                      href="/konto"
+                      className="flex w-full items-center gap-2 py-2"
+                    >
+                      <User className="size-4" />
+                      <span>Moje konto</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/konto/rezerwacje"
+                      className="flex w-full items-center gap-2 py-2"
+                    >
+                      <BookOpen className="size-4" />
+                      <span>Moje rezerwacje</span>
+                    </Link>
+                  </li>
+                  <LogoutButton redirectTo="/logowanie" />
+                </ul>
+              </nav>
+            </div>
+          ) : isPending ? (
+            <>
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </>
+          ) : (
+            <>
+              <Button asChild>
+                <Link href="/logowanie" className="w-full">
+                  Zaloguj się
+                </Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link href="/rejestracja" className="w-full">
+                  Zarejestruj się
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </DrawerContent>
     </Drawer>

@@ -1,6 +1,6 @@
 "use server";
 
-import { TokenType } from "@prisma/client";
+import { TokenType, UserActivities } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { createActivationToken, isValidEmail } from "@/lib/utils";
@@ -21,7 +21,8 @@ export async function activateAccount(
     }
 
     const existingUser = await prisma.user.findFirst({
-      where: { email }
+      where: { email },
+      select: { id: true, firstName: true }
     });
 
     if (!existingUser) {
@@ -54,13 +55,20 @@ export async function activateAccount(
     }
 
     await prisma.$transaction([
+      prisma.user.update({
+        where: { id: existingToken.userId },
+        data: { isActivated: true },
+        select: { id: true }
+      }),
+      prisma.userActivity.create({
+        data: {
+          userId: existingUser.id,
+          type: UserActivities.ACTIVATED_ACCOUNT
+        }
+      }),
       prisma.token.update({
         where: { id: existingToken.id },
         data: { isActive: false }
-      }),
-      prisma.user.update({
-        where: { id: existingToken.userId },
-        data: { isActivated: true }
       })
     ]);
 
@@ -164,7 +172,7 @@ export async function requestNewToken(email: string) {
       console.error(resendError);
       return {
         error:
-          "Wystąpił błąd podczas wysyłania e-mail'a. Spróbuj ponownie później."
+          "Konto zostało aktywowane, ale wystąpił błąd podczas wysyłania e-mail'a."
       };
     }
 

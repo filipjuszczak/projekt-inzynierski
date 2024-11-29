@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { roundToNearestMinutes } from "date-fns";
 import { toast } from "sonner";
+import { ScreenFormat, ViewingMode } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -26,8 +27,9 @@ import LoadingButton from "@/components/LoadingButton";
 import {
   createShowtime,
   editShowtime
-} from "@/app/(staff)/staff/dashboard/(management)/showtimes/actions";
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
 import { showtimeSchema, type ShowtimeValues } from "@/lib/validation/showtime";
+import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 
 interface ShowtimeFormProps {
   id?: string;
@@ -36,6 +38,8 @@ interface ShowtimeFormProps {
   startTime?: Date;
   movies: { id: string; title: string }[];
   rooms: { id: string; number: string }[];
+  viewingMode?: ViewingMode;
+  screenFormat?: ScreenFormat;
 }
 
 export default function ShowtimeForm({
@@ -44,7 +48,9 @@ export default function ShowtimeForm({
   roomId = "",
   startTime = new Date(),
   movies,
-  rooms
+  rooms,
+  viewingMode = ViewingMode.SUBTITLES,
+  screenFormat = ScreenFormat.TWO_D
 }: ShowtimeFormProps) {
   const [isPending, startTransition] = useTransition();
 
@@ -53,7 +59,9 @@ export default function ShowtimeForm({
     defaultValues: {
       movieId,
       roomId,
-      startTime: roundToNearestMinutes(startTime, { nearestTo: 15 })
+      startTime: roundToNearestMinutes(startTime, { nearestTo: 15 }),
+      viewingMode,
+      screenFormat
     }
   });
 
@@ -81,7 +89,7 @@ export default function ShowtimeForm({
 
       if ("success" in result && result.success) {
         toast.success("Seans został zapisany.");
-        return redirect("/staff/dashboard/showtimes");
+        return redirect("/panel-pracownika/pulpit/seanse");
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }
@@ -96,16 +104,74 @@ export default function ShowtimeForm({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Film</FormLabel>
+              <FormLabel htmlFor={field.name}>Film (wymagane)</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Wybierz..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {movies.map((movie) => (
-                      <SelectItem key={movie.id} value={movie.id}>
-                        {movie.title}
+                    {movies.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        Nie znaleziono filmów...
+                      </SelectItem>
+                    ) : (
+                      movies.map((movie) => (
+                        <SelectItem key={movie.id} value={movie.id}>
+                          {movie.title}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="viewingMode"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>
+                Rodzaj audio (wymagane)
+              </FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Wybierz..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(ViewingMode).map((mode) => (
+                      <SelectItem key={mode} value={mode}>
+                        {VIEWING_MODE_LABELS[mode]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="screenFormat"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>
+                Format obrazu (wymagane)
+              </FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Wybierz..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(ScreenFormat).map((format) => (
+                      <SelectItem key={format} value={format}>
+                        {SCREEN_FORMAT_LABELS[format]}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -120,18 +186,24 @@ export default function ShowtimeForm({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Sala</FormLabel>
+              <FormLabel htmlFor={field.name}>Sala (wymagane)</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue placeholder="Wybierz..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {rooms.map((room) => (
-                      <SelectItem key={room.id} value={room.id}>
-                        {room.number}
+                    {rooms.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        Nie znaleziono sal...
                       </SelectItem>
-                    ))}
+                    ) : (
+                      rooms.map((room) => (
+                        <SelectItem key={room.id} value={room.id}>
+                          {room.number}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -144,7 +216,9 @@ export default function ShowtimeForm({
           control={form.control}
           render={({ field }) => (
             <FormItem className="flex flex-col gap-2">
-              <FormLabel htmlFor={field.name}>Data rozpoczęcia</FormLabel>
+              <FormLabel htmlFor={field.name}>
+                Data rozpoczęcia (wymagane)
+              </FormLabel>
               <FormControl>
                 <DateTimePicker
                   value={field.value}

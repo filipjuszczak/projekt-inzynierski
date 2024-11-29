@@ -4,8 +4,7 @@ import { cookies } from "next/headers";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { hash, verify } from "@node-rs/argon2";
 import { addMinutes, isValid as isValidDate } from "date-fns";
-import ky from "ky";
-import { TokenType } from "@prisma/client";
+import { Role, TokenType, UserActivities } from "@prisma/client";
 import AccountActivationEmail from "@/components/emails/AccountActivationEmail";
 import ResetPasswordEmail from "@/components/emails/ResetPasswordEmail";
 import ConfirmPasswordResetEmail from "@/components/emails/ConfirmPasswordResetEmail";
@@ -25,9 +24,8 @@ import {
   type Credentials,
   type SignupValues
 } from "@/lib/validation/auth";
-import type { Session } from "lucia";
+import { HASHING_CONFIG } from "@/lib/constants";
 import type { UserData } from "@/lib/types";
-import { hashingConfig } from "@/lib/constants";
 
 export async function signUp(
   data: SignupValues
@@ -91,7 +89,7 @@ export async function signUp(
       return { error: "Musisz zaakceptować regulamin" };
     }
 
-    const passwordHash = await hash(password, hashingConfig);
+    const hashedPassword = await hash(password, HASHING_CONFIG);
 
     const createdUser = await prisma.user.create({
       data: {
@@ -100,7 +98,7 @@ export async function signUp(
         lastName,
         email,
         dateOfBirth,
-        passwordHash,
+        password: hashedPassword,
         isActivated: false
       },
       select: {
@@ -123,17 +121,19 @@ export async function signUp(
     const encodedEmail = encodeURIComponent(email);
     const activationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/aktywuj-konto/?email=${encodedEmail}&token=${token}`;
 
-    const { error: resendError } = await resend.emails.send({
-      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-      to: [email],
-      subject: "Cinema - witamy!",
-      react: AccountActivationEmail({ firstName, link: activationLink })
-    });
+    console.log(activationLink);
 
-    if (resendError) {
-      console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-    }
+    // const { error: resendError } = await resend.emails.send({
+    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+    //   to: [email],
+    //   subject: "Cinema - witamy!",
+    //   react: AccountActivationEmail({ firstName, link: activationLink })
+    // });
+
+    // if (resendError) {
+    //   console.error(resendError);
+    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    // }
 
     return { success: true };
   } catch (error) {
@@ -149,101 +149,11 @@ const userSelect = {
   firstName: true,
   lastName: true,
   email: true,
-  passwordHash: true,
+  password: true,
   role: true,
-  isActivated: true
+  isActivated: true,
+  isLocked: true
 };
-
-export async function logIn(
-  credentials: Credentials
-): Promise<{ error: string } | UserData> {
-  try {
-    const { login, password } = loginFormSchema.parse(credentials);
-
-    const existingUser = isValidEmail(login)
-      ? await prisma.user.findUnique({
-          where: { email: login },
-          select: userSelect
-        })
-      : await prisma.user.findUnique({
-          where: { username: login },
-          select: userSelect
-        });
-
-    if (!existingUser || !existingUser.passwordHash) {
-      return {
-        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
-      };
-    }
-
-    const isPasswordValid = await verify(
-      existingUser.passwordHash,
-      password,
-      hashingConfig
-    );
-
-    if (!isPasswordValid) {
-      return {
-        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło"
-      };
-    }
-
-    if (!existingUser.isActivated) {
-      return { error: "Konto nie zostało jeszcze aktywowane." };
-    }
-
-    const session = await lucia.createSession(existingUser.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes
-    );
-
-    return {
-      success: true,
-      userData: {
-        username: existingUser.username || "",
-        firstName: existingUser.firstName,
-        lastName: existingUser.lastName,
-        email: existingUser.email,
-        role: existingUser.role
-      }
-    };
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-  }
-}
-
-export async function logOut() {
-  const requestCookies = await cookies();
-  const sessionCookie = requestCookies.get("auth_session");
-
-  if (!sessionCookie) {
-    return { success: false };
-  }
-
-  const { session } = await ky
-    .post("/api/auth/users", { json: { sessionCookie } })
-    .json<{ session: Session }>();
-
-  if (!session || !session.userId) {
-    return { success: false };
-  }
-
-  await lucia.invalidateSession(session.id);
-
-  const blankSessionCookie = lucia.createBlankSessionCookie();
-  requestCookies.set(
-    blankSessionCookie.name,
-    blankSessionCookie.value,
-    blankSessionCookie.attributes
-  );
-
-  return { success: true };
-}
 
 export async function requestPasswordReset(email: string) {
   try {
@@ -252,7 +162,8 @@ export async function requestPasswordReset(email: string) {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      select: { id: true, firstName: true }
     });
 
     if (!existingUser) {
@@ -274,32 +185,49 @@ export async function requestPasswordReset(email: string) {
     }
 
     const { token, tokenExpiresAt } = createActivationToken();
-    const passwordResetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/zresetuj-haslo/?token=${token}`;
+    const encodedEmail = encodeURIComponent(email);
+    const passwordResetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/zresetuj-haslo?step=set-password&email=${encodedEmail}&token=${token}`;
 
-    await prisma.token.create({
-      data: {
-        userId: existingUser.id,
-        type: TokenType.PASSWORD_RESET,
-        value: token,
-        isActive: true,
-        expiresAt: tokenExpiresAt
-      }
-    });
+    console.log(passwordResetLink);
 
-    const { error: resendError } = await resend.emails.send({
-      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-      to: [email],
-      subject: "Cinema - reset password",
-      react: ResetPasswordEmail({
-        firstName: existingUser.firstName,
-        link: passwordResetLink
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          isLocked: true
+        }
+      }),
+      prisma.token.create({
+        data: {
+          userId: existingUser.id,
+          type: TokenType.PASSWORD_RESET,
+          value: token,
+          isActive: true,
+          expiresAt: tokenExpiresAt
+        }
+      }),
+      prisma.userActivity.create({
+        data: {
+          userId: existingUser.id,
+          type: UserActivities.REQUESTED_PASSWORD_RESET
+        }
       })
-    });
+    ]);
 
-    if (resendError) {
-      console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-    }
+    // const { error: resendError } = await resend.emails.send({
+    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+    //   to: [email],
+    //   subject: "Cinema - reset hasła",
+    //   react: ResetPasswordEmail({
+    //     firstName: existingUser.firstName,
+    //     link: passwordResetLink
+    //   })
+    // });
+
+    // if (resendError) {
+    //   console.error(resendError);
+    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    // }
 
     return { success: true };
   } catch (error) {
@@ -309,13 +237,29 @@ export async function requestPasswordReset(email: string) {
   }
 }
 
-export async function setNewPassword(token: string, newPassword: string) {
+export async function setNewPassword(
+  email: string,
+  token: string,
+  newPassword: string
+) {
   try {
     const existingToken = await prisma.token.findFirst({
-      where: { value: token, type: TokenType.PASSWORD_RESET, isActive: true }
+      where: { value: token, type: TokenType.PASSWORD_RESET, isActive: true },
+      select: { id: true, userId: true, expiresAt: true }
     });
 
     if (!existingToken) {
+      return { error: "Nieprawidłowy token." };
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: existingToken.userId, email },
+      select: { id: true, password: true }
+    });
+
+    const tokenBelongsToUser = user && user.id === existingToken.userId;
+
+    if (!tokenBelongsToUser) {
       return { error: "Nieprawidłowy token." };
     }
 
@@ -323,40 +267,60 @@ export async function setNewPassword(token: string, newPassword: string) {
       return { error: "Token wygasł." };
     }
 
-    const newPasswordHash = await hash(newPassword, hashingConfig);
+    const samePasswords = await verify(
+      user.password,
+      newPassword,
+      HASHING_CONFIG
+    );
 
-    const user = await prisma.user.update({
-      where: { id: existingToken.userId },
-      data: {
-        passwordHash: newPasswordHash
-      },
-      select: {
-        firstName: true,
-        email: true
-      }
-    });
-
-    await prisma.token.update({
-      where: { id: existingToken.id },
-      data: {
-        isActive: false
-      }
-    });
-
-    const { error: resendError } = await resend.emails.send({
-      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-      to: [user.email],
-      subject: "Cinema - hasło zostało zmienione",
-      react: ConfirmPasswordResetEmail({
-        firstName: user.firstName,
-        link: `${process.env.NEXT_PUBLIC_BASE_URL}/logowanie`
-      })
-    });
-
-    if (resendError) {
-      console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    if (samePasswords) {
+      return { error: "Nowe hasło musi się różnić od poprzedniego." };
     }
+
+    const newHashedPassword = await hash(newPassword, HASHING_CONFIG);
+
+    const [updatedUser] = await prisma.$transaction([
+      prisma.user.update({
+        where: { id: existingToken.userId },
+        data: {
+          password: newHashedPassword,
+          isLocked: false
+        },
+        select: {
+          firstName: true,
+          email: true
+        }
+      }),
+      prisma.token.update({
+        where: { id: existingToken.id },
+        data: {
+          isActive: false
+        }
+      }),
+      prisma.userActivity.create({
+        data: {
+          userId: user.id,
+          type: UserActivities.PASSWORD_CHANGED
+        }
+      })
+    ]);
+
+    // const { error: resendError } = await resend.emails.send({
+    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+    //   to: [updatedUser.email],
+    //   subject: "Cinema - hasło zostało zmienione",
+    //   react: ConfirmPasswordResetEmail({
+    //     firstName: updatedUser.firstName,
+    //     link: `${process.env.NEXT_PUBLIC_BASE_URL}/logowanie`
+    //   })
+    // });
+
+    // if (resendError) {
+    //   console.error(resendError);
+    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    // }
+
+    console.log("Password was successfully changed!");
 
     return { success: true };
   } catch (error) {

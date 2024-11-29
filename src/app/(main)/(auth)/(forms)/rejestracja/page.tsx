@@ -9,7 +9,7 @@ export default function SignupPage() {
   const [hasSuccessfullySignedUp, setHasSuccessfullySignedUp] = useState(false);
 
   return (
-    <div className="flex flex-grow items-center justify-center">
+    <div className="my-24 flex flex-grow items-center justify-center px-4 md:px-0">
       {hasSuccessfullySignedUp ? (
         <Success />
       ) : (
@@ -35,8 +35,7 @@ interface FormProps {
 
 function Form({ onSuccessfulSignup }: FormProps) {
   return (
-    <div className="w-96">
-      <h1 className="pb-8 text-center text-3xl font-bold">Zarejestruj się</h1>
+    <div>
       <SignupForm onSuccessfulSignup={onSuccessfulSignup} />
       <div className="pt-4">
         Masz już konto?{" "}

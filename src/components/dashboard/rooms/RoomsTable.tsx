@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { MoreVertical } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
+import { ArrowUpDown, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,15 +23,123 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { deleteRoom } from "@/app/(staff)/staff/dashboard/(management)/rooms/actions";
+import { deleteRoom } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/actions";
+import type { ColumnDef } from "@tanstack/react-table";
 import type { Room } from "@/lib/types";
 
-interface RoomsTableProps {
-  rooms: Room[];
+function createColumns(
+  handleDeleteRoom: (roomId: string) => void
+): ColumnDef<Room>[] {
+  return [
+    {
+      accessorKey: "number",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Numer sali
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      accessorKey: "numberOfRows",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Liczba rzędów
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      accessorKey: "seatsPerRow",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Liczba miejsc w rzędzie
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const roomId = row.original.id;
+
+        return (
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Otwórz menu</span>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Akcje</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link href={`/panel-pracownika/pulpit/sale/${roomId}`}>
+                    Wyświetl szczegóły
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/panel-pracownika/pulpit/sale/${roomId}/edytuj`}>
+                    Edytuj
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem>
+                    <span className="text-red-600">Usuń</span>
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Czy na pewno chcesz usunąć salę?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Ta operacja jest nieodwracalna.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleDeleteRoom(roomId)}
+                  className="bg-red-600 text-white hover:bg-red-800"
+                >
+                  Usuń
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        );
+      }
+    }
+  ];
 }
 
-export default function RoomsTable({ rooms }: RoomsTableProps) {
+interface RoomsTableProps {
+  data: Room[];
+}
+
+export default function RoomsTable({ data }: RoomsTableProps) {
   const queryClient = useQueryClient();
 
   async function handleDeleteRoom(roomId: string) {
@@ -58,75 +158,7 @@ export default function RoomsTable({ rooms }: RoomsTableProps) {
     }
   }
 
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Numer sali</TableHead>
-          <TableHead>Liczba rzędów</TableHead>
-          <TableHead>Liczba miejsc w rzędzie</TableHead>
-          <TableHead className="text-right">Akcje</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rooms.map((room) => (
-          <TableRow key={room.id}>
-            <TableCell>{room.number}</TableCell>
-            <TableCell>{room.numberOfRows}</TableCell>
-            <TableCell>{room.seatsPerRow}</TableCell>
-            <TableCell className="text-right">
-              <AlertDialog>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Otwórz menu</span>
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Akcje</DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/staff/dashboard/rooms/${room.id}`}>
-                        Wyświetl szczegóły
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/staff/dashboard/rooms/${room.id}/edit`}>
-                        Edytuj
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem>
-                        <span className="text-red-600">Usuń</span>
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Czy na pewno chcesz usunąć salę?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Ta operacja jest nieodwracalna.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDeleteRoom(room.id)}
-                      className="bg-red-600 text-white hover:bg-red-800"
-                    >
-                      Usuń
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+  const columns = createColumns(handleDeleteRoom);
+
+  return <DataTable columns={columns} data={data} />;
 }

@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUserStore } from "@/hooks/use-user-store";
 import ChangePasswordButton from "@/components/dashboard/ChangePasswordButton";
-import LogOutButton from "@/components/dashboard/LogOutButton";
+import LogoutButton from "@/components/LogoutButton";
 import ThemeChanger from "@/components/dashboard/ThemeChanger";
 
-export default function UserMenu() {
+export default function EmployeeMenu() {
   const user = useUserStore(
     useShallow((state) => ({
       username: state.username,
@@ -43,7 +43,7 @@ export default function UserMenu() {
           >
             <ThemeChanger />
             <ChangePasswordButton />
-            <LogOutButton />
+            <LogoutButton redirectTo="/panel-pracownika/logowanie" asMenuItem />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

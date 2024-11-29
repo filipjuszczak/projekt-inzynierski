@@ -73,7 +73,7 @@ export default function EmployeeTable({ employees }: EmployeeTableProps) {
                   <DropdownMenuLabel>Akcje</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/staff/dashboard/employees/${employee.id}/edit`}
+                      href={`/panel-pracownika/pulpit/pracownicy/${employee.id}/edytuj`}
                     >
                       Edytuj
                     </Link>

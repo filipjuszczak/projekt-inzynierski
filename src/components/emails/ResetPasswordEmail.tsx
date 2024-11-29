@@ -16,7 +16,7 @@ export default function ResetPasswordEmail({
       </p>
       <p>
         Aby zresetować swoje hasło, kliknij w ten link:{" "}
-        <a href={link}>{link}</a> (wygaśnie za 15 minut).
+        <a href={link}>{link}</a> (link wygaśnie za 15 minut).
       </p>
       <p>
         Jeśli nie prosiłeś o zresetowanie hasła, zignoruj tę wiadomość, a Twoje

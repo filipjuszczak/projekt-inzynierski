@@ -11,8 +11,8 @@ export default function AccountActivationEmail({
     <div>
       <h1>Witaj, {firstName}!</h1>
       <p>
-        Aby aktywować konto, kliknij w link <a href={link}>{link}</a> (wygaśnie
-        za 15 min.)
+        Aby aktywować konto, kliknij w link: <a href={link}>{link}</a> (link
+        wygaśnie za 15 min.)
       </p>
     </div>
   );

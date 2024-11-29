@@ -27,9 +27,10 @@ import {
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { deleteMovie } from "@/app/(staff)/staff/dashboard/(management)/movies/actions";
+import { deleteMovie } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/actions";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Movie } from "@/lib/types";
+import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 
 function createColumns(
   handleDeleteMovie: (movieId: string) => void
@@ -50,7 +51,11 @@ function createColumns(
       },
       cell: ({ row }) => {
         const title = row.original.title;
-        return <span className="block max-w-[12ch] truncate">{title}</span>;
+        return (
+          <span className="block max-w-[12ch] truncate md:max-w-none">
+            {title}
+          </span>
+        );
       }
     },
     {
@@ -63,6 +68,40 @@ function createColumns(
           <div className="flex flex-wrap gap-2">
             {movie.genres.map((genre) => (
               <Badge key={genre.id}>{genre.name}</Badge>
+            ))}
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: "viewingModes",
+      header: "Rodzaje audio",
+      cell: ({ row }) => {
+        const viewingModes = row.original.viewingModes;
+
+        return (
+          <div className="flex flex-wrap gap-2">
+            {viewingModes.map((mode) => (
+              <Badge key={`vm-${mode.id.toString()}`}>
+                {VIEWING_MODE_LABELS[mode.viewingMode]}
+              </Badge>
+            ))}
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: "screenFormats",
+      header: "Formaty ekranu",
+      cell: ({ row }) => {
+        const screenFormats = row.original.screenFormats;
+
+        return (
+          <div className="flex flex-wrap gap-2">
+            {screenFormats.map((format) => (
+              <Badge key={`sf-${format.id.toString()}`}>
+                {SCREEN_FORMAT_LABELS[format.screenFormat]}
+              </Badge>
             ))}
           </div>
         );
@@ -126,12 +165,14 @@ function createColumns(
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Akcje</DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                  <Link href={`/staff/dashboard/movies/${movieId}`}>
+                  <Link href={`/panel-pracownika/pulpit/filmy/${movieId}`}>
                     Wyświetl szczegóły
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/staff/dashboard/movies/${movieId}/edit`}>
+                  <Link
+                    href={`/panel-pracownika/pulpit/filmy/${movieId}/edytuj`}
+                  >
                     Edytuj
                   </Link>
                 </DropdownMenuItem>

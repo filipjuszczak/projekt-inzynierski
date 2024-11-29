@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -26,12 +27,10 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { DataTable } from "@/components/DataTable";
-import Loader from "@/components/Loader";
-import NotFound from "@/components/NotFound";
-import { useFetchShowtimes } from "@/app/(staff)/staff/dashboard/(management)/showtimes/queries";
-import { deleteShowtime } from "@/app/(staff)/staff/dashboard/(management)/showtimes/actions";
+import { deleteShowtime } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
 import type { Showtime } from "@/lib/types";
-import { useQueryClient } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
+import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 
 function createColumns(
   handleDeleteShowtime: (showtimeId: string) => void
@@ -49,6 +48,42 @@ function createColumns(
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
+      }
+    },
+    {
+      accessorKey: "viewingMode",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Rodzaj audio
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const viewingMode = row.original.viewingMode;
+        return <Badge>{VIEWING_MODE_LABELS[viewingMode]}</Badge>;
+      }
+    },
+    {
+      accessorKey: "screenFormat",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Format ekranu
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const screenFormat = row.original.screenFormat;
+        return <Badge>{SCREEN_FORMAT_LABELS[screenFormat]}</Badge>;
       }
     },
     {
@@ -118,12 +153,14 @@ function createColumns(
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Akcje</DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                  <Link href={`/staff/dashboard/showtimes/${showtimeId}`}>
+                  <Link href={`/panel-pracownika/pulpit/seanse/${showtimeId}`}>
                     Wyświetl szczegóły
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/staff/dashboard/showtimes/${showtimeId}/edit`}>
+                  <Link
+                    href={`/panel-pracownika/pulpit/seanse/${showtimeId}/edytuj`}
+                  >
                     Edytuj
                   </Link>
                 </DropdownMenuItem>

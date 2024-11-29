@@ -54,7 +54,7 @@ export default async function ConfirmPasswordPage({
   if ("success" in result && result.success) {
     return (
       <main className="flex flex-grow items-center justify-center">
-        <div className="space-y-4 text-center">
+        <div className="space-y-4 px-4 text-center">
           <Success />
         </div>
       </main>

@@ -6,5 +6,5 @@ interface GenreListProps {
 }
 
 export default function GenreList({ genres }: GenreListProps) {
-  return <GenreTable genres={genres} />;
+  return <GenreTable data={genres} />;
 }

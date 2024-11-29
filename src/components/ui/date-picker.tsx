@@ -54,13 +54,15 @@ interface DatePickerProps {
   value: Date;
   startYear?: number;
   endYear?: number;
+  className?: string;
 }
 
 export function DatePicker({
   onValueChange,
   value,
   startYear = getYear(new Date()) - 100,
-  endYear = getYear(new Date()) + 100
+  endYear = getYear(new Date()) + 10,
+  className
 }: DatePickerProps) {
   const date = value;
 
@@ -93,7 +95,8 @@ export function DatePicker({
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            !date && "text-muted-foreground",
+            className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

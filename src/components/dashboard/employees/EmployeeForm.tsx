@@ -28,7 +28,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import {
   createEmployee,
   editEmployee
-} from "@/app/(staff)/staff/dashboard/(management)/employees/actions";
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/pracownicy/actions";
 import { validateEmployeeValues } from "@/lib/utils";
 import { employeeSchema, EmployeeValues } from "@/lib/validation/employee";
 
@@ -102,7 +102,7 @@ export default function EmployeeForm({
 
       if ("success" in result && result.success) {
         toast.success("Pomyślnie zapisano dane pracownika.");
-        return redirect("/staff/dashboard/employees");
+        return redirect("/panel-pracownika/pulpit/pracownicy");
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }

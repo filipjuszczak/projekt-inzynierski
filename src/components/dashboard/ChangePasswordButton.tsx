@@ -5,10 +5,11 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 export default function ChangePasswordButton() {
   return (
     <DropdownMenuItem asChild>
-      <div>
+      <Link href="/panel-pracownika/zmien-haslo" className="cursor-pointer">
+        {" "}
         <KeyRound />
-        <Link href="/staff/change-password">Zmień hasło</Link>
-      </div>
+        Zmień hasło
+      </Link>
     </DropdownMenuItem>
   );
 }

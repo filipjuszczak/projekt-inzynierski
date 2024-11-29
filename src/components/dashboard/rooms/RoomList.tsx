@@ -6,9 +6,5 @@ interface RoomListProps {
 }
 
 export default function RoomList({ rooms }: RoomListProps) {
-  return <RoomsTable rooms={rooms} />;
-}
-
-interface RoomsTableProps {
-  rooms: Room[];
+  return <RoomsTable data={rooms} />;
 }

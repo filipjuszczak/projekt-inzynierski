@@ -17,8 +17,12 @@ export default function RecentMoviesSkeleton() {
                 className="flex items-center justify-between border-b pb-2"
               >
                 <div>
-                  <Skeleton className="mb-1 h-5 w-[150px]" />
-                  <Skeleton className="h-4 w-[100px]" />
+                  <Skeleton className="mb-1 h-6 w-[150px]" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-6 w-[50px]" />
+                    <Skeleton className="h-6 w-[50px]" />
+                    <Skeleton className="h-6 w-[50px]" />
+                  </div>
                 </div>
                 <Skeleton className="h-4 w-[80px]" />
               </div>

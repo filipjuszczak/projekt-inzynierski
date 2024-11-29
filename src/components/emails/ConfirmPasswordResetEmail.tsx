@@ -12,7 +12,7 @@ export default function ConfirmPasswordResetEmail({
       <h1>Witaj, {firstName}!</h1>
       <p>Twoje hasło zostało pomyślnie zresetowane.</p>
       <p>
-        Zaloguj się na <a href={link}>{link}</a>.
+        Zaloguj się: <a href={link}>{link}</a>.
       </p>
     </div>
   );

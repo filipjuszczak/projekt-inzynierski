@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface LoadingButtonProps {
   isPending: boolean;
@@ -23,7 +24,10 @@ export default function LoadingButton({
   return (
     <Button
       variant="default"
-      className={className}
+      className={cn(
+        className,
+        disabled && "cursor-not-allowed disabled:pointer-events-auto"
+      )}
       disabled={disabled || isPending || isFetching || isError}
     >
       {isPending && <Loader2 className="size-5 animate-spin" />}

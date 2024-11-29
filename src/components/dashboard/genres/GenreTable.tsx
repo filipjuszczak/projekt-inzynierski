@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MoreVertical } from "lucide-react";
+import { ArrowUpDown, Hash, MoreVertical } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -39,8 +39,10 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { deleteGenre } from "@/app/(staff)/staff/dashboard/(management)/genres/actions";
+import { deleteGenre } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/actions";
+import type { ColumnDef } from "@tanstack/react-table";
 import type { GenreWithMovieCount } from "@/lib/types";
+import { DataTable } from "@/components/DataTable";
 
 const ageRestrictionLabels = {
   0: "Brak",
@@ -49,11 +51,155 @@ const ageRestrictionLabels = {
   18: "18+"
 };
 
-interface GenreTableProps {
-  genres: GenreWithMovieCount[];
+function createColumns(
+  handleDeleteGenre: (genreId: string) => void
+): ColumnDef<GenreWithMovieCount>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Nazwa gatunku
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const name = row.original.name;
+        return <span className="block max-w-[12ch] truncate">{name}</span>;
+      }
+    },
+    {
+      accessorKey: "ageRestriction",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Ograniczenie wiekowe
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const ageRestriction = row.original.ageRestriction;
+        return ageRestrictionLabels[
+          ageRestriction as keyof typeof ageRestrictionLabels
+        ];
+      }
+    },
+    {
+      accessorKey: "_count.movies",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            <Hash />
+            Liczba filmów
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const genre = row.original;
+
+        return (
+          <AlertDialog>
+            <Dialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Otwórz menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Akcje</DropdownMenuLabel>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem>
+                      <span>Wyświetl szczegóły</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/panel-pracownika/pulpit/genre/${genre.id}/edytuj`}
+                    >
+                      Edytuj
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem>
+                      <span className="text-red-600">Usuń</span>
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{genre.name}</DialogTitle>
+                </DialogHeader>
+                <div className="text-sm text-muted-foreground">
+                  <div>
+                    Ograniczenie wiekowe:{" "}
+                    <span className="text-foreground">
+                      {
+                        ageRestrictionLabels[
+                          genre.ageRestriction as keyof typeof ageRestrictionLabels
+                        ]
+                      }
+                    </span>
+                  </div>
+                  <div>
+                    Liczba filmów:{" "}
+                    <span className="text-foreground">
+                      {genre._count.movies}
+                    </span>
+                  </div>
+                </div>
+              </DialogContent>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Czy na pewno chcesz usunąć gatunek?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Ta operacja jest nieodwracalna.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleDeleteGenre(genre.id)}
+                    className="bg-red-600 text-white hover:bg-red-800"
+                  >
+                    Usuń
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </Dialog>
+          </AlertDialog>
+        );
+      }
+    }
+  ];
 }
 
-export default function GenreTable({ genres }: GenreTableProps) {
+interface GenreTableProps {
+  data: GenreWithMovieCount[];
+}
+
+export default function GenreTable({ data }: GenreTableProps) {
   const queryClient = useQueryClient();
 
   async function handleDeleteGenre(genreId: string) {
@@ -72,104 +218,7 @@ export default function GenreTable({ genres }: GenreTableProps) {
     }
   }
 
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nazwa</TableHead>
-          <TableHead>Ograniczenie wiekowe</TableHead>
-          <TableHead className="text-right">Akcje</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {genres.map((genre) => (
-          <TableRow key={genre.id}>
-            <TableCell>{genre.name}</TableCell>
-            <TableCell>
-              {
-                ageRestrictionLabels[
-                  genre.ageRestriction as keyof typeof ageRestrictionLabels
-                ]
-              }
-            </TableCell>
-            <TableCell className="text-right">
-              <AlertDialog>
-                <Dialog>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Otwórz menu</span>
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Akcje</DropdownMenuLabel>
-                      <DialogTrigger asChild>
-                        <DropdownMenuItem>
-                          <span>Wyświetl szczegóły</span>
-                        </DropdownMenuItem>
-                      </DialogTrigger>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/staff/dashboard/genres/${genre.id}/edit`}>
-                          Edytuj
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <AlertDialogTrigger asChild>
-                        <DropdownMenuItem>
-                          <span className="text-destructive">Usuń</span>
-                        </DropdownMenuItem>
-                      </AlertDialogTrigger>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{genre.name}</DialogTitle>
-                    </DialogHeader>
-                    <div className="text-sm text-muted-foreground">
-                      <div>
-                        Ograniczenie wiekowe:{" "}
-                        <span className="text-foreground">
-                          {
-                            ageRestrictionLabels[
-                              genre.ageRestriction as keyof typeof ageRestrictionLabels
-                            ]
-                          }
-                        </span>
-                      </div>
-                      <div>
-                        Liczba filmów:{" "}
-                        <span className="text-foreground">
-                          {genre._count.movies}
-                        </span>
-                      </div>
-                    </div>
-                  </DialogContent>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Czy na pewno chcesz usunąć gatunek?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Ta operacja jest nieodwracalna.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDeleteGenre(genre.id)}
-                        className="bg-red-600 text-white hover:bg-red-800"
-                      >
-                        Usuń
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </Dialog>
-              </AlertDialog>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+  const columns = createColumns(handleDeleteGenre);
+
+  return <DataTable columns={columns} data={data} />;
 }

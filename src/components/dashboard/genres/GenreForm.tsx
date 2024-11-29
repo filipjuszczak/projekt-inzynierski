@@ -25,7 +25,7 @@ import LoadingButton from "@/components/LoadingButton";
 import {
   createGenre,
   editGenre
-} from "@/app/(staff)/staff/dashboard/(management)/genres/actions";
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/actions";
 import { genreSchema, type GenreValues } from "@/lib/validation/genre";
 
 interface GenreFormProps {
@@ -73,7 +73,7 @@ export default function GenreForm({
 
       if ("success" in result && result.success) {
         toast.success("Gatunek został pomyślnie zapisany.");
-        return redirect("/staff/dashboard/genres");
+        return redirect("/panel-pracownika/pulpit/gatunki");
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }

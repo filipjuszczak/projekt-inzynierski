@@ -23,17 +23,17 @@ import { Role } from "@prisma/client";
 const employeesMenuItems = [
   {
     title: "Pracownicy",
-    url: "/staff/dashboard/employees",
+    url: "/panel-pracownika/pulpit/pracownicy",
     icon: User2,
     children: [
       {
         title: "Lista",
-        url: "/staff/dashboard/employees",
+        url: "/panel-pracownika/pulpit/pracownicy",
         icon: List
       },
       {
         title: "Dodaj",
-        url: "/staff/dashboard/employees/new",
+        url: "/panel-pracownika/pulpit/pracownicy/nowy",
         icon: FilePlus
       }
     ]

@@ -18,7 +18,7 @@ import LoadingButton from "@/components/LoadingButton";
 import {
   createRoom,
   editRoom
-} from "@/app/(staff)/staff/dashboard/(management)/rooms/actions";
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/actions";
 import { roomSchema, RoomValues } from "@/lib/validation/room";
 
 interface RoomFormProps {
@@ -69,7 +69,7 @@ export default function RoomForm({
 
       if ("success" in result && result.success) {
         toast.success("Sala została zapisana.");
-        return redirect("/staff/dashboard/rooms");
+        return redirect("/panel-pracownika/pulpit/sale");
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }

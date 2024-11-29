@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -21,6 +21,13 @@ import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 
 interface SignupFormProps {
   onSuccessfulSignup: () => void;
@@ -28,6 +35,7 @@ interface SignupFormProps {
 
 export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [passwordConditionsMet, setPasswordConditionsMet] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<SignupValues>({
@@ -43,6 +51,31 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
       termsAccepted: false
     }
   });
+
+  const password = form.watch("password");
+  const repeatPassword = form.watch("repeatPassword");
+
+  useEffect(() => {
+    function checkPasswordConditions() {
+      const minLength = password.length >= 8;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const passwordsMatch = password === repeatPassword;
+
+      return (
+        minLength &&
+        hasUppercase &&
+        hasLowercase &&
+        hasNumber &&
+        hasSpecialChar &&
+        passwordsMatch
+      );
+    }
+
+    setPasswordConditionsMet(checkPasswordConditions());
+  }, [password, repeatPassword]);
 
   async function onFormSubmit(values: SignupValues) {
     if (!validateSignupValues(form, values)) return;
@@ -66,188 +99,250 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
-        <FormField
-          name="username"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
-              <FormControl>
-                <Input id={field.name} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="firstName"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>Imię (wymagane)</FormLabel>
-              <FormControl>
-                <Input id={field.name} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="lastName"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>Nazwisko (wymagane)</FormLabel>
-              <FormControl>
-                <Input id={field.name} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="email"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>
-                Adres e-mail (wymagane)
-              </FormLabel>
-              <FormControl>
-                <Input type="email" id={field.name} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="dateOfBirth"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>
-                Data urodzenia (wymagane)
-              </FormLabel>
-              <FormControl>
-                <DatePicker
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="password"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>Hasło (wymagane)</FormLabel>
-              <FormControl>
-                <div className="flex items-center gap-4">
-                  <Input
-                    type={isPasswordVisible ? "text" : "password"}
-                    id={field.name}
-                    {...field}
-                  />
-                  {isPasswordVisible ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsPasswordVisible((i) => !i)}
-                    >
-                      <EyeOffIcon className="cursor-pointer" />
-                      <span className="sr-only">Hide password</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsPasswordVisible((i) => !i)}
-                    >
-                      <EyeIcon
-                        className="cursor-pointer"
-                        onClick={() => setIsPasswordVisible((i) => !i)}
+    <Card className="mx-auto w-full max-w-xl">
+      <CardHeader>
+        <CardTitle className="text-3xl">Zarejestruj się</CardTitle>
+        <CardDescription>
+          Utwórz konto, aby korzystać z pełni funkcjonalności serwisu.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onFormSubmit)}
+            className="space-y-6"
+          >
+            <FormField
+              name="username"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
+                  <FormControl>
+                    <Input id={field.name} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                name="firstName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor={field.name}>Imię (wymagane)</FormLabel>
+                    <FormControl>
+                      <Input id={field.name} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="lastName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor={field.name}>
+                      Nazwisko (wymagane)
+                    </FormLabel>
+                    <FormControl>
+                      <Input id={field.name} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name}>
+                    Adres e-mail (wymagane)
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="email" id={field.name} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="dateOfBirth"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name}>
+                    Data urodzenia (wymagane)
+                  </FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="bg-transparent"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name}>Hasło (wymagane)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={isPasswordVisible ? "text" : "password"}
+                        id={field.name}
+                        {...field}
                       />
-                      <span className="sr-only">Show password</span>
-                    </Button>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="repeatPassword"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>
-                Potwierdź hasło (wymagane)
-              </FormLabel>
-              <FormControl>
-                <div className="flex items-center gap-4">
-                  <Input
-                    type={isPasswordVisible ? "text" : "password"}
-                    id={field.name}
-                    {...field}
-                  />
-                  {isPasswordVisible ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsPasswordVisible((i) => !i)}
-                    >
-                      <EyeOffIcon className="cursor-pointer" />
-                      <span className="sr-only">Pokaż hasło</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsPasswordVisible((i) => !i)}
-                    >
-                      <EyeIcon
-                        className="cursor-pointer"
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3"
                         onClick={() => setIsPasswordVisible((i) => !i)}
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          {isPasswordVisible ? "Ukryj hasło" : "Pokaż hasło"}
+                        </span>
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="repeatPassword"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name}>
+                    Potwierdź hasło (wymagane)
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={isPasswordVisible ? "text" : "password"}
+                        id={field.name}
+                        {...field}
                       />
-                      <span className="sr-only">Ukryj hasło</span>
-                    </Button>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="termsAccepted"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox id={field.name} onCheckedChange={field.onChange} />
-                </FormControl>
-                <FormLabel htmlFor={field.name} className="mt-0">
-                  Akceptuję regulamin
-                </FormLabel>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <LoadingButton
-          isPending={isPending}
-          idleText="Utwórz konto"
-          loadingText="Wysyłanie..."
-          className="w-full"
-        />
-      </form>
-    </Form>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setIsPasswordVisible((i) => !i)}
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          {isPasswordVisible ? "Ukryj hasło" : "Pokaż hasło"}
+                        </span>
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="space-y-2 text-sm">
+              <p>Hasło musi:</p>
+              <ul className="list-inside list-disc space-y-1">
+                <li
+                  className={
+                    password.length >= 8 ? "text-primary" : "text-destructive"
+                  }
+                >
+                  Mieć co najmniej 8 znaków
+                </li>
+                <li
+                  className={
+                    /[A-Z]/.test(password) ? "text-primary" : "text-destructive"
+                  }
+                >
+                  Zawierać co najmniej jedną wielką literę
+                </li>
+                <li
+                  className={
+                    /[a-z]/.test(password) ? "text-primary" : "text-destructive"
+                  }
+                >
+                  Zawierać co najmniej jedną małą literę
+                </li>
+                <li
+                  className={
+                    /\d/.test(password) ? "text-primary" : "text-destructive"
+                  }
+                >
+                  Zawierać co najmniej jedną cyfrę
+                </li>
+                <li
+                  className={
+                    /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                      ? "text-primary"
+                      : "text-destructive"
+                  }
+                >
+                  Zawierać co najmniej jeden znak specjalny
+                </li>
+                <li
+                  className={
+                    password === repeatPassword
+                      ? "text-primary"
+                      : "text-destructive"
+                  }
+                >
+                  Hasła muszą być takie same
+                </li>
+              </ul>
+            </div>
+            <FormField
+              name="termsAccepted"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        id={field.name}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel htmlFor={field.name} className="mt-0">
+                      Akceptuję regulamin
+                    </FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <LoadingButton
+              isPending={isPending}
+              idleText="Utwórz konto"
+              loadingText="Wysyłanie..."
+              disabled={!passwordConditionsMet}
+              className="w-full"
+            />
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

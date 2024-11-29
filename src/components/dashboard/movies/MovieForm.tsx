@@ -1,10 +1,11 @@
 "use client";
 
-import { Fragment, useMemo, useTransition } from "react";
+import { Fragment, useCallback, useMemo, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ScreenFormat, ViewingMode } from "@prisma/client";
 import { Paperclip } from "lucide-react";
 import {
   Form,
@@ -38,9 +39,13 @@ import {
   createMovie,
   editMovie,
   updatePosterUrl
-} from "@/app/(staff)/staff/dashboard/(management)/movies/actions";
-import { validateMovieValues } from "@/lib/utils";
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/actions";
 import { useUploadThing } from "@/lib/uploadthing";
+import {
+  VIEWING_MODE_LABELS,
+  SCREEN_FORMAT_LABELS,
+  GENRE_LABELS
+} from "@/lib/constants";
 import { movieSchema, type MovieValues } from "@/lib/validation/movie";
 import type { Genre } from "@/lib/types";
 
@@ -50,19 +55,15 @@ const dropzoneConfig = {
   multiple: false
 };
 
-const genresLabels = {
-  0: "Brak ograniczenia wiekowego",
-  12: "12+",
-  15: "15+",
-  18: "18+"
-};
-
 interface MovieFormProps {
   id?: string;
   title?: string;
   description?: string;
+  shortDescription?: string;
   releaseDate?: Date;
   duration?: string;
+  viewingModes?: ViewingMode[];
+  screenFormats?: ScreenFormat[];
   selectedGenres?: string[];
   genres: {
     id: string;
@@ -78,8 +79,11 @@ export default function MovieForm({
   id = "",
   title = "",
   description = "",
+  shortDescription = "",
   releaseDate = new Date(),
   duration = "",
+  viewingModes = [],
+  screenFormats = [],
   selectedGenres = [],
   genres
 }: MovieFormProps) {
@@ -101,25 +105,34 @@ export default function MovieForm({
     [genres]
   );
 
-  function handleCheckboxChange(genreId: string) {
-    const prevGenres = form.getValues("genres");
-    const updatedGenres = prevGenres.includes(genreId)
-      ? prevGenres.filter((id) => id !== genreId)
-      : [...prevGenres, genreId];
-    form.setValue("genres", updatedGenres);
-  }
-
   const form = useForm<MovieValues>({
     resolver: zodResolver(movieSchema),
     defaultValues: {
       title,
       posterImage: null,
       description,
+      shortDescription,
       releaseDate,
       duration,
+      viewingModes,
+      screenFormats,
       genres: selectedGenres
     }
   });
+
+  const handleCheckboxChange = useCallback(
+    <T extends string | ViewingMode | ScreenFormat>(
+      field: "genres" | "viewingModes" | "screenFormats",
+      value: T
+    ) => {
+      const prevValues = form.getValues(field) as T[];
+      const updatedValues = prevValues.includes(value)
+        ? prevValues.filter((v: T) => v !== value)
+        : [...prevValues, value];
+      form.setValue(field, updatedValues);
+    },
+    [form]
+  );
 
   const { startUpload } = useUploadThing("imageUploader", {
     onBeforeUploadBegin(files) {
@@ -136,8 +149,6 @@ export default function MovieForm({
   });
 
   async function onFormSubmit(values: MovieValues) {
-    if (!validateMovieValues(form, values)) return;
-
     startTransition(async () => {
       let result;
       let error;
@@ -182,11 +193,11 @@ export default function MovieForm({
               toast.error(posterUpdateResult.error);
             } else {
               toast.success("Plakat został przesłany.");
-              return redirect("/staff/dashboard/movies");
+              return redirect("/panel-pracownika/pulpit/filmy");
             }
           }
         } else {
-          return redirect("/staff/dashboard/movies");
+          return redirect("/panel-pracownika/pulpit/filmy");
         }
       } else {
         toast.error(
@@ -257,6 +268,21 @@ export default function MovieForm({
           )}
         />
         <FormField
+          name="shortDescription"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor={field.name}>
+                Krótki opis filmu (wymagane)
+              </FormLabel>
+              <FormControl>
+                <Textarea id={field.name} className="resize-none" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
           name="releaseDate"
           control={form.control}
           render={({ field }) => (
@@ -290,6 +316,88 @@ export default function MovieForm({
           )}
         />
         <FormField
+          name="viewingModes"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem className="flex flex-col gap-2">
+              <FormLabel htmlFor={field.name}>
+                Rodzaj audio (wymagane)
+              </FormLabel>
+              {field.value.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {field.value.map((mode) => (
+                    <Badge key={mode}>{VIEWING_MODE_LABELS[mode]}</Badge>
+                  ))}
+                </div>
+              )}
+              <FormControl>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Wybierz...</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    {Object.values(ViewingMode).map((mode) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={mode}
+                          onCheckedChange={() =>
+                            handleCheckboxChange("viewingModes", mode)
+                          }
+                          checked={field.value.includes(mode)}
+                        >
+                          {VIEWING_MODE_LABELS[mode]}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="screenFormats"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem className="flex flex-col gap-2">
+              <FormLabel htmlFor={field.name}>
+                Format obrazu (wymagane)
+              </FormLabel>
+              {field.value.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {field.value.map((format) => (
+                    <Badge key={format}>{SCREEN_FORMAT_LABELS[format]}</Badge>
+                  ))}
+                </div>
+              )}
+              <FormControl>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Wybierz...</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    {Object.values(ScreenFormat).map((format) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={format}
+                          onCheckedChange={() =>
+                            handleCheckboxChange("screenFormats", format)
+                          }
+                          checked={field.value.includes(format)}
+                        >
+                          {SCREEN_FORMAT_LABELS[format]}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
           name="genres"
           control={form.control}
           render={({ field }) => (
@@ -311,21 +419,21 @@ export default function MovieForm({
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline">Wybierz...</Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
+                  <DropdownMenuContent>
                     {Object.keys(genresByAgeRestrictions).map((key) => {
                       const numericKey = Number(
                         key
-                      ) as keyof typeof genresLabels;
+                      ) as keyof typeof GENRE_LABELS;
                       return (
                         <Fragment key={numericKey}>
                           <DropdownMenuLabel>
-                            {genresLabels[numericKey]}
+                            {GENRE_LABELS[numericKey]}
                           </DropdownMenuLabel>
                           {genresByAgeRestrictions[numericKey].map((genre) => (
                             <DropdownMenuCheckboxItem
                               key={genre.id}
                               onCheckedChange={() =>
-                                handleCheckboxChange(genre.id)
+                                handleCheckboxChange("genres", genre.id)
                               }
                               checked={field.value.includes(genre.id)}
                             >
