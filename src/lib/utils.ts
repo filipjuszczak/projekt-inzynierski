@@ -4,8 +4,8 @@ import crypto from "crypto";
 import { addMinutes, isValid as isValidDate } from "date-fns";
 import type { UseFormReturn } from "react-hook-form";
 import type { SignupValues } from "@/lib/validation/auth";
-import type { MovieValues } from "@/lib/validation/movie";
 import type { EmployeeValues } from "@/lib/validation/employee";
+import type { UpdateUserDataValues } from "@/lib/validation/user";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -126,16 +126,47 @@ export function validateSignupValues(
   return isValid;
 }
 
-export function validateMovieValues(
-  form: UseFormReturn<MovieValues>,
-  values: MovieValues
+export function validateUserDataValues(
+  form: UseFormReturn<UpdateUserDataValues>,
+  values: UpdateUserDataValues
 ) {
   let isValid = true;
 
-  if (Number(values.duration) < 1) {
-    form.setError("duration", {
+  if (values.username) {
+    if (!allowedUsernameRegex.test(values.username)) {
+      form.setError("username", {
+        type: "value",
+        message: "Nazwa użytkownika zawiera niedozwolone znaki"
+      });
+      isValid = false;
+    }
+
+    if (forbiddenUsernames.includes(values.username.toLowerCase())) {
+      form.setError("username", {
+        type: "value",
+        message: "Ta nazwa użytkownika jest zablokowana"
+      });
+      isValid = false;
+    }
+  }
+
+  if (!isValidDate(values.dateOfBirth)) {
+    form.setError("dateOfBirth", {
       type: "value",
-      message: "Czas trwania filmu musi być większy niż 0."
+      message: "Nieprawidłowa data"
+    });
+    isValid = false;
+  }
+
+  const now = new Date();
+  const diff = now.getTime() - values.dateOfBirth.getTime();
+  const twelveYears = 12 * 365 * 24 * 60 * 60 * 1000;
+  const isOldEnough = diff >= twelveYears;
+
+  if (!isOldEnough) {
+    form.setError("dateOfBirth", {
+      type: "value",
+      message: "Musisz mieć co najmniej 12 lat"
     });
     isValid = false;
   }
