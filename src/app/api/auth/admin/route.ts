@@ -1,4 +1,5 @@
-import { authAdmin } from "@/app/(staff)/staff/auth";
+import { Role } from "@prisma/client";
+import { authenticateUser } from "@/auth";
 import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     const { sessionCookie } = await request.json();
 
-    const { session } = await authAdmin(sessionCookie);
+    const { session } = await authenticateUser(Role.ADMIN, sessionCookie);
 
     if (!session || !session.userId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });

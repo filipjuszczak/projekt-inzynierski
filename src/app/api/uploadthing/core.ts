@@ -3,8 +3,9 @@ import {
   type FileRouter
 } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
-import { authEmployee } from "@/app/(staff)/staff/auth";
-import { getSessionCookie } from "@/app/(staff)/staff/session";
+import { Role } from "@prisma/client";
+import { authenticateUser } from "@/auth";
+import { getSessionCookie } from "@/lib/session";
 
 const f = createUploadThing();
 
@@ -13,7 +14,14 @@ export const imageFileRouter = {
     .middleware(async () => {
       const requestSessionCookie = await getSessionCookie();
 
-      const { session } = await authEmployee(requestSessionCookie);
+      if (!requestSessionCookie) {
+        throw new UploadThingError("Unauthorized");
+      }
+
+      const { session } = await authenticateUser(
+        Role.EMPLOYEE,
+        requestSessionCookie
+      );
 
       if (!session || !session.userId) {
         throw new UploadThingError("Unauthorized");
@@ -21,7 +29,7 @@ export const imageFileRouter = {
 
       return {};
     })
-    .onUploadComplete(async ({ metadata, file }) => {
+    .onUploadComplete(async ({ file }) => {
       return { success: true, fileUrl: file.url };
     })
 } satisfies FileRouter;
