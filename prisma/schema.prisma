@@ -14,30 +14,34 @@ enum Role {
 }
 
 model User {
-  id                 String    @id @default(uuid())
-  username           String?   @unique
-  firstName          String
-  lastName           String
-  email              String    @unique
-  dateOfBirth        DateTime
-  passwordHash       String
-  role               Role      @default(NORMAL)
-  isActivated        Boolean   @default(false)
-  mustChangePassword Boolean   @default(false)
-  sessions           Session[]
-  seats              Seat[]
-  orders             Order[]
-  tokens             Token[]
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id                        String         @id @default(uuid())
+  username                  String?        @unique
+  firstName                 String
+  lastName                  String
+  email                     String         @unique
+  dateOfBirth               DateTime
+  password                  String
+  role                      Role           @default(NORMAL)
+  isActivated               Boolean        @default(false)
+  mustChangePassword        Boolean        @default(false)
+  newsletterConsent         Boolean        @default(false)
+  unsuccessfulLoginAttempts Int            @default(0)
+  isLocked                  Boolean        @default(false)
+  sessions                  Session[]
+  seats                     Seat[]
+  orders                    Order[]
+  tokens                    Token[]
+  activities                UserActivity[]
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
 
   @@map("users")
 }
 
 model Session {
   id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(references: [id], fields: [userId], onDelete: SetNull)
   expiresAt DateTime
 
   @@map("sessions")
@@ -55,11 +59,22 @@ model Token {
   value     String
   isActive  Boolean   @default(true)
   expiresAt DateTime
-  User      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   @@map("tokens")
+}
+
+enum ScreenFormat {
+  TWO_D
+  THREE_D
+  IMAX
+}
+
+enum ViewingMode {
+  SUBTITLES
+  DUBBING
 }
 
 enum ShowtimeStatus {
@@ -69,37 +84,64 @@ enum ShowtimeStatus {
 }
 
 model Showtime {
-  id        String         @id @default(uuid())
-  movie     Movie          @relation(fields: [movieId], references: [id])
-  movieId   String
-  room      Room           @relation(fields: [roomId], references: [id])
-  roomId    String
-  startTime DateTime
-  endTime   DateTime
-  status    ShowtimeStatus
-  createdBy String
-  updatedBy String?
-  seats     Seat[]
-  orders    Order[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id           String         @id @default(uuid())
+  movie        Movie          @relation(fields: [movieId], references: [id])
+  movieId      String
+  room         Room           @relation(fields: [roomId], references: [id])
+  roomId       String
+  startTime    DateTime
+  endTime      DateTime
+  status       ShowtimeStatus
+  screenFormat ScreenFormat
+  viewingMode  ViewingMode
+  createdBy    String
+  updatedBy    String?
+  seats        Seat[]
+  orders       Order[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@map("showtimes")
 }
 
+model MovieViewingMode {
+  id          Int         @id @default(autoincrement())
+  movieId     String
+  viewingMode ViewingMode
+  movie       Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+
+  @@unique([movieId, viewingMode])
+  @@map("viewing_modes_on_movies")
+}
+
+model MovieScreenFormat {
+  id           Int          @id @default(autoincrement())
+  movieId      String
+  screenFormat ScreenFormat
+  movie        Movie        @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+
+  @@unique([movieId, screenFormat])
+  @@map("screen_formats_on_movies")
+}
+
 model Movie {
-  id          String           @id @default(uuid())
-  title       String
-  description String
-  releaseDate DateTime
-  duration    Int
-  posterUrl   String?
-  createdBy   String
-  updatedBy   String?
-  genres      GenresOnMovies[]
-  showtimes   Showtime[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id               String              @id @default(uuid())
+  title            String              @unique
+  description      String
+  shortDescription String
+  releaseDate      DateTime
+  duration         Int
+  posterUrl        String?
+  screenFormats    MovieScreenFormat[]
+  viewingModes     MovieViewingMode[]
+  genres           GenresOnMovies[]
+  showtimes        Showtime[]
+  createdBy        String
+  updatedBy        String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   @@map("movies")
 }
@@ -160,18 +202,24 @@ model Ticket {
   @@map("tickets")
 }
 
+enum OrderType {
+  RESERVATION
+  PAID
+}
+
 model Order {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  id         String    @id @default(uuid())
+  type       OrderType
+  isPaid     Boolean?
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   showtimeId String
-  showtime   Showtime @relation(fields: [showtimeId], references: [id])
-  seatId     String
-  seat       Seat     @relation(fields: [seatId], references: [id])
+  showtime   Showtime  @relation(fields: [showtimeId], references: [id])
+  seats      Seat[]    @relation("OrderSeats")
   ticketId   String
-  ticket     Ticket   @relation(fields: [ticketId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  ticket     Ticket    @relation(fields: [ticketId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@map("orders")
 }
@@ -184,13 +232,41 @@ model Seat {
   showtimeId String
   showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
   roomId     String
-  room       Room     @relation(fields: [roomId], references: [id])
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders     Order[]
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId    String?
+  order      Order?   @relation("OrderSeats", fields: [orderId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@unique([showtimeId, rowNumber, seatNumber])
   @@map("seats")
+}
+
+model SeatReservation {
+  id String @id @default(uuid())
+
+  @@map("seat_reservations")
+}
+
+enum UserActivities {
+  ACTIVATED_ACCOUNT
+  DELETED_ACCOUNT
+  PASSWORD_CHANGED
+  REQUESTED_PASSWORD_RESET
+  DATA_CHANGED
+  NEWSLETTER_CONSENT_GRANTED
+  NEWSLETTER_CONSENT_REVOKED
+  CREATED_RESERVATION
+}
+
+model UserActivity {
+  id        String         @id @default(uuid())
+  type      UserActivities
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime       @default(now())
+
+  @@map("users_activities")
 }
