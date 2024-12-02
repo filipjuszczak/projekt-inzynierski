@@ -40,7 +40,6 @@ export default function DeleteAccountButton({
     }
 
     if ("success" in deleteAccountResult && deleteAccountResult.success) {
-      console.log("Account deleted successfully! Redirecting to home page...");
       resetUserData();
       queryClient.clear();
       toast.success("Pomyślnie usunięto Twoje konto. Trwa wylogowanie...");

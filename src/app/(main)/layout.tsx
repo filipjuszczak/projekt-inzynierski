@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import AuthButtons from "@/components/AuthButtons";
 import { useCheckAuth } from "@/app/(main)/queries";
 import LogoutButton from "@/components/LogoutButton";
@@ -49,8 +48,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
         </header>
         {children}
         <footer className="w-full border-t bg-background py-6">
-          <div className="container px-4 md:px-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="container px-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">About Us</h3>
                 <ul className="space-y-1">
@@ -96,13 +95,13 @@ export default function Layout({ children }: React.PropsWithChildren) {
                   </li>
                 </ul>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <h3 className="text-lg font-semibold">Newsletter</h3>
                 <form className="flex space-x-2">
                   <Input type="email" placeholder="Enter your email" />
                   <Button type="submit">Subscribe</Button>
                 </form>
-              </div>
+              </div> */}
             </div>
             <div className="mt-6 text-center text-sm text-muted-foreground">
               © {new Date().getFullYear()} CinemaPlus. Wszelkie prawa

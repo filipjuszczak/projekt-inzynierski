@@ -1,10 +1,15 @@
 import { Suspense } from "react";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import SearchBar from "@/components/movies/SearchBar";
 import FilterSidebar from "@/components/movies/FilterSidebar";
-import MovieGrid from "@/components/MovieGrid";
-import MovieGridSkeleton from "@/components/skeletons/MovieGridSkeleton";
 import FilterSidebarSkeleton from "@/components/movies/skeletons/FilterSidebarSkeleton";
+import Movies from "@/components/movies/Movies";
+// import { fetchMoviesOnServer } from "@/lib/api";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
+import type { MoviesPage } from "@/lib/types";
+import { getMovies } from "@/app/(main)/filmy/data";
+import { fetchMoviesOnServer } from "@/lib/api";
+import { getQueryClient } from "@/lib/get-query-client";
 
 interface MoviesPageProps {
   searchParams: Promise<{
@@ -17,7 +22,27 @@ interface MoviesPageProps {
 
 export default async function MoviesPage({ searchParams }: MoviesPageProps) {
   const filters = await searchParams;
-  console.log("Filters:", filters);
+  const queryClient = getQueryClient();
+
+  const params = new URLSearchParams(
+    Object.entries(filters).reduce((acc, [key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => acc.append(key, v));
+      } else if (value !== undefined) {
+        acc.append(key, value);
+      }
+      return acc;
+    }, new URLSearchParams())
+  );
+
+  // const { movies, nextCursor } = await getMovies(filters);
+
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: ["movies"],
+    queryFn: ({ pageParam }) => fetchMoviesOnServer(pageParam, params),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor
+  });
 
   return (
     <div className="flex-1 px-4 py-10 lg:py-24">
@@ -32,9 +57,9 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
           </Suspense>
         </aside>
         <main className="flex-1">
-          <Suspense fallback={<MovieGridSkeleton />}>
-            <MovieGrid filters={filters} />
-          </Suspense>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <Movies />
+          </HydrationBoundary>
         </main>
       </div>
     </div>

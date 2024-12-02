@@ -1,15 +1,20 @@
-import { ScreenFormat, ViewingMode } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import type { Filters } from "@/lib/types";
+import type { NextRequest } from "next/server";
+import type { ScreenFormat, ViewingMode } from "@prisma/client";
 
-const PAGE_SIZE = 2;
+export async function GET(request: NextRequest) {
+  const title = request.nextUrl.searchParams.get("title") || undefined;
+  const genre = request.nextUrl.searchParams.getAll("genre") || undefined;
+  const viewingMode =
+    (request.nextUrl.searchParams.getAll("viewingMode") as ViewingMode[]) ||
+    undefined;
+  const screenFormat =
+    (request.nextUrl.searchParams.getAll("screenFormat") as ScreenFormat[]) ||
+    undefined;
+  const cursor = request.nextUrl.searchParams.get("cursor") || undefined;
 
-export async function getMovies({
-  title,
-  genre,
-  viewingMode,
-  screenFormat
-}: Filters) {
+  const pageSize = 4;
+
   const movies = await prisma.movie.findMany({
     where: {
       ...(title && {
@@ -77,81 +82,23 @@ export async function getMovies({
       }
     },
     orderBy: { releaseDate: "desc" },
-    take: PAGE_SIZE + 1
+    take: pageSize + 1,
+    cursor: cursor ? { id: cursor } : undefined
   });
 
-  const nextCursor = movies.length > PAGE_SIZE ? movies[PAGE_SIZE].id : null;
+  const nextCursor = movies.length > pageSize ? movies[pageSize].id : null;
 
-  const flattenedMovies = movies.slice(0, PAGE_SIZE).map((movie) => ({
+  const flattenedMovies = movies.slice(0, pageSize).map((movie) => ({
     ...movie,
     genres: movie.genres.map(({ genre }) => genre.name),
     viewingModes: movie.viewingModes.map(({ viewingMode }) => viewingMode),
     screenFormats: movie.screenFormats.map(({ screenFormat }) => screenFormat)
   }));
 
-  return { movies: flattenedMovies, nextCursor };
-}
-
-export async function getMovieFilters() {
-  const genres = await prisma.genre.findMany({
-    select: {
-      id: true,
-      name: true
-    }
-  });
-
-  return {
-    genres,
-    viewingModes: Object.values(ViewingMode),
-    screenFormats: Object.values(ScreenFormat)
+  const data = {
+    movies: flattenedMovies,
+    nextCursor
   };
-}
 
-interface DataItem {
-  id: string;
-  startTime: Date;
-}
-
-type GroupedByDate = Record<string, DataItem[]>;
-
-export async function getShowtimesByMovieTitle(title: string) {
-  const upcomingShowtimes = await prisma.showtime.findMany({
-    where: {
-      movie: {
-        title
-      },
-      startTime: {
-        gte: new Date()
-      }
-    },
-    orderBy: {
-      startTime: "asc"
-    },
-    select: {
-      id: true,
-      startTime: true
-    }
-  });
-
-  const sortedShowtimes = upcomingShowtimes.reduce(
-    (acc: GroupedByDate, item: DataItem) => {
-      const dateKey = item.startTime
-        .toLocaleDateString("pl-PL")
-        .replaceAll(".", "-")
-        .split("-")
-        .reverse()
-        .join("-");
-
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-
-      acc[dateKey].push(item);
-
-      return acc;
-    },
-    {}
-  );
-
-  return sortedShowtimes;
+  return Response.json(data);
 }

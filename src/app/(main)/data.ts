@@ -26,12 +26,12 @@ export async function getLatestMovies() {
         }
       }
     },
-    take: 4
+    take: 8
   });
 
   const flattenedLatestMovies = latestMovies.map((movie) => ({
     ...movie,
-    genres: movie.genres.map((genre) => genre.genre.name)
+    genres: movie.genres.map(({ genre }) => genre.name)
   }));
 
   return flattenedLatestMovies;
@@ -51,10 +51,25 @@ export async function getUpcomingMovies() {
       id: true,
       title: true,
       posterUrl: true,
-      releaseDate: true
+      releaseDate: true,
+      shortDescription: true,
+      genres: {
+        select: {
+          genre: {
+            select: {
+              name: true
+            }
+          }
+        }
+      }
     },
     take: 4
   });
 
-  return upcomingMovies;
+  const flattenedUpcomingMovies = upcomingMovies.map((movie) => ({
+    ...movie,
+    genres: movie.genres.map(({ genre }) => genre.name)
+  }));
+
+  return flattenedUpcomingMovies;
 }

@@ -6,13 +6,16 @@ export default async function Hero() {
     <section className="w-full py-12 text-foreground md:py-24 lg:py-32 xl:py-48">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-          <Image
-            src="/images/image-placeholder.svg"
-            width={1280}
-            height={720}
-            alt="Featured movie poster"
-            className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
-          />
+          <div className="relative aspect-[2/3] w-full lg:order-last">
+            <Image
+              src="/images/image-placeholder.svg"
+              // width={1280}
+              // height={720}
+              fill
+              alt="Featured movie poster"
+              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
+            />
+          </div>
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">

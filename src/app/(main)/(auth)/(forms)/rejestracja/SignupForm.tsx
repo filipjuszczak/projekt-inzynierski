@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DatePickerWithYears } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import LoadingButton from "@/components/LoadingButton";
@@ -179,7 +179,7 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
                     Data urodzenia (wymagane)
                   </FormLabel>
                   <FormControl>
-                    <DatePicker
+                    <DatePickerWithYears
                       value={field.value}
                       onValueChange={field.onChange}
                       className="bg-transparent"

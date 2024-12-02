@@ -42,17 +42,15 @@ export default function MovieCard({
         <Image
           src={posterUrl || "/images/image-placeholder.svg"}
           alt={`Plakat filmu ${title}`}
-          // width={400}
           fill
-          // height={600}
           className="aspect-[2/3] rounded-t-lg object-cover"
         />
       </CardHeader>
       <CardContent className="space-y-2 p-4 pb-10">
-        {/* <CardTitle className="max-w-full truncate text-lg font-bold">
-          {title}
-        </CardTitle> */}
-        <CardTitle className="max-w-fit truncate text-lg font-bold">
+        <CardTitle
+          className="max-w-fit truncate text-lg font-bold"
+          title={title}
+        >
           {title}
         </CardTitle>
         <div className="flex max-w-full justify-between gap-2 overflow-hidden">
@@ -71,7 +69,10 @@ export default function MovieCard({
           </TooltipProvider>
           <Genres genres={genres} />
         </div>
-        <div className="line-clamp-3 max-w-[40ch] text-pretty text-sm text-muted-foreground">
+        <div
+          className="line-clamp-3 max-w-[40ch] text-pretty text-sm text-muted-foreground"
+          title={shortDescription}
+        >
           {shortDescription}
         </div>
       </CardContent>

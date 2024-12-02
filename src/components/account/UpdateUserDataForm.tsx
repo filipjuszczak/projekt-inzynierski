@@ -14,7 +14,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DatePickerWithYears } from "@/components/ui/date-picker";
 import LoadingButton from "@/components/LoadingButton";
 import { updateUserData } from "@/app/(main)/konto/actions";
 import { useUserStore } from "@/hooks/use-user-store";
@@ -146,7 +146,7 @@ export default function UpdateUserDataForm({
             <FormItem className="flex flex-col gap-2">
               <FormLabel htmlFor={field.name}>Data urodzenia</FormLabel>
               <FormControl>
-                <DatePicker
+                <DatePickerWithYears
                   value={field.value}
                   onValueChange={field.onChange}
                   className="bg-transparent"

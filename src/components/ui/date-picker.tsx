@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
+import {
+  addDays,
+  format,
+  getMonth,
+  getYear,
+  setMonth,
+  setYear
+} from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import {
   Popover,
@@ -49,7 +56,7 @@ const months = [
   "December"
 ];
 
-interface DatePickerProps {
+interface DatePickerWithYearsProps {
   onValueChange: (date: Date) => void;
   value: Date;
   startYear?: number;
@@ -57,13 +64,13 @@ interface DatePickerProps {
   className?: string;
 }
 
-export function DatePicker({
+export function DatePickerWithYears({
   onValueChange,
   value,
   startYear = getYear(new Date()) - 100,
   endYear = getYear(new Date()) + 10,
   className
-}: DatePickerProps) {
+}: DatePickerWithYearsProps) {
   const date = value;
 
   const years = React.useMemo(
@@ -144,6 +151,56 @@ export function DatePicker({
           onMonthChange={onValueChange}
           initialFocus
         />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+interface DatePickerProps {
+  value: Date;
+  onValueChange: (date: Date) => void;
+}
+
+export function DatePicker({ value, onValueChange }: DatePickerProps) {
+  const date = value;
+
+  const handleSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      onValueChange(selectedDate);
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-full justify-start text-left font-normal",
+            !date && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, "dd.MM.yyyy") : <span>Pick a date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
+        <Select
+          onValueChange={(value) =>
+            handleSelect(addDays(new Date(), parseInt(value)))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Wybierz..." />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            <SelectItem value="0">Dzisiaj</SelectItem>
+            <SelectItem value="1">Jutro</SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="rounded-md border">
+          <Calendar mode="single" selected={date} onSelect={handleSelect} />
+        </div>
       </PopoverContent>
     </Popover>
   );

@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DatePickerWithYears } from "@/components/ui/date-picker";
 import {
   createEmployee,
   editEmployee
@@ -199,7 +199,7 @@ export default function EmployeeForm({
                 Data urodzenia (wymagane)
               </FormLabel>
               <FormControl>
-                <DatePicker
+                <DatePickerWithYears
                   value={field.value}
                   onValueChange={field.onChange}
                 />

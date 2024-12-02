@@ -5,14 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowUpDown, Hash, MoreVertical } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -43,13 +35,7 @@ import { deleteGenre } from "@/app/(staff)/panel-pracownika/pulpit/(management)/
 import type { ColumnDef } from "@tanstack/react-table";
 import type { GenreWithMovieCount } from "@/lib/types";
 import { DataTable } from "@/components/DataTable";
-
-const ageRestrictionLabels = {
-  0: "Brak",
-  12: "12+",
-  15: "15+",
-  18: "18+"
-};
+import { AGE_RESTRICTION_LABELS } from "@/lib/constants";
 
 function createColumns(
   handleDeleteGenre: (genreId: string) => void
@@ -88,8 +74,8 @@ function createColumns(
       },
       cell: ({ row }) => {
         const ageRestriction = row.original.ageRestriction;
-        return ageRestrictionLabels[
-          ageRestriction as keyof typeof ageRestrictionLabels
+        return AGE_RESTRICTION_LABELS[
+          ageRestriction as keyof typeof AGE_RESTRICTION_LABELS
         ];
       }
     },
@@ -154,8 +140,8 @@ function createColumns(
                     Ograniczenie wiekowe:{" "}
                     <span className="text-foreground">
                       {
-                        ageRestrictionLabels[
-                          genre.ageRestriction as keyof typeof ageRestrictionLabels
+                        AGE_RESTRICTION_LABELS[
+                          genre.ageRestriction as keyof typeof AGE_RESTRICTION_LABELS
                         ]
                       }
                     </span>

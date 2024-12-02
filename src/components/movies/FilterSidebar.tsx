@@ -1,8 +1,8 @@
-import { getFilters } from "@/app/(main)/filmy/data";
+import { getMovieFilters } from "@/app/(main)/filmy/data";
 import Filters from "@/components/movies/Filters";
 
 export default async function FilterSidebar() {
-  const { genres, viewingModes, screenFormats } = await getFilters();
+  const { genres, viewingModes, screenFormats } = await getMovieFilters();
 
   return (
     <Filters

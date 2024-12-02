@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/file-upload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DatePickerWithYears } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import LoadingButton from "@/components/LoadingButton";
@@ -291,7 +291,7 @@ export default function MovieForm({
                 Data wydania (wymagane)
               </FormLabel>
               <FormControl>
-                <DatePicker
+                <DatePickerWithYears
                   onValueChange={field.onChange}
                   value={field.value}
                 />

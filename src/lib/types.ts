@@ -101,3 +101,27 @@ export interface Reservation {
     price: number;
   };
 }
+
+export type Cursor = string | null;
+
+export interface MoviesPage {
+  movies: {
+    genres: string[];
+    viewingModes: ViewingMode[];
+    screenFormats: ScreenFormat[];
+    title: string;
+    id: string;
+    shortDescription: string;
+    releaseDate: Date;
+    duration: number;
+    posterUrl: string | null;
+  }[];
+  nextCursor: Cursor;
+}
+
+export interface Filters {
+  title?: string;
+  genre?: string | string[];
+  viewingMode?: ViewingMode | ViewingMode[];
+  screenFormat?: ScreenFormat | ScreenFormat[];
+}

@@ -7,7 +7,7 @@ interface GenresProps {
 export default function Genres({ genres }: GenresProps) {
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      {genres.length <= 3 ? (
+      {genres.length <= 2 ? (
         genres.map((genre) => (
           <Badge key={genre} variant="outline">
             {genre}
@@ -15,12 +15,14 @@ export default function Genres({ genres }: GenresProps) {
         ))
       ) : (
         <>
-          {genres.slice(0, 3).map((genre) => (
+          {genres.slice(0, 2).map((genre) => (
             <Badge key={genre} variant="outline" className="flex-shrink-0">
               {genre}
             </Badge>
           ))}
-          <Badge variant="outline">+{genres.length - 3}</Badge>
+          <Badge variant="outline" title={genres.slice(2).join(", ")}>
+            +{genres.length - 2}
+          </Badge>
         </>
       )}
     </div>

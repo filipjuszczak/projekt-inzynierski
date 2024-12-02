@@ -24,3 +24,10 @@ export const GENRE_LABELS = {
   15: "15+",
   18: "18+"
 };
+
+export const AGE_RESTRICTION_LABELS = {
+  0: "Brak",
+  12: "12+",
+  15: "15+",
+  18: "18+"
+};

@@ -22,7 +22,7 @@ export default function SearchBar() {
       router.push(`?${params.toString()}`);
     },
     500,
-    [searchTerm, searchParams, router]
+    [searchTerm, router]
   );
 
   return (

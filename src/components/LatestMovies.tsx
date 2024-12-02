@@ -29,7 +29,9 @@ export default function LatestMovies({ movies }: LatestMoviesProps) {
       }}
       plugins={[
         Autoplay({
-          delay: 3000
+          delay: 3000,
+          stopOnMouseEnter: true,
+          stopOnFocusIn: true
         })
       ]}
     >
@@ -40,8 +42,8 @@ export default function LatestMovies({ movies }: LatestMoviesProps) {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="left-0 h-12 w-12 md:-translate-x-1/2 lg:left-1/2 lg:top-[unset] lg:-translate-x-[200%] lg:translate-y-[100%]" />
+      <CarouselNext className="right-0 h-12 w-12 md:translate-x-1/2 lg:right-1/2 lg:top-[unset] lg:translate-x-[200%] lg:translate-y-[100%]" />
     </Carousel>
   );
   // return (
