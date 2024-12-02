@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL")
+  // url      = env("POSTGRES_PRISMA_URL")
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -244,11 +245,11 @@ model Seat {
   @@map("seats")
 }
 
-model SeatReservation {
-  id String @id @default(uuid())
+// model SeatReservation {
+//   id String @id @default(uuid())
 
-  @@map("seat_reservations")
-}
+//   @@map("seat_reservations")
+// }
 
 enum UserActivities {
   ACTIVATED_ACCOUNT
