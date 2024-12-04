@@ -27,14 +27,16 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { DataTable } from "@/components/DataTable";
-import { deleteShowtime } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
-import type { Showtime } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { deleteShowtime } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
+import type { ShowtimeData } from "@/lib/types";
+
+type Columns = ColumnDef<ShowtimeData>[];
 
 function createColumns(
   handleDeleteShowtime: (showtimeId: string) => void
-): ColumnDef<Showtime>[] {
+): Columns {
   return [
     {
       accessorKey: "movie.title",
@@ -199,7 +201,7 @@ function createColumns(
 }
 
 interface ShowtimesTableProps {
-  data: Showtime[];
+  data: ShowtimeData[];
 }
 
 export default function ShowtimesTable({ data }: ShowtimesTableProps) {

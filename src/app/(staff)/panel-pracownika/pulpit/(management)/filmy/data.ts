@@ -6,10 +6,8 @@ export async function getMovies() {
     select: {
       id: true,
       title: true,
-      description: true,
-      releaseDate: true,
       duration: true,
-      posterUrl: true,
+      releaseDate: true,
       viewingModes: {
         select: {
           id: true,

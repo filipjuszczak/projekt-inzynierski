@@ -4,12 +4,11 @@ import SearchBar from "@/components/movies/SearchBar";
 import FilterSidebar from "@/components/movies/FilterSidebar";
 import FilterSidebarSkeleton from "@/components/movies/skeletons/FilterSidebarSkeleton";
 import Movies from "@/components/movies/Movies";
-// import { fetchMoviesOnServer } from "@/lib/api";
-import type { ScreenFormat, ViewingMode } from "@prisma/client";
-import type { MoviesPage } from "@/lib/types";
-import { getMovies } from "@/app/(main)/filmy/data";
+// import { getMovies } from "@/app/(main)/filmy/data";
 import { fetchMoviesOnServer } from "@/lib/api";
 import { getQueryClient } from "@/lib/get-query-client";
+import type { ScreenFormat, ViewingMode } from "@prisma/client";
+import type { MoviesPage } from "@/lib/types";
 
 interface MoviesPageProps {
   searchParams: Promise<{
@@ -41,7 +40,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
     queryKey: ["movies"],
     queryFn: ({ pageParam }) => fetchMoviesOnServer(pageParam, params),
     initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor
+    getNextPageParam: (lastPage: MoviesPage) => lastPage.nextCursor
   });
 
   return (

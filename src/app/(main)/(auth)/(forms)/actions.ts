@@ -1,14 +1,12 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { hash, verify } from "@node-rs/argon2";
 import { addMinutes, isValid as isValidDate } from "date-fns";
-import { Role, TokenType, UserActivities } from "@prisma/client";
+import { TokenType, UserActivities } from "@prisma/client";
 import AccountActivationEmail from "@/components/emails/AccountActivationEmail";
 import ResetPasswordEmail from "@/components/emails/ResetPasswordEmail";
 import ConfirmPasswordResetEmail from "@/components/emails/ConfirmPasswordResetEmail";
-import { lucia } from "@/auth";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import {
@@ -18,14 +16,8 @@ import {
   allowedUsernameRegex,
   createActivationToken
 } from "@/lib/utils";
-import {
-  loginFormSchema,
-  signupFormSchema,
-  type Credentials,
-  type SignupValues
-} from "@/lib/validation/auth";
+import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { HASHING_CONFIG } from "@/lib/constants";
-import type { UserData } from "@/lib/types";
 
 export async function signUp(
   data: SignupValues
@@ -123,17 +115,17 @@ export async function signUp(
 
     console.log(activationLink);
 
-    // const { error: resendError } = await resend.emails.send({
-    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-    //   to: [email],
-    //   subject: "Cinema - witamy!",
-    //   react: AccountActivationEmail({ firstName, link: activationLink })
-    // });
+    const { error: resendError } = await resend.emails.send({
+      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+      to: [email],
+      subject: "Cinema - witamy!",
+      react: AccountActivationEmail({ firstName, link: activationLink })
+    });
 
-    // if (resendError) {
-    //   console.error(resendError);
-    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-    // }
+    if (resendError) {
+      console.error(resendError);
+      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    }
 
     return { success: true };
   } catch (error) {
@@ -214,20 +206,20 @@ export async function requestPasswordReset(email: string) {
       })
     ]);
 
-    // const { error: resendError } = await resend.emails.send({
-    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-    //   to: [email],
-    //   subject: "Cinema - reset hasła",
-    //   react: ResetPasswordEmail({
-    //     firstName: existingUser.firstName,
-    //     link: passwordResetLink
-    //   })
-    // });
+    const { error: resendError } = await resend.emails.send({
+      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+      to: [email],
+      subject: "Cinema - reset hasła",
+      react: ResetPasswordEmail({
+        firstName: existingUser.firstName,
+        link: passwordResetLink
+      })
+    });
 
-    // if (resendError) {
-    //   console.error(resendError);
-    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-    // }
+    if (resendError) {
+      console.error(resendError);
+      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    }
 
     return { success: true };
   } catch (error) {
@@ -305,20 +297,20 @@ export async function setNewPassword(
       })
     ]);
 
-    // const { error: resendError } = await resend.emails.send({
-    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-    //   to: [updatedUser.email],
-    //   subject: "Cinema - hasło zostało zmienione",
-    //   react: ConfirmPasswordResetEmail({
-    //     firstName: updatedUser.firstName,
-    //     link: `${process.env.NEXT_PUBLIC_BASE_URL}/logowanie`
-    //   })
-    // });
+    const { error: resendError } = await resend.emails.send({
+      from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+      to: [updatedUser.email],
+      subject: "Cinema - hasło zostało zmienione",
+      react: ConfirmPasswordResetEmail({
+        firstName: updatedUser.firstName,
+        link: `${process.env.NEXT_PUBLIC_BASE_URL}/logowanie`
+      })
+    });
 
-    // if (resendError) {
-    //   console.error(resendError);
-    //   return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
-    // }
+    if (resendError) {
+      console.error(resendError);
+      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    }
 
     console.log("Password was successfully changed!");
 

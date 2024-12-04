@@ -9,9 +9,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import type { Genre } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
+import type { EssentialGenreData } from "@/lib/types";
 
 interface MovieDetailsProps {
   posterUrl: string;
@@ -27,7 +27,7 @@ interface MovieDetailsProps {
     id: number;
     screenFormat: ScreenFormat;
   }[];
-  genres: Genre[];
+  genres: EssentialGenreData[];
   rating: string | null;
   director: string | null;
   cast: string | null;

@@ -1,47 +1,33 @@
 import type {
+  Genre,
+  Movie,
   Role,
+  Room,
   ScreenFormat,
+  Showtime,
   TicketType,
+  User,
   ViewingMode
 } from "@prisma/client";
 
 export interface UserData {
-  success: boolean;
-  userData: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    role: Role;
-  };
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  role: Role;
 }
 
-export interface Genre {
-  id: string;
-  name: string;
-  ageRestriction: number;
-}
+export type EssentialGenreData = Pick<Genre, "id" | "name" | "ageRestriction">;
 
-export interface GenreWithMovieCount extends Genre {
+export interface GenreWithMovieCount extends EssentialGenreData {
   _count: {
     movies: number;
   };
 }
 
-export interface Room {
-  id: string;
-  number: string;
-  numberOfRows: number;
-  seatsPerRow: number;
-}
-
-export interface Movie {
-  id: string;
-  title: string;
-  posterUrl: string | null;
-  description: string;
-  releaseDate: Date;
-  duration: number;
+export interface MovieData
+  extends Pick<Movie, "id" | "title" | "duration" | "releaseDate"> {
   viewingModes: {
     id: number;
     viewingMode: ViewingMode;
@@ -50,34 +36,28 @@ export interface Movie {
     id: number;
     screenFormat: ScreenFormat;
   }[];
-  genres: Genre[];
+  genres: EssentialGenreData[];
 }
 
-export interface Showtime {
-  id: string;
-  movie: {
-    id: string;
-    title: string;
-  };
-  room: {
-    id: string;
-    number: string;
-  };
-  startTime: Date;
-  endTime: Date;
-  screenFormat: ScreenFormat;
-  viewingMode: ViewingMode;
+export interface ShowtimeData
+  extends Pick<
+    Showtime,
+    "id" | "startTime" | "endTime" | "viewingMode" | "screenFormat"
+  > {
+  movie: Pick<Movie, "id" | "title">;
+  room: Pick<Room, "id" | "number">;
 }
 
-export interface Employee {
-  id: string;
-  username: string | null;
-  firstName: string;
-  lastName: string;
-  email: string;
-  dateOfBirth: Date;
-  role: Role;
-}
+export type EmployeeData = Pick<
+  User,
+  | "id"
+  | "username"
+  | "firstName"
+  | "lastName"
+  | "email"
+  | "dateOfBirth"
+  | "role"
+>;
 
 export interface Reservation {
   id: string;

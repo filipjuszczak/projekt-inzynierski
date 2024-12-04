@@ -9,9 +9,8 @@ export default async function Hero() {
           <div className="relative aspect-[2/3] w-full lg:order-last">
             <Image
               src="/images/image-placeholder.svg"
-              // width={1280}
-              // height={720}
               fill
+              priority
               alt="Featured movie poster"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
             />

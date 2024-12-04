@@ -27,11 +27,13 @@ import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { deleteRoom } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/actions";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Room } from "@/lib/types";
+import type { Room } from "@prisma/client";
 
-function createColumns(
-  handleDeleteRoom: (roomId: string) => void
-): ColumnDef<Room>[] {
+type Column = ColumnDef<
+  Pick<Room, "id" | "number" | "numberOfRows" | "seatsPerRow">
+>;
+
+function createColumns(handleDeleteRoom: (roomId: string) => void): Column[] {
   return [
     {
       accessorKey: "number",
@@ -136,7 +138,7 @@ function createColumns(
 }
 
 interface RoomsTableProps {
-  data: Room[];
+  data: Pick<Room, "id" | "number" | "numberOfRows" | "seatsPerRow">[];
 }
 
 export default function RoomsTable({ data }: RoomsTableProps) {

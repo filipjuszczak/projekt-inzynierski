@@ -1,5 +1,5 @@
 import ky from "ky";
-import type { MoviesPage } from "@/lib/types";
+import type { Filters, MoviesPage } from "@/lib/types";
 import { getMovies } from "@/app/(main)/filmy/data";
 
 export async function fetchMoviesOnServer(
@@ -12,7 +12,7 @@ export async function fetchMoviesOnServer(
     params.set("cursor", pageParam);
   }
 
-  return await getMovies(params);
+  return await getMovies(params as Filters);
 }
 
 export function fetchMoviesOnClient(

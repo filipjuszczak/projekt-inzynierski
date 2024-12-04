@@ -1,4 +1,4 @@
-import MovieList from "@/components/dashboard/movies/MovieList";
+import MoviesTable from "@/components/dashboard/movies/MoviesTable";
 import { getMovies } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
 
 export default async function MoviesPage() {
@@ -7,7 +7,7 @@ export default async function MoviesPage() {
   return (
     <div className="flex-grow space-y-8">
       <h1 className="text-3xl font-bold">Filmy</h1>
-      <MovieList movies={movies} />
+      <MoviesTable data={movies} />
     </div>
   );
 }

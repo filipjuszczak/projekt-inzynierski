@@ -28,13 +28,13 @@ import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { deleteMovie } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/actions";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { Movie } from "@/lib/types";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { MovieData } from "@/lib/types";
 
-function createColumns(
-  handleDeleteMovie: (movieId: string) => void
-): ColumnDef<Movie>[] {
+type Columns = ColumnDef<MovieData>[];
+
+function createColumns(handleDeleteMovie: (movieId: string) => void): Columns {
   return [
     {
       accessorKey: "title",
@@ -211,7 +211,7 @@ function createColumns(
 }
 
 interface MoviesTableProps {
-  data: Movie[];
+  data: MovieData[];
 }
 
 export default function MoviesTable({ data }: MoviesTableProps) {

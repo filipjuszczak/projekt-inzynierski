@@ -12,34 +12,34 @@ export async function getShowtimes() {
       movie: {
         select: {
           id: true,
-          title: true,
-          posterUrl: true,
-          description: true,
-          releaseDate: true,
-          duration: true,
-          screenFormats: {
-            select: {
-              id: true,
-              screenFormat: true
-            }
-          },
-          viewingModes: {
-            select: {
-              id: true,
-              viewingMode: true
-            }
-          },
-          genres: {
-            include: {
-              genre: {
-                select: {
-                  id: true,
-                  name: true,
-                  ageRestriction: true
-                }
-              }
-            }
-          }
+          title: true
+          // posterUrl: true,
+          // description: true,
+          // releaseDate: true,
+          // duration: true,
+          // screenFormats: {
+          //   select: {
+          //     id: true,
+          //     screenFormat: true
+          //   }
+          // },
+          // viewingModes: {
+          //   select: {
+          //     id: true,
+          //     viewingMode: true
+          //   }
+          // },
+          // genres: {
+          //   include: {
+          //     genre: {
+          //       select: {
+          //         id: true,
+          //         name: true,
+          //         ageRestriction: true
+          //       }
+          //     }
+          //   }
+          // }
         }
       },
       room: {

@@ -1,8 +1,8 @@
 import RoomsTable from "@/components/dashboard/rooms/RoomsTable";
-import type { Room } from "@/lib/types";
+import type { Room } from "@prisma/client";
 
 interface RoomListProps {
-  rooms: Room[];
+  rooms: Pick<Room, "id" | "number" | "numberOfRows" | "seatsPerRow">[];
 }
 
 export default function RoomList({ rooms }: RoomListProps) {

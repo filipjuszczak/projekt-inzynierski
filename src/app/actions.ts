@@ -34,7 +34,7 @@ const userSelect = {
 export async function logIn(
   role: Role,
   credentials: Credentials
-): Promise<{ error: string } | UserData> {
+): Promise<{ error: string } | { success: boolean; userData: UserData }> {
   try {
     const { login, password } = loginFormSchema.parse(credentials);
 

@@ -47,7 +47,7 @@ import {
   GENRE_LABELS
 } from "@/lib/constants";
 import { movieSchema, type MovieValues } from "@/lib/validation/movie";
-import type { Genre } from "@/lib/types";
+import type { EssentialGenreData } from "@/lib/types";
 
 const dropzoneConfig = {
   maxFiles: 1,
@@ -75,6 +75,10 @@ interface MovieFormProps {
   }[];
 }
 
+interface GenresAcc {
+  [key: number]: EssentialGenreData[];
+}
+
 export default function MovieForm({
   id = "",
   title = "",
@@ -91,7 +95,7 @@ export default function MovieForm({
 
   const genresByAgeRestrictions = useMemo(
     () =>
-      genres.reduce((acc: { [key: number]: Genre[] }, genre) => {
+      genres.reduce((acc: GenresAcc, genre) => {
         const { ageRestriction } = genre;
 
         if (!acc[ageRestriction]) {

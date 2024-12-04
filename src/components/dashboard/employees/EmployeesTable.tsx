@@ -21,18 +21,18 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import type { Employee } from "@/lib/types";
+import type { EmployeeData } from "@/lib/types";
 
 interface EmployeeTableProps {
-  employees: Employee[];
+  employees: EmployeeData[];
 }
 
-const roleLabels = {
+const ROLE_LABELS = {
   [Role.ADMIN]: "Administrator",
   [Role.EMPLOYEE]: "Pracownik"
 };
 
-export default function EmployeeTable({ employees }: EmployeeTableProps) {
+export default function EmployeesTable({ employees }: EmployeeTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -59,7 +59,7 @@ export default function EmployeeTable({ employees }: EmployeeTableProps) {
               {format(new Date(employee.dateOfBirth), "dd.MM.yyyy")}
             </TableCell>
             <TableCell>
-              {roleLabels[employee.role as keyof typeof roleLabels]}
+              {ROLE_LABELS[employee.role as keyof typeof ROLE_LABELS]}
             </TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
