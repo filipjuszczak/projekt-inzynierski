@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="max-w-full">
+    <div className="max-w-full space-y-4">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -93,6 +93,9 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex-1 text-sm text-muted-foreground">
+        Wyświetlone rekordy {table.getRowCount()} z {data.length}.
       </div>
       <div className="flex items-center justify-center space-x-2 py-4">
         <Button
