@@ -100,6 +100,7 @@ export interface MoviesPage {
 }
 
 export interface Filters {
+  page?: string;
   title?: string;
   genre?: string | string[];
   viewingMode?: ViewingMode | ViewingMode[];

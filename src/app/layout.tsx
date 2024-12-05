@@ -19,8 +19,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <Providers>{children}</Providers>
         <Toaster
           position="bottom-right"
-          // richColors
-          // closeButton
+          richColors
+          closeButton
           toastOptions={{ duration: 5000 }}
         />
       </body>

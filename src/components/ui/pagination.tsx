@@ -80,7 +80,7 @@ const PaginationPrevious = ({
     {...props}
   >
     <ChevronLeftIcon className="h-4 w-4" />
-    <span>Previous</span>
+    <span>Poprzednia</span>
   </PaginationLink>
 );
 PaginationPrevious.displayName = "PaginationPrevious";
@@ -100,7 +100,7 @@ const PaginationNext = ({
     )}
     {...props}
   >
-    <span>Next</span>
+    <span>Następna</span>
     <ChevronRightIcon className="h-4 w-4" />
   </PaginationLink>
 );
@@ -116,7 +116,7 @@ const PaginationEllipsis = ({
     {...props}
   >
     <DotsHorizontalIcon className="h-4 w-4" />
-    <span className="sr-only">More pages</span>
+    <span className="sr-only">Więcej stron</span>
   </span>
 );
 PaginationEllipsis.displayName = "PaginationEllipsis";

@@ -32,7 +32,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
               </Link>
               <div className="mr-4 hidden md:flex">
                 <nav className="flex items-center space-x-6 text-sm font-medium">
-                  <Link href="/filmy">Filmy</Link>
+                  <Link href="/filmy?page=1">Filmy</Link>
                   <Link href="/repertuar">Repertuar</Link>
                 </nav>
               </div>

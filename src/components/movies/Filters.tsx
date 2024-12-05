@@ -133,6 +133,7 @@ function GenreFilter({
               onCheckedChange={(isChecked) =>
                 onFilterChange(genre.name, isChecked)
               }
+              className="size-6 md:size-4"
             />
             <Label htmlFor={genre.id} className="ml-2">
               {genre.name}
@@ -163,6 +164,7 @@ function ViewingModeFilter({
               id={mode}
               checked={checkedViewingModes.includes(mode)}
               onCheckedChange={(isChecked) => onFilterChange(mode, isChecked)}
+              className="size-6 md:size-4"
             />
             <Label htmlFor={mode} className="ml-2">
               {VIEWING_MODE_LABELS[mode]}
@@ -193,6 +195,7 @@ function ScreenFormatFilter({
               id={format}
               checked={checkedScreenFormats.includes(format)}
               onCheckedChange={(isChecked) => onFilterChange(format, isChecked)}
+              className="size-6 md:size-4"
             />
             <Label htmlFor={format} className="ml-2">
               {SCREEN_FORMAT_LABELS[format]}

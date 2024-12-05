@@ -2,94 +2,140 @@ import { ScreenFormat, ViewingMode } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import type { Filters } from "@/lib/types";
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 8;
 
 export async function getMovies({
+  page = "1",
   title,
   genre,
   viewingMode,
   screenFormat
 }: Filters) {
-  const movies = await prisma.movie.findMany({
-    where: {
-      ...(title && {
-        title: {
-          contains: title,
-          mode: "insensitive"
-        }
-      }),
-      ...(genre &&
-        genre.length > 0 && {
-          genres: {
-            some: {
-              genre: {
-                name: Array.isArray(genre) ? { in: genre } : { equals: genre }
+  const [movies, totalCount] = await Promise.all([
+    prisma.movie.findMany({
+      where: {
+        ...(title && {
+          title: {
+            contains: title,
+            mode: "insensitive"
+          }
+        }),
+        ...(genre &&
+          genre.length > 0 && {
+            genres: {
+              some: {
+                genre: {
+                  name: Array.isArray(genre) ? { in: genre } : { equals: genre }
+                }
+              }
+            }
+          }),
+        ...(viewingMode &&
+          viewingMode.length > 0 && {
+            viewingModes: {
+              some: {
+                viewingMode: Array.isArray(viewingMode)
+                  ? { in: viewingMode }
+                  : { equals: viewingMode }
+              }
+            }
+          }),
+        ...(screenFormat &&
+          screenFormat.length > 0 && {
+            screenFormats: {
+              some: {
+                screenFormat: Array.isArray(screenFormat)
+                  ? { in: screenFormat }
+                  : { equals: screenFormat }
+              }
+            }
+          })
+      },
+      select: {
+        _count: true,
+        id: true,
+        title: true,
+        posterUrl: true,
+        shortDescription: true,
+        duration: true,
+        genres: {
+          select: {
+            genre: {
+              select: {
+                name: true
               }
             }
           }
-        }),
-      ...(viewingMode &&
-        viewingMode.length > 0 && {
-          viewingModes: {
-            some: {
-              viewingMode: Array.isArray(viewingMode)
-                ? { in: viewingMode }
-                : { equals: viewingMode }
-            }
+        },
+        releaseDate: true,
+        viewingModes: {
+          select: {
+            viewingMode: true
           }
-        }),
-      ...(screenFormat &&
-        screenFormat.length > 0 && {
-          screenFormats: {
-            some: {
-              screenFormat: Array.isArray(screenFormat)
-                ? { in: screenFormat }
-                : { equals: screenFormat }
-            }
-          }
-        })
-    },
-    select: {
-      id: true,
-      title: true,
-      posterUrl: true,
-      shortDescription: true,
-      duration: true,
-      genres: {
-        select: {
-          genre: {
-            select: {
-              name: true
-            }
+        },
+        screenFormats: {
+          select: {
+            screenFormat: true
           }
         }
       },
-      releaseDate: true,
-      viewingModes: {
-        select: {
-          viewingMode: true
-        }
-      },
-      screenFormats: {
-        select: {
-          screenFormat: true
-        }
+      orderBy: { releaseDate: "desc" },
+      take: PAGE_SIZE,
+      skip: PAGE_SIZE * (Number(page) - 1)
+    }),
+    prisma.movie.count({
+      where: {
+        ...(title && {
+          title: {
+            contains: title,
+            mode: "insensitive"
+          }
+        }),
+        ...(genre &&
+          genre.length > 0 && {
+            genres: {
+              some: {
+                genre: {
+                  name: Array.isArray(genre) ? { in: genre } : { equals: genre }
+                }
+              }
+            }
+          }),
+        ...(viewingMode &&
+          viewingMode.length > 0 && {
+            viewingModes: {
+              some: {
+                viewingMode: Array.isArray(viewingMode)
+                  ? { in: viewingMode }
+                  : { equals: viewingMode }
+              }
+            }
+          }),
+        ...(screenFormat &&
+          screenFormat.length > 0 && {
+            screenFormats: {
+              some: {
+                screenFormat: Array.isArray(screenFormat)
+                  ? { in: screenFormat }
+                  : { equals: screenFormat }
+              }
+            }
+          })
       }
-    },
-    orderBy: { releaseDate: "desc" },
-    take: PAGE_SIZE + 1
-  });
+    })
+  ]);
 
-  const nextCursor = movies.length > PAGE_SIZE ? movies[PAGE_SIZE].id : null;
-
-  const flattenedMovies = movies.slice(0, PAGE_SIZE).map((movie) => ({
+  const flattenedMovies = movies.map((movie) => ({
     ...movie,
     genres: movie.genres.map(({ genre }) => genre.name),
     viewingModes: movie.viewingModes.map(({ viewingMode }) => viewingMode),
     screenFormats: movie.screenFormats.map(({ screenFormat }) => screenFormat)
   }));
 
-  return { movies: flattenedMovies, nextCursor };
+  return {
+    movies: flattenedMovies,
+    totalCount
+  };
 }
 
 export async function getMovieFilters() {
