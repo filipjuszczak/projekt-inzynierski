@@ -1,4 +1,4 @@
-import { ScreenFormat, ViewingMode } from "@prisma/client";
+import { Role, ScreenFormat, ViewingMode } from "@prisma/client";
 
 export const HASHING_CONFIG = {
   memoryCost: 19456,
@@ -30,4 +30,10 @@ export const AGE_RESTRICTION_LABELS = {
   12: "12+",
   15: "15+",
   18: "18+"
+};
+
+export const ROLE_LABELS = {
+  [Role.ADMIN]: "Administrator",
+  [Role.EMPLOYEE]: "Pracownik",
+  [Role.NORMAL]: "Użytkownik"
 };

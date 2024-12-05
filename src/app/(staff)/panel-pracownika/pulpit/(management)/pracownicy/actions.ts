@@ -178,3 +178,43 @@ export async function editEmployee(id: string, values: EmployeeValues) {
 
   return { success: true };
 }
+
+export async function deleteEmployee(employeeId: string) {
+  try {
+    const requestSessionCookie = await getSessionCookie();
+
+    if (!requestSessionCookie) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const { session } = await authenticateUser(
+      Role.ADMIN,
+      requestSessionCookie
+    );
+
+    if (!session || !session.userId) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const existingEmployee = await prisma.user.findUnique({
+      where: { id: employeeId }
+    });
+
+    if (!existingEmployee) {
+      return { error: "Konto pracownika o podanym ID nie istnieje." };
+    }
+
+    await prisma.user.delete({
+      where: { id: employeeId }
+    });
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    console.error(error);
+    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+  }
+
+  revalidatePath("/panel-pracownika/pulpit");
+  revalidatePath("/panel-pracownika/pulpit/pracownicy");
+
+  return { success: true };
+}

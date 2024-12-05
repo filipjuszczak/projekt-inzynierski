@@ -18,7 +18,7 @@ export default async function EmployeesPage() {
           </Link>
         </Button>
       </div>
-      <EmployeesTable employees={employees} />
+      <EmployeesTable data={employees} />
     </div>
   );
 }
