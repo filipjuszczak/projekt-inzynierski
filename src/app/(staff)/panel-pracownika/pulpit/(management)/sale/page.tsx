@@ -1,3 +1,6 @@
+import { PlusCircle } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { getRooms } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
 import RoomList from "@/components/dashboard/rooms/RoomList";
 
@@ -5,8 +8,16 @@ export default async function RoomsPage() {
   const rooms = await getRooms();
 
   return (
-    <div className="flex-grow">
-      <h1 className="mb-8 text-3xl font-bold">Sale</h1>
+    <div className="flex-grow space-y-8">
+      <div className="flex justify-between">
+        <h1 className="text-3xl font-bold">Sale</h1>
+        <Button asChild>
+          <Link href="/panel-pracownika/pulpit/sale/nowy">
+            <PlusCircle />
+            Nowy
+          </Link>
+        </Button>
+      </div>
       <RoomList rooms={rooms} />
     </div>
   );
