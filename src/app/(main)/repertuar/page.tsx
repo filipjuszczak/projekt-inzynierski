@@ -14,6 +14,8 @@ import type { ScreenFormat, ViewingMode } from "@prisma/client";
 interface ShowtimesPage {
   searchParams: Promise<{
     date?: string;
+    title?: string;
+    genre?: string;
     viewingMode?: ViewingMode;
     screenFormat?: ScreenFormat;
   }>;
@@ -23,17 +25,25 @@ export default async function ShowtimesPage({ searchParams }: ShowtimesPage) {
   const filters = await searchParams;
   const showtimes = await getShowtimes(filters);
 
+  const showtimesByMovies = Object.entries(showtimes);
+
   return (
     <div className="container mx-auto flex-grow px-4 py-24">
       <h1 className="mb-6 text-3xl font-bold">Repertuar</h1>
       <Suspense fallback={<ShowtimeFiltersSkeleton />}>
         <ShowtimeFilters />
       </Suspense>
-      <div className="grid gap-6">
-        {Object.entries(showtimes).map(([key, value]) => (
-          <MovieCard key={key} {...value} />
-        ))}
-      </div>
+      {showtimesByMovies.length > 0 ? (
+        <div className="grid gap-6">
+          {showtimesByMovies.map(([key, value]) => (
+            <MovieCard key={key} {...value} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center">
+          Brak wyników wyszukiwania dla podanych kryteriów.
+        </div>
+      )}
     </div>
   );
 }

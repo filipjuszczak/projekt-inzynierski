@@ -1,8 +1,8 @@
 import ShowtimesTable from "@/components/dashboard/showtimes/ShowtimesTable";
-import type { Showtime } from "@/lib/types";
+import type { ShowtimeData } from "@/lib/types";
 
 interface ShowtimeListProps {
-  showtimes: Showtime[];
+  showtimes: ShowtimeData[];
 }
 
 export default function ShowtimeList({ showtimes }: ShowtimeListProps) {

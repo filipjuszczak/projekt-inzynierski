@@ -93,19 +93,14 @@ export async function getShowtimesToday() {
 }
 
 export async function getAllSales() {
-  const orders = await prisma.order.findMany({
+  const tickets = await prisma.ticket.findMany({
     select: {
-      ticket: {
-        select: {
-          ticketType: true,
-          price: true
-        }
-      }
+      price: true
     }
   });
 
-  const totalSales = orders.reduce(
-    (sum, order) => sum + order.ticket.price / 100,
+  const totalSales = tickets.reduce(
+    (sum, ticket) => sum + ticket.price / 100,
     0
   );
 
@@ -113,17 +108,8 @@ export async function getAllSales() {
 }
 
 export async function getTotalTicketsSold() {
-  const orders = await prisma.order.findMany({
-    select: {
-      ticket: {
-        select: {
-          id: true
-        }
-      }
-    }
-  });
-
-  return orders.length;
+  const ticketCount = await prisma.ticket.count();
+  return ticketCount;
 }
 
 export async function getOccupancy() {
@@ -144,17 +130,13 @@ export async function getOccupancy() {
       id: true,
       _count: {
         select: {
-          seats: {
-            where: {
-              isBooked: true
-            }
-          }
+          seats: true
         }
       }
     }
   });
 
-  if (!showtimesToday.length) {
+  if (showtimesToday.length === 0) {
     return null;
   }
 

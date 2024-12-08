@@ -58,41 +58,4 @@ export default async function RoomDetailsPage({
       <UpcomingShowtimes showtimes={room.upcomingShowtimes} />
     </div>
   );
-
-  // return (
-  //   <div className="container mx-auto flex-grow">
-  //     <div className="grid grid-cols-1 gap-y-8 xl:grid-cols-2 xl:gap-8">
-  //       <div className="justify-self-center xl:my-auto xl:mr-20 xl:justify-self-end">
-  //         <h1 className="pb-8 text-3xl font-bold">
-  //           Sala numer {room.room.number}
-  //         </h1>
-  //         <div className="space-y-2">
-  //           <div className="flex items-center gap-2 text-muted-foreground">
-  //             <Rows2 className="size-4" />
-  //             Liczba rzędów:{" "}
-  //             <span className="text-foreground">{room.room.numberOfRows}</span>
-  //           </div>
-  //           <div className="flex items-center gap-2 text-muted-foreground">
-  //             <Columns2 className="size-4" />
-  //             Liczba miejsc w rzędzie:{" "}
-  //             <span className="text-foreground">{room.room.seatsPerRow}</span>
-  //           </div>
-  //           <div className="flex items-center gap-2 text-muted-foreground">
-  //             <Sigma className="size-4" />
-  //             Miejsc łącznie:{" "}
-  //             <span className="text-foreground">{totalSeats}</span>
-  //           </div>
-  //         </div>
-  //       </div>
-  //       <div className="mb-20 flex items-center justify-center gap-6 xl:justify-self-start">
-  //         <Room
-  //           numberOfRows={room.room.numberOfRows}
-  //           seatsPerRow={room.room.seatsPerRow}
-  //           bookedSeats={[]}
-  //         />
-  //       </div>
-  //     </div>
-  //     <UpcomingShowtimes showtimes={room.upcomingShowtimes} />
-  //   </div>
-  // );
 }

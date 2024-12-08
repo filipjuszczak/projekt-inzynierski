@@ -1,4 +1,4 @@
-import { Role, ScreenFormat, ViewingMode } from "@prisma/client";
+import { Role, ScreenFormat, TicketType, ViewingMode } from "@prisma/client";
 
 export const HASHING_CONFIG = {
   memoryCost: 19456,
@@ -37,3 +37,10 @@ export const ROLE_LABELS = {
   [Role.EMPLOYEE]: "Pracownik",
   [Role.NORMAL]: "Użytkownik"
 };
+
+export const TICKET_LABELS = {
+  [TicketType.NORMAL]: "Normalny",
+  [TicketType.REDUCED]: "Ulgowy"
+};
+
+export const MAX_SELECTED_SEATS = 5;

@@ -4,10 +4,14 @@ import prisma from "@/lib/prisma";
 
 export async function getShowtimes({
   date,
+  title,
+  genre,
   viewingMode,
   screenFormat
 }: {
   date?: string;
+  title?: string;
+  genre?: string;
   viewingMode?: ViewingMode;
   screenFormat?: ScreenFormat;
 }) {
@@ -17,6 +21,26 @@ export async function getShowtimes({
 
   const showtimes = await prisma.showtime.findMany({
     where: {
+      ...(title
+        ? {
+            movie: {
+              title: decodeURIComponent(title)
+            }
+          }
+        : {}),
+      ...(genre
+        ? {
+            movie: {
+              genres: {
+                some: {
+                  genre: {
+                    name: genre
+                  }
+                }
+              }
+            }
+          }
+        : {}),
       ...(date
         ? {
             startTime: {
@@ -91,15 +115,24 @@ export async function getShowtimes({
 }
 
 export async function getShowtimeFilters() {
-  const genres = await prisma.genre.findMany({
-    select: {
-      id: true,
-      name: true
-    }
-  });
+  const [genres, movies] = await Promise.all([
+    prisma.genre.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    }),
+    prisma.movie.findMany({
+      select: {
+        id: true,
+        title: true
+      }
+    })
+  ]);
 
   return {
     genres,
+    movies,
     viewingModes: Object.values(ViewingMode),
     screenFormats: Object.values(ScreenFormat)
   };

@@ -27,7 +27,7 @@ export default function Providers({ children }: React.PropsWithChildren) {
       >
         <UserStoreProvider>{children}</UserStoreProvider>
       </ThemeProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

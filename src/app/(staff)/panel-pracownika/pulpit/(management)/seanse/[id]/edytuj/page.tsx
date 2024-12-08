@@ -13,7 +13,7 @@ export default async function EditShowtimePage({
 }: EditShowtimePageProps) {
   const { id } = await params;
   const [showtime, movies, rooms] = await Promise.all([
-    getShowtimeById(id),
+    getShowtimeById(id, { fetchExternalData: false }),
     getMoviesPromise(),
     getRoomsPromise()
   ]);

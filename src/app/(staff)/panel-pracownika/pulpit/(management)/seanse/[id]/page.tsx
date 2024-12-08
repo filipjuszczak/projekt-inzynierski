@@ -24,7 +24,7 @@ export default async function ShowtimeDetailsPage({
   params
 }: ShowtimeDetailsPageProps) {
   const { id } = await params;
-  const showtime = await getShowtimeById(id);
+  const showtime = await getShowtimeById(id, { fetchExternalData: true });
 
   if (!showtime) {
     notFound();

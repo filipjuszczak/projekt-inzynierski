@@ -13,33 +13,6 @@ export async function getShowtimes() {
         select: {
           id: true,
           title: true
-          // posterUrl: true,
-          // description: true,
-          // releaseDate: true,
-          // duration: true,
-          // screenFormats: {
-          //   select: {
-          //     id: true,
-          //     screenFormat: true
-          //   }
-          // },
-          // viewingModes: {
-          //   select: {
-          //     id: true,
-          //     viewingMode: true
-          //   }
-          // },
-          // genres: {
-          //   include: {
-          //     genre: {
-          //       select: {
-          //         id: true,
-          //         name: true,
-          //         ageRestriction: true
-          //       }
-          //     }
-          //   }
-          // }
         }
       },
       room: {
@@ -54,7 +27,10 @@ export async function getShowtimes() {
   return showtimes;
 }
 
-export async function getShowtimeById(id: string) {
+export async function getShowtimeById(
+  id: string,
+  { fetchExternalData }: { fetchExternalData?: boolean }
+) {
   const showtime = await prisma.showtime.findUnique({
     where: { id },
     select: {
@@ -105,14 +81,10 @@ export async function getShowtimeById(id: string) {
         }
       },
       seats: {
-        where: {
-          isBooked: true
-        },
         select: {
           id: true,
           rowNumber: true,
-          seatNumber: true,
-          isBooked: true
+          seatNumber: true
         }
       }
     }
@@ -123,27 +95,36 @@ export async function getShowtimeById(id: string) {
   }
 
   const flattenedGenres = showtime.movie.genres.map(({ genre }) => genre);
-  const urlEncodedTitle = showtime.movie.title.replaceAll(" ", "+");
 
-  const externalMovieData = await ky
-    .get(
-      `http://omdbapi.com/?apikey=${process.env.MOVIE_DB_API_KEY}&t=${urlEncodedTitle}`
-    )
-    .json<{
-      Title: string;
-      Director: string;
-      Actors: string;
-      Ratings: { Source: "Internet Movie Database"; Value: string }[];
-    }>();
+  let externalData = {};
+
+  if (fetchExternalData) {
+    const urlEncodedTitle = showtime.movie.title.replaceAll(" ", "+");
+
+    const externalMovieData = await ky
+      .get(
+        `http://omdbapi.com/?apikey=${process.env.MOVIE_DB_API_KEY}&t=${urlEncodedTitle}`
+      )
+      .json<{
+        Title: string;
+        Director: string;
+        Actors: string;
+        Ratings: { Source: "Internet Movie Database"; Value: string }[];
+      }>();
+
+    externalData = {
+      director: externalMovieData?.Director || null,
+      cast: externalMovieData?.Actors || null,
+      rating: externalMovieData?.Ratings?.[0]?.Value || null
+    };
+  }
 
   return {
     ...showtime,
     movie: {
       ...showtime.movie,
       genres: flattenedGenres,
-      director: externalMovieData?.Director || null,
-      cast: externalMovieData?.Actors || null,
-      rating: externalMovieData?.Ratings?.[0]?.Value || null
+      ...externalData
     }
   };
 }

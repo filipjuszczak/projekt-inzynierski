@@ -17,6 +17,7 @@ import {
 import { isValidEmail, passwordsMatch } from "@/lib/utils";
 import { HASHING_CONFIG } from "@/lib/constants";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
+import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import type { UserData } from "@/lib/types";
 
 const userSelect = {
@@ -83,7 +84,11 @@ export async function logIn(
 
     const session = await lucia.createSession(existingUser.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
-    (await cookies()).set(
+
+    const cookieStore = await cookies();
+
+    cookieStore.delete("guest_session");
+    cookieStore.set(
       sessionCookie.name,
       sessionCookie.value,
       sessionCookie.attributes
@@ -108,8 +113,8 @@ export async function logIn(
 
 export async function logOut(role: Role) {
   try {
-    const requestCookies = await cookies();
-    const sessionCookie = requestCookies.get("auth_session");
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("auth_session");
 
     if (!sessionCookie) {
       return { error: "Brak ciasteczka sesji." };
@@ -124,7 +129,7 @@ export async function logOut(role: Role) {
     await lucia.invalidateSession(session.id);
 
     const blankSessionCookie = lucia.createBlankSessionCookie();
-    requestCookies.set(
+    cookieStore.set(
       blankSessionCookie.name,
       blankSessionCookie.value,
       blankSessionCookie.attributes
@@ -254,5 +259,28 @@ export async function changePassword(
     if (isRedirectError(error)) throw error;
     console.error(error);
     return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+  }
+}
+
+export async function validateSession(sessionCookie: RequestCookie) {
+  try {
+    const { value } = sessionCookie;
+
+    const session = await prisma.session.findUnique({
+      where: { id: value }
+    });
+
+    if (!session) {
+      throw new Error("Session does not exist.");
+    }
+
+    if (session.expiresAt <= new Date()) {
+      throw new Error("Session expired.");
+    }
+
+    return session;
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }

@@ -113,8 +113,6 @@ export async function signUp(
     const encodedEmail = encodeURIComponent(email);
     const activationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/aktywuj-konto/?email=${encodedEmail}&token=${token}`;
 
-    console.log(activationLink);
-
     const { error: resendError } = await resend.emails.send({
       from: "Cinema <notifications@notifications.filipjuszczak.pl>",
       to: [email],
@@ -179,8 +177,6 @@ export async function requestPasswordReset(email: string) {
     const { token, tokenExpiresAt } = createActivationToken();
     const encodedEmail = encodeURIComponent(email);
     const passwordResetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/zresetuj-haslo?step=set-password&email=${encodedEmail}&token=${token}`;
-
-    console.log(passwordResetLink);
 
     await prisma.$transaction([
       prisma.user.update({
@@ -311,8 +307,6 @@ export async function setNewPassword(
       console.error(resendError);
       return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
     }
-
-    console.log("Password was successfully changed!");
 
     return { success: true };
   } catch (error) {

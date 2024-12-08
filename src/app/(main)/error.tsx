@@ -8,8 +8,6 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
-  console.log(error);
-
   return (
     <main className="flex flex-1 items-center justify-center">
       <div className="flex flex-col items-center gap-4">
