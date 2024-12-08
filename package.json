@@ -42,6 +42,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.5.1",
     "embla-carousel-react": "^8.5.1",
+    "framer-motion": "^11.13.1",
     "ky": "^1.7.2",
     "lucia": "^3.2.2",
     "lucide-react": "^0.453.0",
