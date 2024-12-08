@@ -1,8 +1,39 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import ky from "ky";
 import type { Session } from "lucia";
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith("/seans")) {
+    const authSessionCookie = request.cookies.get("auth_session");
+
+    if (!authSessionCookie) {
+      const guestSessionCookie = request.cookies.get("guest_session");
+
+      if (guestSessionCookie) {
+        return NextResponse.next();
+      }
+
+      const { sessionId, expiresAt } = await ky
+        .post(new URL("/api/create-guest-session", request.url), {
+          headers: {
+            secret: process.env.AUTH_API_SECREY_KEY
+          }
+        })
+        .json<{ sessionId: string; expiresAt: number }>();
+
+      const cookieStore = await cookies();
+
+      if (sessionId) {
+        cookieStore.set("guest_session", sessionId, {
+          expires: expiresAt
+        });
+      }
+
+      return NextResponse.next();
+    }
+  }
+
   if (request.nextUrl.pathname === "/panel-pracownika") {
     const requestSessionCookie = request.cookies.get("auth_session");
 
@@ -188,6 +219,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/seans/:path*",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     {
       source: "/rejestracja",
       missing: [
