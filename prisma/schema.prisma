@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url      = env("POSTGRES_PRISMA_URL")
   url      = env("DATABASE_URL")
 }
 
@@ -21,13 +20,13 @@ model User {
   lastName                  String
   email                     String         @unique
   dateOfBirth               DateTime
-  password                  String
-  role                      Role           @default(NORMAL)
-  isActivated               Boolean        @default(false)
-  mustChangePassword        Boolean        @default(false)
-  newsletterConsent         Boolean        @default(false)
-  unsuccessfulLoginAttempts Int            @default(0)
-  isLocked                  Boolean        @default(false)
+  password                  String?
+  role                      Role?          @default(NORMAL)
+  isActivated               Boolean?       @default(false)
+  mustChangePassword        Boolean?       @default(false)
+  newsletterConsent         Boolean?       @default(false)
+  unsuccessfulLoginAttempts Int?           @default(0)
+  isLocked                  Boolean?       @default(false)
   sessions                  Session[]
   seats                     Seat[]
   orders                    Order[]
@@ -42,7 +41,7 @@ model User {
 model Session {
   id        String   @id @default(uuid())
   userId    String?
-  user      User?    @relation(references: [id], fields: [userId], onDelete: SetNull)
+  user      User?    @relation(references: [id], fields: [userId], onDelete: Cascade)
   expiresAt DateTime
 
   @@map("sessions")
@@ -85,22 +84,23 @@ enum ShowtimeStatus {
 }
 
 model Showtime {
-  id           String         @id @default(uuid())
-  movie        Movie          @relation(fields: [movieId], references: [id])
-  movieId      String
-  room         Room           @relation(fields: [roomId], references: [id])
-  roomId       String
-  startTime    DateTime
-  endTime      DateTime
-  status       ShowtimeStatus
-  screenFormat ScreenFormat
-  viewingMode  ViewingMode
-  createdBy    String
-  updatedBy    String?
-  seats        Seat[]
-  orders       Order[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id               String            @id @default(uuid())
+  movie            Movie             @relation(fields: [movieId], references: [id])
+  movieId          String
+  room             Room              @relation(fields: [roomId], references: [id])
+  roomId           String
+  startTime        DateTime
+  endTime          DateTime
+  status           ShowtimeStatus
+  screenFormat     ScreenFormat
+  viewingMode      ViewingMode
+  seatReservations SeatReservation[]
+  seats            Seat[]
+  orders           Order[]
+  createdBy        String
+  updatedBy        String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@map("showtimes")
 }
@@ -190,15 +190,29 @@ enum TicketType {
   REDUCED
 }
 
+model TicketInfo {
+  id      String     @id @default(uuid())
+  type    TicketType @unique
+  price   Int
+  tickets Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tickets_info")
+}
+
 model Ticket {
-  id         String     @id @default(uuid())
-  ticketType TicketType
-  price      Float
-  orders     Order[]
-  createdBy  String
-  updatedBy  String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id           Int         @id @default(autoincrement())
+  type         String
+  price        Float
+  ticketInfoId String?
+  ticketInfo   TicketInfo? @relation(fields: [ticketInfoId], references: [id])
+  orderId      String?
+  order        Order?      @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("tickets")
 }
@@ -217,10 +231,10 @@ model Order {
   showtimeId String
   showtime   Showtime  @relation(fields: [showtimeId], references: [id])
   seats      Seat[]    @relation("OrderSeats")
-  ticketId   String
-  ticket     Ticket    @relation(fields: [ticketId], references: [id])
+  tickets    Ticket[]
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+  ticketId   String?
 
   @@map("orders")
 }
@@ -229,13 +243,12 @@ model Seat {
   id         String   @id @default(uuid())
   rowNumber  Int
   seatNumber Int
-  isBooked   Boolean  @default(false)
   showtimeId String
   showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
   roomId     String
   room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderId    String?
   order      Order?   @relation("OrderSeats", fields: [orderId], references: [id])
   createdAt  DateTime @default(now())
@@ -245,11 +258,16 @@ model Seat {
   @@map("seats")
 }
 
-// model SeatReservation {
-//   id String @id @default(uuid())
+model SeatReservation {
+  id         String   @id
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+  sessionId  String
+  rowNumber  Int
+  seatNumber Int
 
-//   @@map("seat_reservations")
-// }
+  @@map("seat_reservations")
+}
 
 enum UserActivities {
   ACTIVATED_ACCOUNT
