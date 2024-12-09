@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { TICKET_LABELS } from "@/lib/constants";
 import type { Ticket, TicketType } from "@prisma/client";
-import type { SelectedSeat, Step } from "@/components/showtimes/OrderTickets";
+import type { SelectedSeat, Step } from "@/lib/types";
 
 interface SelectTicketsProps {
   tickets: Record<

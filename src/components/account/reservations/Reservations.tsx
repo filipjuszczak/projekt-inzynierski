@@ -93,12 +93,15 @@ function renderReservations(reservations: Reservation[], isUpcoming: boolean) {
                 locale: pl
               })}
             </div>
-            <div className="flex items-center">
-              <Film className="mr-2 h-4 w-4" />
-              Miejsca:{" "}
-              {reservation.seats.map(
-                (seat) => `Rząd: ${seat.rowNumber}; Miejsce: ${seat.seatNumber}`
-              )}
+            <div className="flex flex-col gap-2">
+              <div>Miejsca:</div>
+              <ul className="space-y-1">
+                {reservation.seats.map((seat) => (
+                  <li key={`${seat.rowNumber}-${seat.seatNumber}`}>
+                    Rząd: {seat.rowNumber}; Miejsce: {seat.seatNumber}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </li>

@@ -41,7 +41,7 @@ export default async function AccountSettings() {
       <CardContent className="space-y-8">
         <ChangeAccountSettingsForm
           userId={user.id}
-          newsletterConsent={userAccountSettings.newsletterConsent}
+          newsletterConsent={userAccountSettings.newsletterConsent!}
         />
         <Separator />
         <div className="space-y-8">

@@ -9,8 +9,7 @@ interface SeatProps {
   showtimeId: string;
   rowNumber: number;
   seatNumber: number;
-  isBooked: boolean;
-  isSelected: boolean;
+  status: "free" | "booked" | "selected";
   selectedSeatsCount: number;
   onClick: (rowNumber: number, seatNumber: number) => void;
 }
@@ -19,25 +18,23 @@ export default function Seat({
   showtimeId,
   rowNumber,
   seatNumber,
-  isBooked,
-  isSelected,
+  status,
   selectedSeatsCount,
   onClick
 }: SeatProps) {
   async function handleClick() {
-    if (isBooked) {
+    if (status === "booked") {
       toast.error("To miejsce zostało zarezerwowane przez innego użytkownika.");
       return;
     }
 
-    // if the seat is already selected, remove it
-    if (!isSelected && selectedSeatsCount >= MAX_SELECTED_SEATS) {
+    if (status !== "selected" && selectedSeatsCount >= MAX_SELECTED_SEATS) {
       toast.error("Możesz zarezerwować maksymalnie 5 miejsc.");
       return;
     }
 
     try {
-      const apiEndpoint = `/api/seats/${isSelected ? "unlock" : "lock"}`;
+      const apiEndpoint = `/api/seats/${status === "selected" ? "unlock" : "lock"}`;
       const { success } = await ky
         .post(apiEndpoint, {
           json: { showtimeId, rowNumber, seatNumber }
@@ -60,13 +57,12 @@ export default function Seat({
     <button
       onClick={handleClick}
       className={cn(
-        "flex size-5 items-center justify-center rounded-sm bg-foreground font-mono text-xs text-background",
-        isBooked && "bg-muted text-white",
-        isSelected && "bg-primary text-white"
+        "xs:h-6 h-4 w-full rounded-t-sm transition-colors sm:rounded-t-lg md:h-10",
+        status === "free" && "bg-green-500 hover:bg-green-600",
+        status === "booked" && "cursor-not-allowed bg-gray-400",
+        status === "selected" && "bg-primary"
       )}
-      disabled={isBooked}
-    >
-      {seatNumber}
-    </button>
+      disabled={status === "booked"}
+    ></button>
   );
 }

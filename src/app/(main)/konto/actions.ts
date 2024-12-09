@@ -121,7 +121,8 @@ export async function updateUserData(
         firstName: true,
         lastName: true,
         email: true,
-        role: true
+        role: true,
+        dateOfBirth: true
       }
     });
 
@@ -132,6 +133,7 @@ export async function updateUserData(
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         email: updatedUser.email,
+        dateOfBirth: updatedUser.dateOfBirth,
         role: updatedUser.role
       }
     };

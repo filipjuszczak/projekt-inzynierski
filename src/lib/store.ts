@@ -7,6 +7,7 @@ export type UserState = {
   lastName: string;
   username: string;
   email: string;
+  dateOfBirth: Date | null;
   role: Role | null;
 };
 
@@ -22,6 +23,7 @@ export const defaultState: UserState = {
   lastName: "",
   username: "",
   email: "",
+  dateOfBirth: null,
   role: null
 };
 

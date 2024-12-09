@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 export default function useTimeout(callback: () => void, delay: number) {
   const callbackRef = useRef(callback);
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     callbackRef.current = callback;

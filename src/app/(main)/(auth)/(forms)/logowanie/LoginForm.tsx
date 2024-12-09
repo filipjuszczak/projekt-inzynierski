@@ -56,6 +56,7 @@ export default function LoginForm() {
           lastName: result.userData.lastName,
           username: result.userData.username,
           email: result.userData.email,
+          dateOfBirth: result.userData.dateOfBirth,
           role: result.userData.role
         });
 

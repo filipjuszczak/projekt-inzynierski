@@ -142,7 +142,7 @@ function createColumns(
       },
       cell: ({ row }) => {
         const role = row.original.role;
-        return <span>{ROLE_LABELS[role]}</span>;
+        return <span>{ROLE_LABELS[role!]}</span>;
       }
     },
     {

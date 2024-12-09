@@ -14,7 +14,7 @@ export interface UserStoreProviderProps {
 }
 
 export const UserStoreProvider = ({ children }: UserStoreProviderProps) => {
-  const storeRef = useRef<UserStoreApi>();
+  const storeRef = useRef<UserStoreApi>(null);
   if (!storeRef.current) {
     storeRef.current = createUserStore();
   }

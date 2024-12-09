@@ -1,17 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Seat from "@/components/showtimes/Seat";
-import type { SelectedSeat } from "@/components/showtimes/OrderTickets";
+import type { BookedSeat, SelectedSeat } from "@/lib/types";
 
 interface SeatsProps {
   showtimeId: string;
   numberOfRows: number;
   seatsPerRow: number;
-  bookedSeats: {
-    id: string;
-    rowNumber: number;
-    seatNumber: number;
-  }[];
+  bookedSeats: BookedSeat[];
   selectedSeats: SelectedSeat[];
   onSeatClick: (rowNumber: number, seatNumber: number) => void;
 }
@@ -26,39 +23,65 @@ export default function Seats({
 }: SeatsProps) {
   return (
     <div
-      className="grid gap-2"
+      className="grid w-full gap-x-1 gap-y-2 md:gap-x-2 md:gap-y-6"
       style={{
-        gridTemplateColumns: `repeat(${seatsPerRow}, minmax(0, 1fr))`
+        gridTemplateColumns: `repeat(${numberOfRows},1fr)`
       }}
     >
-      {Array.from({ length: numberOfRows }, (_, rowIndex) =>
-        Array.from({ length: seatsPerRow }, (_, seatIndex) => {
-          const rowNumber = rowIndex + 1;
-          const seatNumber = seatIndex + 1;
-          const seatId = `seat-${rowNumber}-${seatNumber}`;
-          const isBooked = bookedSeats.some(
-            (bookedSeat) =>
-              bookedSeat.rowNumber === rowNumber &&
-              bookedSeat.seatNumber === seatNumber
-          );
-          const isSelected = !!selectedSeats.find(
-            (seat) =>
-              seat.rowNumber === rowNumber && seat.seatNumber === seatNumber
-          );
+      {generateSeats(numberOfRows, seatsPerRow, bookedSeats, selectedSeats).map(
+        (seat) => {
+          const key = `seat-${seat.rowNumber}-${seat.seatNumber}`;
           return (
             <Seat
-              key={seatId}
+              key={key}
               showtimeId={showtimeId}
-              rowNumber={rowNumber}
-              seatNumber={seatNumber}
-              isBooked={isBooked}
-              isSelected={isSelected}
+              rowNumber={seat.rowNumber}
+              seatNumber={seat.seatNumber}
+              status={seat.status}
               selectedSeatsCount={selectedSeats.length}
               onClick={onSeatClick}
             />
           );
-        })
+        }
       )}
     </div>
   );
+}
+
+function generateSeats(
+  numberOfRows: number,
+  seatsPerRow: number,
+  bookedSeats: BookedSeat[],
+  selectedSeats: SelectedSeat[]
+) {
+  const seats: {
+    id: string;
+    rowNumber: number;
+    seatNumber: number;
+    status: "free" | "booked" | "selected";
+  }[] = [];
+
+  for (let rowNumber = 1; rowNumber <= numberOfRows; rowNumber++) {
+    for (let seatNumber = 1; seatNumber <= seatsPerRow; seatNumber++) {
+      const status = bookedSeats.some(
+        (seat) => seat.rowNumber === rowNumber && seat.seatNumber === seatNumber
+      )
+        ? "booked"
+        : selectedSeats.some(
+              (seat) =>
+                seat.rowNumber === rowNumber && seat.seatNumber === seatNumber
+            )
+          ? "selected"
+          : "free";
+
+      seats.push({
+        id: `${rowNumber}-${seatNumber}`,
+        rowNumber,
+        seatNumber,
+        status
+      });
+    }
+  }
+
+  return seats;
 }

@@ -256,7 +256,7 @@ export async function setNewPassword(
     }
 
     const samePasswords = await verify(
-      user.password,
+      user.password!,
       newPassword,
       HASHING_CONFIG
     );

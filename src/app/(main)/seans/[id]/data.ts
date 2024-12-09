@@ -5,6 +5,7 @@ export async function getEssentialShowtimeDataById(id: string) {
     where: { id },
     select: {
       id: true,
+      startTime: true,
       movie: {
         select: {
           id: true,

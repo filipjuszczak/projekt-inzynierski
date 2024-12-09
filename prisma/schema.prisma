@@ -13,8 +13,14 @@ enum Role {
   ADMIN
 }
 
+enum UserType {
+  GUEST
+  REGULAR
+}
+
 model User {
   id                        String         @id @default(uuid())
+  type                      UserType       @default(REGULAR)
   username                  String?        @unique
   firstName                 String
   lastName                  String

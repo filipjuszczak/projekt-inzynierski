@@ -96,7 +96,15 @@ export async function getShowtimeById(
 
   const flattenedGenres = showtime.movie.genres.map(({ genre }) => genre);
 
-  let externalData = {};
+  let externalData: {
+    director: string | null;
+    cast: string | null;
+    rating: string | null;
+  } = {
+    director: null,
+    cast: null,
+    rating: null
+  };
 
   if (fetchExternalData) {
     const urlEncodedTitle = showtime.movie.title.replaceAll(" ", "+");
@@ -124,7 +132,9 @@ export async function getShowtimeById(
     movie: {
       ...showtime.movie,
       genres: flattenedGenres,
-      ...externalData
+      director: externalData.director,
+      cast: externalData.cast,
+      rating: externalData.rating
     }
   };
 }

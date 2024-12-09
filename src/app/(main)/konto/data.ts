@@ -111,9 +111,9 @@ export async function getReservations(userId: string) {
           startTime: true
         }
       },
-      ticket: {
+      tickets: {
         select: {
-          ticketType: true,
+          type: true,
           price: true
         }
       }

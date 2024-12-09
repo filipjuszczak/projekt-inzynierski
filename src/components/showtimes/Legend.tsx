@@ -12,28 +12,27 @@ export default function Legend({
   showSelected
 }: LegendProps) {
   return (
-    <div className="flex flex-col gap-10 md:flex-row">
-      {showFree && (
-        <div className="flex items-center gap-2">
-          <Seat rowNumber={null} seatNumber={null} isBooked={false} />- Wolne
-        </div>
-      )}
-      {showBooked && (
-        <div className="flex items-center gap-2">
-          <Seat rowNumber={null} seatNumber={null} isBooked={true} />- Zajęte
-        </div>
-      )}
-      {showSelected && (
-        <div className="flex items-center gap-2">
-          <Seat
-            rowNumber={null}
-            seatNumber={null}
-            isBooked={false}
-            isSelected={true}
-          />
-          - Wybrane
-        </div>
-      )}
+    <div className="mt-4 text-xs text-gray-600 sm:text-sm">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        {showFree && (
+          <div className="flex items-center">
+            <div className="mr-2 h-4 w-4 rounded-sm bg-green-500" />
+            <span>Dostępne</span>
+          </div>
+        )}
+        {showSelected && (
+          <div className="flex items-center">
+            <div className="mr-2 h-4 w-4 rounded-sm bg-primary" />
+            <span>Wybrane</span>
+          </div>
+        )}
+        {showBooked && (
+          <div className="flex items-center">
+            <div className="mr-2 h-4 w-4 rounded-sm bg-gray-400" />
+            <span>Zarezerwowane</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

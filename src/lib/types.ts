@@ -15,6 +15,7 @@ export interface UserData {
   lastName: string;
   username: string;
   email: string;
+  dateOfBirth: Date;
   role: Role;
 }
 
@@ -76,10 +77,10 @@ export interface Reservation {
     rowNumber: number;
     seatNumber: number;
   }[];
-  ticket: {
-    ticketType: TicketType;
+  tickets: {
+    type: string;
     price: number;
-  };
+  }[];
 }
 
 export type Cursor = string | null;
@@ -105,4 +106,19 @@ export interface Filters {
   genre?: string | string[];
   viewingMode?: ViewingMode | ViewingMode[];
   screenFormat?: ScreenFormat | ScreenFormat[];
+}
+
+export interface BookedSeat {
+  id: string;
+  rowNumber: number;
+  seatNumber: number;
+}
+
+export type Step = "select-seats" | "select-tickets" | "summary";
+
+export interface SelectedSeat {
+  id: string;
+  rowNumber: number;
+  seatNumber: number;
+  ticketType: TicketType;
 }

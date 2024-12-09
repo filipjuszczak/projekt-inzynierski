@@ -27,6 +27,7 @@ const userSelect = {
   lastName: true,
   email: true,
   password: true,
+  dateOfBirth: true,
   role: true,
   isActivated: true,
   isLocked: true
@@ -101,7 +102,8 @@ export async function logIn(
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         email: existingUser.email,
-        role: existingUser.role
+        dateOfBirth: existingUser.dateOfBirth,
+        role: existingUser.role!
       }
     };
   } catch (error) {
@@ -196,19 +198,8 @@ export async function changePassword(
     const { oldPassword, newPassword, repeatNewPassword } =
       changePasswordSchema.parse(values);
 
-    // const existingUser = await prisma.user.findUnique({
-    //   where: { id: userId },
-    //   select: { id: true, firstName: true, password: true, email: true }
-    // });
-
-    // if (!existingUser) {
-    //   return {
-    //     error: "Nie znaleziono użytkownika o podanym adresie e-mail."
-    //   };
-    // }
-
     const isOldPasswordCorrect = await verify(
-      existingUser.password,
+      existingUser.password!,
       oldPassword,
       HASHING_CONFIG
     );

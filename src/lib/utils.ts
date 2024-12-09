@@ -6,6 +6,10 @@ import type { UseFormReturn } from "react-hook-form";
 import type { SignupValues } from "@/lib/validation/auth";
 import type { EmployeeValues } from "@/lib/validation/employee";
 import type { UpdateUserDataValues } from "@/lib/validation/user";
+import {
+  checkoutFormSchema,
+  type CheckoutFormValues
+} from "@/lib/validation/checkout";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -200,4 +204,10 @@ export function createActivationToken() {
   const tokenExpiresAt = addMinutes(new Date(), 15);
 
   return { token, tokenExpiresAt };
+}
+
+export function validateCheckoutValues(values: CheckoutFormValues) {
+  const { success, data } = checkoutFormSchema.safeParse(values);
+
+  return success ? data : null;
 }

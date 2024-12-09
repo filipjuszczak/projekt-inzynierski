@@ -1,5 +1,5 @@
 import Room from "@/components/showtimes/Room";
-import type { SelectedSeat, Step } from "@/components/showtimes/OrderTickets";
+import type { SelectedSeat, Step } from "@/lib/types";
 
 interface SelectSeatsProps {
   showtime: {

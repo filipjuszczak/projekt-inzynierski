@@ -72,6 +72,7 @@ export default function UpdateUserDataForm({
           firstName: result.userData.firstName,
           lastName: result.userData.lastName,
           email: result.userData.email,
+          dateOfBirth: result.userData.dateOfBirth,
           role: result.userData.role
         });
         toast.success("Dane zostały pomyślnie zapisane.");

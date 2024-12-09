@@ -7,6 +7,7 @@ import SelectTickets from "@/components/showtimes/SelectTickets";
 import SelectSeats from "@/components/showtimes/SelectSeats";
 import Summary from "@/components/showtimes/Summary";
 import { MAX_SELECTED_SEATS } from "@/lib/constants";
+import type { SelectedSeat, Step } from "@/lib/types";
 
 interface OrderTicketsProps {
   showtime: {
@@ -40,15 +41,6 @@ interface OrderTicketsProps {
   >;
 }
 
-export type Step = "select-seats" | "select-tickets" | "summary";
-
-export interface SelectedSeat {
-  id: string;
-  rowNumber: number;
-  seatNumber: number;
-  ticketType: TicketType;
-}
-
 export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
   const [currentStep, setCurrentStep] = useState<Step>("select-seats");
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
@@ -59,7 +51,9 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
   }, [selectedSeats]);
 
   useEffect(() => {
-    async function onBeforeUnload(event: BeforeUnloadEvent) {
+    async function onBeforeUnload() {
+      if (ref.current.length === 0) return;
+
       const baseUrl = window.location.origin;
       navigator.sendBeacon(
         `${baseUrl}/api/seats/unlock-selected`,
