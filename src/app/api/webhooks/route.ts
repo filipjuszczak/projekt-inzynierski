@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
@@ -98,6 +99,8 @@ export async function POST(request: NextRequest) {
         }))
       });
     }
+
+    revalidatePath("/panel-pracownika/pulpit");
 
     return NextResponse.json({ result: event, success: true });
   } catch (error) {
