@@ -154,7 +154,7 @@ export async function createCheckoutSession({
 
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/rezerwacje/${createdOrder.id}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/seanse/${showtime.id}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/seans/${showtime.id}`,
       payment_method_types: ["card", "paypal", "blik"],
       mode: "payment",
       metadata: {
