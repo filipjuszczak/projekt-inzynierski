@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import {
@@ -16,6 +15,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { buttonVariants } from "@/components/ui/button";
+import { ImageWithLoader } from "@/components/ImageWithLoader";
 import Genres from "@/components/GenresBadges";
 import { cn } from "@/lib/utils";
 
@@ -37,16 +37,16 @@ export default function MovieCard({
   shortDescription
 }: MovieCardProps) {
   return (
-    <Card key={id} className="flex w-full flex-col">
+    <Card key={id} className="flex w-full flex-grow flex-col overflow-hidden">
       <CardHeader className="relative aspect-[2/3] w-full p-0">
-        <Image
+        <ImageWithLoader
           src={posterUrl || "/images/image-placeholder.svg"}
           alt={`Plakat filmu ${title}`}
           fill
           className="aspect-[2/3] rounded-t-lg object-cover"
         />
       </CardHeader>
-      <CardContent className="space-y-2 p-4 pb-10">
+      <CardContent className="space-y-2 p-4 pb-8">
         <CardTitle
           className="max-w-fit truncate text-lg font-bold"
           title={title}
