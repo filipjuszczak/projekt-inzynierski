@@ -120,7 +120,7 @@ export default function LoginForm() {
                           className="absolute right-0 top-0"
                         >
                           <EyeOffIcon className="cursor-pointer" />
-                          <span className="sr-only">Hide password</span>
+                          <span className="sr-only">Ukryj hasło</span>
                         </Button>
                       ) : (
                         <Button
@@ -130,7 +130,7 @@ export default function LoginForm() {
                           className="absolute right-0 top-0"
                         >
                           <EyeIcon className="cursor-pointer" />
-                          <span className="sr-only">Show password</span>
+                          <span className="sr-only">Pokaż hasło</span>
                         </Button>
                       )}
                     </div>
