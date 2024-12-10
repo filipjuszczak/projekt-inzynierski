@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/app/(staff)/panel-pracownika/pulpit/DashboardSidebar";
 
-export default async function Layout({ children }: React.PropsWithChildren) {
+export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <SidebarProvider>
       <DashboardSidebar />
