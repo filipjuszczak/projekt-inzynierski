@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import ZoomButtons from "@/components/showtimes/ZoomButtons";
 import Screen from "@/components/showtimes/Screen";
 import Seats from "@/components/showtimes/Seats";
@@ -43,7 +43,6 @@ export default function Room({
       <ZoomButtons onZoom={handleZoom} />
       <div className="relative overflow-auto rounded-lg bg-gray-100 p-4 shadow-inner sm:p-8">
         <motion.div
-          // @ts-ignore
           className="flex min-h-[300px] w-full origin-top-left flex-col items-center rounded-lg sm:min-h-[400px]"
           style={{ scale }}
         >
