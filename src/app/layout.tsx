@@ -18,9 +18,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <body className={`${inter.className}`}>
         <Providers>{children}</Providers>
         <Toaster
-          position="bottom-right"
+          position="top-center"
           richColors
-          closeButton
+          // closeButton
           toastOptions={{ duration: 5000 }}
         />
       </body>
