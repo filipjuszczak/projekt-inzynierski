@@ -67,7 +67,7 @@ export default function CheckoutForm({
   async function onFormSubmit(values: CheckoutFormValues) {
     startTransition(async () => {
       if (values.type === "buy") {
-        await createCheckoutSession({
+        const result = await createCheckoutSession({
           showtimeId,
           selectedSeats,
           firstName: values.firstName,
@@ -75,6 +75,10 @@ export default function CheckoutForm({
           email: values.email,
           dateOfBirth: values.dateOfBirth
         });
+
+        if ("error" in result) {
+          toast.error(result.error);
+        }
       } else {
         const result = await makeReservation({
           showtimeId,

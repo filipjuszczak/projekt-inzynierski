@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Seat from "@/components/showtimes/Seat";
 import type { BookedSeat, SelectedSeat } from "@/lib/types";
 

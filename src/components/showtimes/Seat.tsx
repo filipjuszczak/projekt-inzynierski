@@ -45,7 +45,7 @@ export default function Seat({
         onClick(rowNumber, seatNumber);
       } else {
         toast.error(
-          "To miejsce zostało zarezerwowane przez innego użytkownika. Prosimy o wybór innego."
+          "To miejsce zostało zarezerwowane przez innego użytkownika."
         );
       }
     } catch (error) {
@@ -57,7 +57,7 @@ export default function Seat({
     <button
       onClick={handleClick}
       className={cn(
-        "xs:h-6 h-4 w-full rounded-t-sm transition-colors sm:rounded-t-lg md:h-10",
+        "h-4 w-full rounded-t-sm transition-colors xs:h-6 sm:rounded-t-lg md:h-10",
         status === "free" && "bg-green-500 hover:bg-green-600",
         status === "booked" && "cursor-not-allowed bg-gray-400",
         status === "selected" && "bg-primary"

@@ -51,7 +51,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
   }, [selectedSeats]);
 
   useEffect(() => {
-    async function onBeforeUnload() {
+    function onBeforeUnload() {
       if (ref.current.length === 0) return;
 
       const baseUrl = window.location.origin;
@@ -69,7 +69,10 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
 
     window.addEventListener("beforeunload", onBeforeUnload);
 
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      onBeforeUnload();
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
   }, []);
 
   function onSeatClick(rowNumber: number, seatNumber: number) {

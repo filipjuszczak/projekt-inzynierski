@@ -41,6 +41,9 @@ export default function SelectSeats({
       <h1 className="text-center text-3xl font-bold md:text-start">
         Wybierz miejsca
       </h1>
+      <div className="text-muted-foreground">
+        Kliknij na miejsce, aby je zarezerwować.
+      </div>
       <Room
         showtimeId={showtime.id}
         numberOfRows={showtime.room.numberOfRows}

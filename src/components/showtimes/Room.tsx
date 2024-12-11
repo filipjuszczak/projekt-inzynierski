@@ -41,7 +41,7 @@ export default function Room({
   return (
     <div className="mx-auto w-full max-w-full space-y-4 p-2 sm:max-w-4xl sm:p-4">
       <ZoomButtons onZoom={handleZoom} />
-      <div className="relative overflow-auto rounded-lg bg-gray-100 p-4 shadow-inner sm:p-8">
+      <div className="relative overflow-auto rounded-lg border bg-background p-4 shadow-inner sm:p-8">
         <motion.div
           className="flex min-h-[300px] w-full origin-top-left flex-col items-center rounded-lg sm:min-h-[400px]"
           style={{ scale }}

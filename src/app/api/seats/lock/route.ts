@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (isSeatBooked || isSeatLocked) {
-      return Response.json({ success: false }, { status: 400 });
+      return Response.json({ success: false });
     }
 
     await prisma.seatReservation.create({
