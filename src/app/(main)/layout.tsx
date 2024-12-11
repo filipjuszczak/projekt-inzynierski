@@ -11,11 +11,11 @@ import {
   DrawerTrigger
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import AuthButtons from "@/components/AuthButtons";
-import { useCheckAuth } from "@/app/(main)/queries";
 import LogoutButton from "@/components/LogoutButton";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useCheckAuth } from "@/app/(main)/queries";
 
 export default function Layout({ children }: React.PropsWithChildren) {
   const { data, isPending } = useCheckAuth();
