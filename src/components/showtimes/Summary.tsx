@@ -48,19 +48,19 @@ interface SummaryProps {
   >;
   selectedSeats: SelectedSeat[];
   onChangeStep: (step: Step) => void;
+  onCheckoutStart: () => void;
+  onCheckoutCancel: () => void;
 }
 
 export default function Summary({
   showtime,
   tickets,
   selectedSeats,
-  onChangeStep
+  onChangeStep,
+  onCheckoutStart,
+  onCheckoutCancel
 }: SummaryProps) {
-  const totalPrice =
-    selectedSeats.reduce(
-      (acc, seat) => acc + tickets[seat.ticketType].price,
-      0
-    ) / 100;
+  const totalPrice = calculateTotalPrice(selectedSeats, tickets);
 
   return (
     <Card className="mx-auto max-w-xl">
@@ -112,7 +112,10 @@ export default function Summary({
           showtimeId={showtime.id}
           selectedSeats={selectedSeats}
           totalPrice={totalPrice}
+          onCheckoutStart={onCheckoutStart}
+          onCheckoutCancel={onCheckoutCancel}
         />
+
         <Button
           variant="outline"
           className="w-full"
@@ -123,5 +126,22 @@ export default function Summary({
         </Button>
       </CardContent>
     </Card>
+  );
+}
+
+function calculateTotalPrice(
+  selectedSeats: SelectedSeat[],
+  tickets: Record<
+    string,
+    {
+      price: number;
+    }
+  >
+) {
+  return (
+    selectedSeats.reduce(
+      (acc, seat) => acc + tickets[seat.ticketType].price,
+      0
+    ) / 100
   );
 }
