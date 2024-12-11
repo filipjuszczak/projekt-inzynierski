@@ -28,15 +28,17 @@ export async function POST(request: NextRequest) {
     const seatReservations = await prisma.seatReservation.findMany({
       where: {
         showtimeId,
-        AND: seatsToUnlock.map((seat) => ({
-          rowNumber: seat.rowNumber,
-          seatNumber: seat.seatNumber
-        }))
+        rowNumber: {
+          in: seatsToUnlock.map((seat) => Number(seat.rowNumber))
+        },
+        seatNumber: {
+          in: seatsToUnlock.map((seat) => Number(seat.seatNumber))
+        }
       }
     });
 
     if (seatReservations.length === 0) {
-      return Response.json({ success: false }, { status: 404 });
+      return Response.json({ success: false });
     }
 
     if (
