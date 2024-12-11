@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import ky from "ky";
 import { toast } from "sonner";
 import { TicketType } from "@prisma/client";
 import SelectTickets from "@/components/showtimes/SelectTickets";
@@ -42,17 +44,44 @@ interface OrderTicketsProps {
 }
 
 export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
+  const searchParams = useSearchParams();
+
   const [currentStep, setCurrentStep] = useState<Step>("select-seats");
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
-  const ref = useRef(selectedSeats);
+
+  const isUserBuyingRef = useRef(false);
+  const selectedSeatsRef = useRef(selectedSeats);
 
   useEffect(() => {
-    ref.current = selectedSeats;
+    const sessionId = searchParams.get("sessionId");
+    if (!sessionId) return;
+
+    const selectedSeatsParams = searchParams.getAll("seat");
+    if (selectedSeatsParams.length === 0) return;
+
+    async function unlockSelectedSeats() {
+      await ky.post("/api/seats/unlock-selected", {
+        json: {
+          seats: selectedSeatsParams.map((seat) => {
+            const [rowNumber, seatNumber] = seat.split("-");
+            return { rowNumber, seatNumber };
+          })
+        }
+      });
+    }
+
+    unlockSelectedSeats();
+  }, [searchParams]);
+
+  useEffect(() => {
+    selectedSeatsRef.current = selectedSeats;
   }, [selectedSeats]);
 
   useEffect(() => {
     function onBeforeUnload() {
-      if (ref.current.length === 0) return;
+      if (isUserBuyingRef.current || selectedSeatsRef.current.length === 0) {
+        return;
+      }
 
       const baseUrl = window.location.origin;
       navigator.sendBeacon(
@@ -130,6 +159,14 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
     setSelectedSeats((prev) => prev.filter((s) => s.id !== id));
   }
 
+  function onCheckoutStart() {
+    isUserBuyingRef.current = true;
+  }
+
+  function onCheckoutCancel() {
+    isUserBuyingRef.current = false;
+  }
+
   if (currentStep === "select-seats") {
     return (
       <SelectSeats
@@ -160,6 +197,8 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
         tickets={tickets}
         selectedSeats={selectedSeats}
         onChangeStep={onChangeStep}
+        onCheckoutStart={onCheckoutStart}
+        onCheckoutCancel={onCheckoutCancel}
       />
     );
   }
