@@ -69,7 +69,7 @@ export function ImageWithLoader({
           fill={fill}
           priority={priority}
           sizes={sizes}
-          onLoadingComplete={() => setIsVisible(true)}
+          onLoad={() => setIsVisible(true)}
           className={className}
         />
       </motion.div>
