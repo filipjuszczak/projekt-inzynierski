@@ -56,7 +56,7 @@ export default function LoginForm() {
           role: result.userData.role
         });
         toast.success("Zalogowano pomyślnie.");
-        return redirect("/panel-pracownika/pulpit");
+        redirect("/panel-pracownika/pulpit");
       } else {
         toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
       }
