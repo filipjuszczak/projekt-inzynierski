@@ -75,6 +75,26 @@ export async function createCheckoutSession({
       return { error: "Seans nie istnieje." };
     }
 
+    const alreadyBookedSeats = await prisma.seat.findMany({
+      where: {
+        showtimeId: showtime.id,
+        roomId: showtime.room.id,
+        rowNumber: {
+          in: selectedSeats.map((seat) => seat.rowNumber)
+        },
+        seatNumber: {
+          in: selectedSeats.map((seat) => seat.seatNumber)
+        }
+      }
+    });
+
+    if (alreadyBookedSeats.length !== 0) {
+      return {
+        error:
+          "Co najmniej jedno z miejsc, które zostało wybrane, jest już zarezerwowane przez innego użytkownika."
+      };
+    }
+
     const highestAgeRestriction = showtime.movie.genres.reduce(
       (acc, genre) =>
         genre.genre.ageRestriction > acc ? genre.genre.ageRestriction : acc,
@@ -176,16 +196,22 @@ export async function createCheckoutSession({
     );
 
     const product = await stripe.products.create({
-      name: `Cinema tickets for movie ${showtime.movie.title}`,
+      name: `Bilety na film ${showtime.movie.title}`,
       default_price_data: {
         currency: "PLN",
         unit_amount: totalPrice
       }
     });
 
+    const cancelUrlParams = new URLSearchParams();
+    cancelUrlParams.set("sessionId", session.id);
+    for (const seat of selectedSeats) {
+      cancelUrlParams.append("seat", `${seat.rowNumber}-${seat.seatNumber}`);
+    }
+
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/rezerwacje/${createdOrder.id}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/seans/${showtime.id}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/seans/${showtime.id}?${cancelUrlParams.toString()}`,
       payment_method_types: ["card", "paypal", "blik"],
       mode: "payment",
       metadata: {
@@ -202,7 +228,7 @@ export async function createCheckoutSession({
       ]
     });
 
-    return redirect(stripeSession.url!);
+    redirect(stripeSession.url!);
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
