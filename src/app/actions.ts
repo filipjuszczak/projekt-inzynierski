@@ -15,7 +15,10 @@ import {
   type ChangePasswordValues
 } from "@/lib/validation/employee";
 import { isValidEmail, passwordsMatch } from "@/lib/utils";
-import { HASHING_CONFIG } from "@/lib/constants";
+import {
+  HASHING_CONFIG,
+  MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS
+} from "@/lib/constants";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import type { UserData } from "@/lib/types";
@@ -30,7 +33,8 @@ const userSelect = {
   dateOfBirth: true,
   role: true,
   isActivated: true,
-  isLocked: true
+  isLocked: true,
+  unsuccessfulLoginAttempts: true
 };
 
 export async function logIn(
@@ -50,9 +54,24 @@ export async function logIn(
           select: userSelect
         });
 
+    if (
+      existingUser &&
+      existingUser.unsuccessfulLoginAttempts! >= MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS
+    ) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { isLocked: true }
+      });
+
+      return {
+        error:
+          "Konto zostało zablokowane z powodu zbyt wielu nieudanych prób logowania. Zresetuj swoje hasło lub skontaktuj się z działem obsługi klienta."
+      };
+    }
+
     if (!existingUser || !existingUser.password) {
       return {
-        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło."
+        error: "Nieprawidłowe dane logowania."
       };
     }
 
@@ -74,9 +93,16 @@ export async function logIn(
     );
 
     if (!isPasswordValid) {
-      return {
-        error: "Nieprawidłowa nazwa użytkownika / adres e-mail lub hasło."
-      };
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          unsuccessfulLoginAttempts: {
+            increment: 1
+          }
+        }
+      });
+
+      return { error: "Nieprawidłowe dane logowania." };
     }
 
     if (role === Role.EMPLOYEE && existingUser.role === Role.NORMAL) {
