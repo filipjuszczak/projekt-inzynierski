@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
@@ -124,9 +125,9 @@ function GenreFilter({
   return (
     <div>
       <h3 className="mb-2 text-lg font-semibold">Gatunki</h3>
-      <div className="space-y-2">
+      <ScrollArea className="h-[6.9rem] md:h-[8rem]">
         {genres.map((genre) => (
-          <div key={genre.id} className="flex items-center">
+          <div key={genre.id} className="mb-2 flex items-center">
             <Checkbox
               id={genre.id}
               checked={checkedGenres.includes(genre.name)}
@@ -140,7 +141,7 @@ function GenreFilter({
             </Label>
           </div>
         ))}
-      </div>
+      </ScrollArea>
     </div>
   );
 }
