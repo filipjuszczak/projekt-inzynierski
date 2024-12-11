@@ -1,4 +1,14 @@
-import { Role, ScreenFormat, TicketType, ViewingMode } from "@prisma/client";
+import {
+  OrderType,
+  Role,
+  ScreenFormat,
+  TicketType,
+  ViewingMode
+} from "@prisma/client";
+
+export const MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS = 5;
+
+export const MAX_SELECTED_SEATS = 5;
 
 export const HASHING_CONFIG = {
   memoryCost: 19456,
@@ -43,4 +53,7 @@ export const TICKET_LABELS = {
   [TicketType.REDUCED]: "Ulgowy"
 };
 
-export const MAX_SELECTED_SEATS = 5;
+export const RESERVATION_LABELS = {
+  [OrderType.RESERVATION]: "Rezerwacja",
+  [OrderType.PAID]: "Zakup"
+};
