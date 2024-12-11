@@ -35,7 +35,7 @@ export default async function ShowtimePage({ params }: ShowtimePageProps) {
   }
 
   return (
-    <main className="container mx-auto my-24 space-y-12 px-4">
+    <main className="container mx-auto my-24 space-y-4 px-4">
       <OrderTickets showtime={showtime} tickets={tickets} />
     </main>
   );
