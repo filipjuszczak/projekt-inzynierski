@@ -108,7 +108,14 @@ export async function getAllSales() {
 }
 
 export async function getTotalTicketsSold() {
-  const ticketCount = await prisma.ticket.count();
+  const ticketCount = await prisma.ticket.count({
+    where: {
+      order: {
+        isPaid: true
+      }
+    }
+  });
+
   return ticketCount;
 }
 
