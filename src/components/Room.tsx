@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button";
 import { MoveRight } from "lucide-react";
 
 interface RoomProps {
-  showtimeId: string;
+  showtimeId?: string;
   numberOfRows: number;
   seatsPerRow: number;
-  bookedSeats: BookedSeat[];
-  selectedSeats: SelectedSeat[];
-  onSeatClick: (rowNumber: number, seatNumber: number) => void;
-  onChangeStep: (step: Step) => void;
+  bookedSeats?: BookedSeat[];
+  selectedSeats?: SelectedSeat[];
+  onSeatClick?: (rowNumber: number, seatNumber: number) => void;
+  onChangeStep?: (step: Step) => void;
 }
 
 export default function Room({
@@ -57,16 +57,22 @@ export default function Room({
           />
         </motion.div>
       </div>
-      <Legend showFree showSelected showBooked />
-      <div className="flex justify-end">
-        <Button
-          onClick={() => onChangeStep("select-tickets")}
-          disabled={selectedSeats.length === 0}
-        >
-          Dalej
-          <MoveRight />
-        </Button>
-      </div>
+      <Legend
+        showFree
+        showSelected={!!selectedSeats}
+        showBooked={!!bookedSeats}
+      />
+      {onChangeStep && selectedSeats && (
+        <div className="flex justify-end">
+          <Button
+            onClick={() => onChangeStep("select-tickets")}
+            disabled={selectedSeats.length === 0}
+          >
+            Dalej
+            <MoveRight />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

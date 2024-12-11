@@ -4,12 +4,12 @@ import Seat from "@/components/showtimes/Seat";
 import type { BookedSeat, SelectedSeat } from "@/lib/types";
 
 interface SeatsProps {
-  showtimeId: string;
+  showtimeId?: string;
   numberOfRows: number;
   seatsPerRow: number;
-  bookedSeats: BookedSeat[];
-  selectedSeats: SelectedSeat[];
-  onSeatClick: (rowNumber: number, seatNumber: number) => void;
+  bookedSeats?: BookedSeat[];
+  selectedSeats?: SelectedSeat[];
+  onSeatClick?: (rowNumber: number, seatNumber: number) => void;
 }
 
 export default function Seats({
@@ -27,32 +27,40 @@ export default function Seats({
         gridTemplateColumns: `repeat(${numberOfRows},1fr)`
       }}
     >
-      {generateSeats(numberOfRows, seatsPerRow, bookedSeats, selectedSeats).map(
-        (seat) => {
-          const key = `seat-${seat.rowNumber}-${seat.seatNumber}`;
-          return (
-            <Seat
-              key={key}
-              showtimeId={showtimeId}
-              rowNumber={seat.rowNumber}
-              seatNumber={seat.seatNumber}
-              status={seat.status}
-              selectedSeatsCount={selectedSeats.length}
-              onClick={onSeatClick}
-            />
-          );
-        }
-      )}
+      {generateSeats({
+        numberOfRows,
+        seatsPerRow,
+        bookedSeats,
+        selectedSeats
+      }).map((seat) => {
+        const key = `seat-${seat.rowNumber}-${seat.seatNumber}`;
+        return (
+          <Seat
+            key={key}
+            showtimeId={showtimeId}
+            rowNumber={seat.rowNumber}
+            seatNumber={seat.seatNumber}
+            status={seat.status}
+            selectedSeatsCount={selectedSeats?.length}
+            onClick={onSeatClick}
+          />
+        );
+      })}
     </div>
   );
 }
 
-function generateSeats(
-  numberOfRows: number,
-  seatsPerRow: number,
-  bookedSeats: BookedSeat[],
-  selectedSeats: SelectedSeat[]
-) {
+function generateSeats({
+  numberOfRows,
+  seatsPerRow,
+  bookedSeats,
+  selectedSeats
+}: {
+  numberOfRows: number;
+  seatsPerRow: number;
+  bookedSeats?: BookedSeat[];
+  selectedSeats?: SelectedSeat[];
+}) {
   const seats: {
     id: string;
     rowNumber: number;
@@ -62,11 +70,11 @@ function generateSeats(
 
   for (let rowNumber = 1; rowNumber <= numberOfRows; rowNumber++) {
     for (let seatNumber = 1; seatNumber <= seatsPerRow; seatNumber++) {
-      const status = bookedSeats.some(
+      const status = bookedSeats?.some(
         (seat) => seat.rowNumber === rowNumber && seat.seatNumber === seatNumber
       )
         ? "booked"
-        : selectedSeats.some(
+        : selectedSeats?.some(
               (seat) =>
                 seat.rowNumber === rowNumber && seat.seatNumber === seatNumber
             )

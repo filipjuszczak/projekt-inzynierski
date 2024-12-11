@@ -6,12 +6,12 @@ import { cn } from "@/lib/utils";
 import { MAX_SELECTED_SEATS } from "@/lib/constants";
 
 interface SeatProps {
-  showtimeId: string;
+  showtimeId?: string;
   rowNumber: number;
   seatNumber: number;
   status: "free" | "booked" | "selected";
-  selectedSeatsCount: number;
-  onClick: (rowNumber: number, seatNumber: number) => void;
+  selectedSeatsCount?: number;
+  onClick?: (rowNumber: number, seatNumber: number) => void;
 }
 
 export default function Seat({
@@ -23,6 +23,8 @@ export default function Seat({
   onClick
 }: SeatProps) {
   async function handleClick() {
+    if (!showtimeId || selectedSeatsCount === undefined || !onClick) return;
+
     if (status === "booked") {
       toast.error("To miejsce zostało zarezerwowane przez innego użytkownika.");
       return;
@@ -53,16 +55,28 @@ export default function Seat({
     }
   }
 
-  return (
-    <button
-      onClick={handleClick}
-      className={cn(
-        "h-4 w-full rounded-t-sm transition-colors xs:h-6 sm:rounded-t-lg md:h-10",
-        status === "free" && "bg-green-500 hover:bg-green-600",
-        status === "booked" && "cursor-not-allowed bg-gray-400",
-        status === "selected" && "bg-primary"
-      )}
-      disabled={status === "booked"}
-    ></button>
-  );
+  if (showtimeId) {
+    return (
+      <button
+        onClick={handleClick}
+        className={cn(
+          "h-4 w-full rounded-t-sm transition-colors xs:h-6 sm:rounded-t-lg md:h-10",
+          status === "free" && "bg-green-500 hover:bg-green-600",
+          status === "booked" && "cursor-not-allowed bg-gray-400",
+          status === "selected" && "bg-primary"
+        )}
+        disabled={status === "booked"}
+      ></button>
+    );
+  } else {
+    return (
+      <div
+        className={cn(
+          "h-4 w-full rounded-t-sm bg-primary transition-colors xs:h-6 sm:rounded-t-lg md:h-10",
+          status === "free" && "bg-green-500 hover:bg-green-600",
+          status === "booked" && "bg-gray-400"
+        )}
+      ></div>
+    );
+  }
 }

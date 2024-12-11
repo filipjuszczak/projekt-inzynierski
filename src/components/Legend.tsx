@@ -1,5 +1,3 @@
-import Seat from "@/components/dashboard/rooms/Seat";
-
 interface LegendProps {
   showFree: boolean;
   showBooked: boolean;
