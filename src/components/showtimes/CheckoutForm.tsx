@@ -33,12 +33,16 @@ interface CheckoutFormProps {
   totalPrice: number;
   showtimeId: string;
   selectedSeats: SelectedSeat[];
+  onCheckoutStart: () => void;
+  onCheckoutCancel: () => void;
 }
 
 export default function CheckoutForm({
   totalPrice,
   showtimeId,
-  selectedSeats
+  selectedSeats,
+  onCheckoutStart,
+  onCheckoutCancel
 }: CheckoutFormProps) {
   const userData = useUserStore(
     useShallow((state) => ({
@@ -67,6 +71,8 @@ export default function CheckoutForm({
   async function onFormSubmit(values: CheckoutFormValues) {
     startTransition(async () => {
       if (values.type === "buy") {
+        onCheckoutStart();
+
         const result = await createCheckoutSession({
           showtimeId,
           selectedSeats,
@@ -77,6 +83,7 @@ export default function CheckoutForm({
         });
 
         if ("error" in result) {
+          onCheckoutCancel();
           toast.error(result.error);
         }
       } else {
