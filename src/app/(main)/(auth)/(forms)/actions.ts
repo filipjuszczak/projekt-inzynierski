@@ -3,7 +3,7 @@
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { hash, verify } from "@node-rs/argon2";
 import { addMinutes, isValid as isValidDate } from "date-fns";
-import { TokenType, UserActivities } from "@prisma/client";
+import { TokenType, UserActivities, UserType } from "@prisma/client";
 import AccountActivationEmail from "@/components/emails/AccountActivationEmail";
 import ResetPasswordEmail from "@/components/emails/ResetPasswordEmail";
 import ConfirmPasswordResetEmail from "@/components/emails/ConfirmPasswordResetEmail";
@@ -59,18 +59,18 @@ export async function signUp(
       return { error: "Hasła nie są identyczne" };
     }
 
-    const existingEmail = await prisma.user.findUnique({
-      where: { email },
-      select: { email: true }
+    const existingRegularUser = await prisma.user.findUnique({
+      where: { email, type: UserType.REGULAR },
+      select: { id: true }
     });
 
-    if (existingEmail) {
+    if (existingRegularUser) {
       return { error: "Użytkownik o podanym adresie email już istnieje" };
     }
 
     const existingUsername = await prisma.user.findUnique({
       where: { username },
-      select: { username: true }
+      select: { id: true }
     });
 
     if (existingUsername) {
@@ -81,28 +81,53 @@ export async function signUp(
       return { error: "Musisz zaakceptować regulamin" };
     }
 
+    const existingGuestUser = await prisma.user.findUnique({
+      where: { email, type: UserType.GUEST },
+      select: { id: true }
+    });
+
     const hashedPassword = await hash(password, HASHING_CONFIG);
 
-    const createdUser = await prisma.user.create({
-      data: {
-        username: username || null,
-        firstName,
-        lastName,
-        email,
-        dateOfBirth,
-        password: hashedPassword,
-        isActivated: false
-      },
-      select: {
-        id: true
-      }
-    });
+    let user;
+
+    if (existingGuestUser) {
+      console.log("User is currently a guest user. Updating its data...");
+      user = await prisma.user.update({
+        where: { id: existingGuestUser.id },
+        data: {
+          username: username || null,
+          firstName,
+          lastName,
+          email,
+          dateOfBirth,
+          password: hashedPassword,
+          isActivated: false
+        },
+        select: { id: true }
+      });
+    } else {
+      console.log("Creating a new user...");
+      user = await prisma.user.create({
+        data: {
+          username: username || null,
+          firstName,
+          lastName,
+          email,
+          dateOfBirth,
+          password: hashedPassword,
+          isActivated: false
+        },
+        select: {
+          id: true
+        }
+      });
+    }
 
     const { token, tokenExpiresAt } = createActivationToken();
 
     await prisma.token.create({
       data: {
-        userId: createdUser.id,
+        userId: user.id,
         type: TokenType.ACTIVATION,
         value: token,
         expiresAt: tokenExpiresAt,
@@ -132,18 +157,6 @@ export async function signUp(
     return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
   }
 }
-
-const userSelect = {
-  id: true,
-  username: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  password: true,
-  role: true,
-  isActivated: true,
-  isLocked: true
-};
 
 export async function requestPasswordReset(email: string) {
   try {
@@ -272,7 +285,8 @@ export async function setNewPassword(
         where: { id: existingToken.userId },
         data: {
           password: newHashedPassword,
-          isLocked: false
+          isLocked: false,
+          unsuccessfulLoginAttempts: 0
         },
         select: {
           firstName: true,
