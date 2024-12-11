@@ -54,7 +54,7 @@ function UpcomingShowtime({ id, startTime }: UpcomingShowtimeProps) {
   return (
     <Link
       key={id}
-      href={`/repertuar/${id}`}
+      href={`/seans/${id}`}
       className={buttonVariants({ variant: "default" })}
     >
       {format(startTime, "HH:mm")}
