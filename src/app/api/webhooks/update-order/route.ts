@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         select: { id: true }
       });
 
-      const selectedSeatsObject = JSON.parse(selectedSeats) as SelectedSeat[];
+      const selectedSeatsArr = JSON.parse(selectedSeats) as SelectedSeat[];
 
       const showtime = await prisma.showtime.findUnique({
         where: { id: showtimeId },
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       }
 
       await prisma.seat.createMany({
-        data: selectedSeatsObject.map((seat) => ({
+        data: selectedSeatsArr.map((seat) => ({
           rowNumber: seat.rowNumber,
           seatNumber: seat.seatNumber,
           showtimeId: showtime.id,
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
       await prisma.seatReservation.deleteMany({
         where: {
           showtimeId: showtime.id,
-          rowNumber: { in: selectedSeatsObject.map((seat) => seat.rowNumber) },
-          seatNumber: { in: selectedSeatsObject.map((seat) => seat.seatNumber) }
+          rowNumber: { in: selectedSeatsArr.map((seat) => seat.rowNumber) },
+          seatNumber: { in: selectedSeatsArr.map((seat) => seat.seatNumber) }
         }
       });
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       }
 
       await prisma.ticket.createMany({
-        data: selectedSeatsObject.map((seat) => ({
+        data: selectedSeatsArr.map((seat) => ({
           type: seat.ticketType,
           price: tickets.find((ticket) => ticket.type === seat.ticketType)!
             .price,
