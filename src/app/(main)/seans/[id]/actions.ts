@@ -3,15 +3,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
-import { OrderType, TicketType, UserType } from "@prisma/client";
+import { OrderType, UserType } from "@prisma/client";
 import { validateSession } from "@/app/actions";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 import { checkoutFormSchema } from "@/lib/validation/checkout";
-import TicketsEmail from "@/components/emails/TicketsEmail";
 import ReservationCreatedEmail from "@/components/emails/ReservationCreatedEmail";
 import type { SelectedSeat } from "@/lib/types";
+import { isUserOldEnough } from "@/lib/utils";
 
 export async function createCheckoutSession({
   showtimeId,
@@ -50,7 +50,16 @@ export async function createCheckoutSession({
         startTime: true,
         movie: {
           select: {
-            title: true
+            title: true,
+            genres: {
+              select: {
+                genre: {
+                  select: {
+                    ageRestriction: true
+                  }
+                }
+              }
+            }
           }
         },
         room: {
@@ -66,7 +75,37 @@ export async function createCheckoutSession({
       return { error: "Seans nie istnieje." };
     }
 
-    const tickets = await prisma.ticketInfo.findMany();
+    const highestAgeRestriction = showtime.movie.genres.reduce(
+      (acc, genre) =>
+        genre.genre.ageRestriction > acc ? genre.genre.ageRestriction : acc,
+      0
+    );
+
+    const values = checkoutFormSchema.parse({
+      firstName,
+      lastName,
+      email,
+      dateOfBirth,
+      type: "buy"
+    });
+
+    const isOldEnough = isUserOldEnough(
+      values.dateOfBirth,
+      highestAgeRestriction
+    );
+
+    if (!isOldEnough) {
+      return {
+        error: "Nie masz wystarczającego wieku, aby obejrzeć ten film."
+      };
+    }
+
+    const tickets = await prisma.ticketInfo.findMany({
+      select: {
+        type: true,
+        price: true
+      }
+    });
 
     if (!tickets) {
       return { error: "Bilety nie są dostępne." };
@@ -79,14 +118,6 @@ export async function createCheckoutSession({
     ) {
       return { error: "Niepoprawny typ biletu." };
     }
-
-    const values = checkoutFormSchema.parse({
-      firstName,
-      lastName,
-      email,
-      dateOfBirth,
-      type: "buy"
-    });
 
     const existingRegularUser = await prisma.user.findFirst({
       where: { email: values.email, type: UserType.REGULAR },
@@ -172,59 +203,6 @@ export async function createCheckoutSession({
     });
 
     return redirect(stripeSession.url!);
-
-    // await prisma.seat.createMany({
-    //   data: selectedSeats.map((seat) => ({
-    //     rowNumber: seat.rowNumber,
-    //     seatNumber: seat.seatNumber,
-    //     showtimeId: showtime.id,
-    //     roomId: showtime.room.id,
-    //     userId: session.userId,
-    //     orderId: createdOrder.id
-    //   }))
-    // });
-
-    // await prisma.seatReservation.deleteMany({
-    //   where: {
-    //     showtimeId: showtime.id,
-    //     rowNumber: { in: selectedSeats.map((seat) => seat.rowNumber) },
-    //     seatNumber: { in: selectedSeats.map((seat) => seat.seatNumber) }
-    //   }
-    // });
-
-    // await prisma.ticket.createMany({
-    //   data: selectedSeats.map((seat) => ({
-    //     type: seat.ticketType,
-    //     price: tickets.find((ticket) => ticket.type === seat.ticketType)!.price,
-    //     ticketInfoId: tickets.find((ticket) => ticket.type === seat.ticketType)!
-    //       .id,
-    //     orderId: createdOrder.id
-    //   }))
-    // });
-
-    // const { error: resendError } = await resend.emails.send({
-    //   from: "Cinema <notifications@notifications.filipjuszczak.pl>",
-    //   to: [values.email],
-    //   subject: "Cinema - Twoje bilety",
-    //   react: TicketsEmail({
-    //     firstName: values.firstName,
-    //     showtime: {
-    //       startTime: showtime.startTime,
-    //       movie: showtime.movie.title,
-    //       room: showtime.room.number
-    //     },
-    //     seats: selectedSeats
-    //   })
-    // });
-
-    // if (resendError) {
-    //   return {
-    //     error:
-    //       "Rezerwacja została utworzona, ale nie udało się wysłać wiadomości email."
-    //   };
-    // }
-
-    // return redirect(`/rezerwacje/${createdOrder.id}`);
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
@@ -253,7 +231,7 @@ export async function makeReservation({
       cookieStore.get("auth_session") || cookieStore.get("guest_session");
 
     if (!sessionCookie) {
-      return { error: "Unauthorized" };
+      return { error: "Brak ciasteczka sesji." };
     }
 
     const session = await validateSession(sessionCookie);
@@ -269,7 +247,16 @@ export async function makeReservation({
         startTime: true,
         movie: {
           select: {
-            title: true
+            title: true,
+            genres: {
+              select: {
+                genre: {
+                  select: {
+                    ageRestriction: true
+                  }
+                }
+              }
+            }
           }
         },
         room: {
@@ -285,13 +272,36 @@ export async function makeReservation({
       return { error: "Seans nie istnieje." };
     }
 
+    const highestAgeRestriction = showtime.movie.genres.reduce(
+      (acc, genre) =>
+        genre.genre.ageRestriction > acc ? genre.genre.ageRestriction : acc,
+      0
+    );
+
     const values = checkoutFormSchema.parse({
       firstName,
       lastName,
       email,
       dateOfBirth,
-      type: "reservation"
+      type: "buy"
     });
+
+    const isOldEnough = isUserOldEnough(
+      values.dateOfBirth,
+      highestAgeRestriction
+    );
+
+    if (!isOldEnough) {
+      return {
+        error: "Nie masz wystarczającego wieku, aby obejrzeć ten film."
+      };
+    }
+
+    const tickets = await prisma.ticketInfo.findMany();
+
+    if (!tickets) {
+      return { error: "Bilety nie są dostępne." };
+    }
 
     const existingRegularUser = await prisma.user.findFirst({
       where: { email: values.email, type: UserType.REGULAR },
@@ -343,40 +353,36 @@ export async function makeReservation({
       }
     });
 
-    await prisma.seat.createMany({
-      data: selectedSeats.map((seat) => ({
-        rowNumber: seat.rowNumber,
-        seatNumber: seat.seatNumber,
-        showtimeId: showtime.id,
-        roomId: showtime.room.id,
-        userId: session.userId,
-        orderId: createdOrder.id
-      }))
-    });
-
-    await prisma.seatReservation.deleteMany({
-      where: {
-        showtimeId: showtime.id,
-        rowNumber: { in: selectedSeats.map((seat) => seat.rowNumber) },
-        seatNumber: { in: selectedSeats.map((seat) => seat.seatNumber) }
-      }
-    });
-
-    const tickets = await prisma.ticketInfo.findMany();
-
-    if (!tickets) {
-      return { error: "Bilety nie są dostępne." };
-    }
-
-    await prisma.ticket.createMany({
-      data: selectedSeats.map((seat) => ({
-        type: seat.ticketType,
-        price: tickets.find((ticket) => ticket.type === seat.ticketType)!.price,
-        ticketInfoId: tickets.find((ticket) => ticket.type === seat.ticketType)!
-          .id,
-        orderId: createdOrder.id
-      }))
-    });
+    await prisma.$transaction([
+      prisma.seat.createMany({
+        data: selectedSeats.map((seat) => ({
+          rowNumber: seat.rowNumber,
+          seatNumber: seat.seatNumber,
+          showtimeId: showtime.id,
+          roomId: showtime.room.id,
+          userId: session.userId,
+          orderId: createdOrder.id
+        }))
+      }),
+      prisma.seatReservation.deleteMany({
+        where: {
+          showtimeId: showtime.id,
+          rowNumber: { in: selectedSeats.map((seat) => seat.rowNumber) },
+          seatNumber: { in: selectedSeats.map((seat) => seat.seatNumber) }
+        }
+      }),
+      prisma.ticket.createMany({
+        data: selectedSeats.map((seat) => ({
+          type: seat.ticketType,
+          price: tickets.find((ticket) => ticket.type === seat.ticketType)!
+            .price,
+          ticketInfoId: tickets.find(
+            (ticket) => ticket.type === seat.ticketType
+          )!.id,
+          orderId: createdOrder.id
+        }))
+      })
+    ]);
 
     const { error: resendError } = await resend.emails.send({
       from: "Cinema <notifications@notifications.filipjuszczak.pl>",
@@ -396,7 +402,7 @@ export async function makeReservation({
     if (resendError) {
       return {
         error:
-          "Rezerwacja została utworzona, ale nie udało się wysłać wiadomości email."
+          "Rezerwacja została utworzona, ale nie udało się wysłać wiadomości email. Skontaktuj się z działem obsługi klienta."
       };
     }
 
