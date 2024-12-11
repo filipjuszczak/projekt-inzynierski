@@ -7,7 +7,8 @@ import type {
   Showtime,
   TicketType,
   User,
-  ViewingMode
+  ViewingMode,
+  Order
 } from "@prisma/client";
 
 export interface UserData {
@@ -60,7 +61,7 @@ export type EmployeeData = Pick<
   | "role"
 >;
 
-export interface Reservation {
+export interface UserReservation {
   id: string;
   createdAt: Date;
   showtime: {
@@ -121,4 +122,24 @@ export interface SelectedSeat {
   rowNumber: number;
   seatNumber: number;
   ticketType: TicketType;
+}
+
+export interface Reservation
+  extends Pick<Order, "id" | "createdAt" | "isPaid" | "type"> {
+  showtime: {
+    movie: {
+      title: string;
+    };
+    room: {
+      number: string;
+    };
+    seats: {
+      rowNumber: number;
+      seatNumber: number;
+    }[];
+  };
+  user: {
+    firstName: string;
+    lastName: string;
+  } | null;
 }
