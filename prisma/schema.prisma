@@ -271,6 +271,7 @@ model SeatReservation {
   sessionId  String
   rowNumber  Int
   seatNumber Int
+  createdAt  DateTime @default(now())
 
   @@map("seat_reservations")
 }
