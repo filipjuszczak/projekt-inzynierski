@@ -14,10 +14,10 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Reservation } from "@/lib/types";
+import type { UserReservation } from "@/lib/types";
 
 interface ReservationsProps {
-  reservations: Reservation[];
+  reservations: UserReservation[];
 }
 
 export default function Reservations({ reservations }: ReservationsProps) {
@@ -57,7 +57,10 @@ export default function Reservations({ reservations }: ReservationsProps) {
   );
 }
 
-function renderReservations(reservations: Reservation[], isUpcoming: boolean) {
+function renderReservations(
+  reservations: UserReservation[],
+  isUpcoming: boolean
+) {
   if (reservations.length === 0) {
     return <div className="pt-4 text-center">Brak danych...</div>;
   }
