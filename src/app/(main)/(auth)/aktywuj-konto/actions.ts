@@ -1,6 +1,6 @@
 "use server";
 
-import { TokenType, UserActivities } from "@prisma/client";
+import { TokenType, UserActivities, UserType } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { createActivationToken, isValidEmail } from "@/lib/utils";
@@ -22,7 +22,7 @@ export async function activateAccount(
 
     const existingUser = await prisma.user.findFirst({
       where: { email },
-      select: { id: true, firstName: true }
+      select: { id: true, type: true, firstName: true }
     });
 
     if (!existingUser) {
@@ -54,10 +54,15 @@ export async function activateAccount(
       return { error: "Token wygasł.", canRequestNewToken: true };
     }
 
+    const isCurrentlyGuestUser = existingUser.type === UserType.GUEST;
+
     await prisma.$transaction([
       prisma.user.update({
         where: { id: existingToken.userId },
-        data: { isActivated: true },
+        data: {
+          isActivated: true,
+          ...(isCurrentlyGuestUser ? { type: UserType.REGULAR } : {})
+        },
         select: { id: true }
       }),
       prisma.userActivity.create({
