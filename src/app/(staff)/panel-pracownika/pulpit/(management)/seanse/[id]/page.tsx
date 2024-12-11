@@ -11,8 +11,8 @@ import {
   Sigma
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import Room from "@/components/Room";
 import MovieDetails from "@/components/MovieDetails";
-import Room from "@/components/dashboard/rooms/Room";
 import { getShowtimeById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/data";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 
@@ -30,9 +30,11 @@ export default async function ShowtimeDetailsPage({
     notFound();
   }
 
-  const totalSeats = showtime.room.numberOfRows * showtime.room.seatsPerRow;
-  const freeSeats = totalSeats - showtime.seats.length;
-  const takenSeats = showtime.seats.length;
+  const { movie, room, seats } = showtime;
+
+  const totalSeats = room.numberOfRows * room.seatsPerRow;
+  const freeSeats = totalSeats - seats.length;
+  const takenSeats = seats.length;
 
   return (
     <div className="container mx-auto mb-24 space-y-24">
@@ -70,8 +72,7 @@ export default async function ShowtimeDetailsPage({
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Armchair className="size-4" />
-              Sala numer:{" "}
-              <span className="text-foreground">{showtime.room.number}</span>
+              Sala numer: <span className="text-foreground">{room.number}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Sigma className="size-4" />
@@ -90,27 +91,25 @@ export default async function ShowtimeDetailsPage({
             </div>
           </div>
         </div>
-        <div className="flex justify-center">
-          <Room
-            numberOfRows={showtime.room.numberOfRows}
-            seatsPerRow={showtime.room.seatsPerRow}
-            bookedSeats={showtime.seats}
-          />
-        </div>
+        <Room
+          numberOfRows={room.numberOfRows}
+          seatsPerRow={room.seatsPerRow}
+          bookedSeats={seats}
+        />
       </div>
       <Separator />
       <MovieDetails
-        posterUrl={showtime.movie.posterUrl || "/images/image-placeholder.svg"}
-        title={showtime.movie.title}
-        releaseDate={showtime.movie.releaseDate}
-        duration={showtime.movie.duration}
-        description={showtime.movie.description}
-        viewingModes={showtime.movie.viewingModes}
-        screenFormats={showtime.movie.screenFormats}
-        genres={showtime.movie.genres}
-        rating={showtime.movie.rating}
-        director={showtime.movie.director}
-        cast={showtime.movie.cast}
+        posterUrl={movie.posterUrl || "/images/image-placeholder.svg"}
+        title={movie.title}
+        releaseDate={movie.releaseDate}
+        duration={movie.duration}
+        description={movie.description}
+        viewingModes={movie.viewingModes}
+        screenFormats={movie.screenFormats}
+        genres={movie.genres}
+        rating={movie.rating}
+        director={movie.director}
+        cast={movie.cast}
       />
     </div>
   );

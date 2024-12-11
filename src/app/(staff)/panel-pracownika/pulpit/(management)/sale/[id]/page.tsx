@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { Columns2, Rows2, Sigma } from "lucide-react";
-import Room from "@/components/dashboard/rooms/Room";
+import { Separator } from "@/components/ui/separator";
+import Room from "@/components/Room";
 import UpcomingShowtimes from "@/components/dashboard/rooms/UpcomingShowtimes";
 import { getRoomById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
-import { Separator } from "@/components/ui/separator";
 
 interface RoomDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -13,31 +13,30 @@ export default async function RoomDetailsPage({
   params
 }: RoomDetailsPageProps) {
   const { id } = await params;
-  const room = await getRoomById(id);
+  const roomData = await getRoomById(id);
 
-  if (!room) {
+  if (!roomData) {
     return notFound();
   }
 
-  const totalSeats = room.room.numberOfRows * room.room.seatsPerRow;
+  const { room, upcomingShowtimes } = roomData;
+  const totalSeats = room.numberOfRows * room.seatsPerRow;
 
   return (
     <div className="container mx-auto flex-grow space-y-24 2xl:grid 2xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] 2xl:gap-x-16 2xl:space-y-0">
       <div className="flex flex-col items-center gap-y-16">
         <div>
-          <h1 className="pb-8 text-3xl font-bold">
-            Sala numer {room.room.number}
-          </h1>
+          <h1 className="pb-8 text-3xl font-bold">Sala numer {room.number}</h1>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Rows2 className="size-4" />
               Liczba rzędów:{" "}
-              <span className="text-foreground">{room.room.numberOfRows}</span>
+              <span className="text-foreground">{room.numberOfRows}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Columns2 className="size-4" />
               Liczba miejsc w rzędzie:{" "}
-              <span className="text-foreground">{room.room.seatsPerRow}</span>
+              <span className="text-foreground">{room.seatsPerRow}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Sigma className="size-4" />
@@ -46,16 +45,10 @@ export default async function RoomDetailsPage({
             </div>
           </div>
         </div>
-        <div className="max-w-fit">
-          <Room
-            numberOfRows={room.room.numberOfRows}
-            seatsPerRow={room.room.seatsPerRow}
-            bookedSeats={[]}
-          />
-        </div>
+        <Room numberOfRows={room.numberOfRows} seatsPerRow={room.seatsPerRow} />
       </div>
       <Separator orientation="vertical" className="justify-self-center" />
-      <UpcomingShowtimes showtimes={room.upcomingShowtimes} />
+      <UpcomingShowtimes showtimes={upcomingShowtimes} />
     </div>
   );
 }
