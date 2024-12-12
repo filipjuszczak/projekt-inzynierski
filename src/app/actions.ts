@@ -105,6 +105,13 @@ export async function logIn(
       return { error: "Nieprawidłowe dane logowania." };
     }
 
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        unsuccessfulLoginAttempts: 0
+      }
+    });
+
     if (role === Role.EMPLOYEE && existingUser.role === Role.NORMAL) {
       return { error: "Nie masz dostępu do panelu pracownika." };
     }
