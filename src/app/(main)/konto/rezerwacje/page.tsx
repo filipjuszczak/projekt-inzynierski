@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import ReservationsList from "@/components/account/reservations/ReservationsList";
 import ReservationStats from "@/components/account/reservations/ReservationStats";
-import ReservationsListSkeleton from "@/components/account/reservations/skeletons/ReservationsList";
+import ReservationsListSkeleton from "@/components/account/reservations/skeletons/ReservationsListSkeleton";
 import ReservationStatsSkeleton from "@/components/account/reservations/skeletons/ReservationStatsSkeleton";
 
 export default async function ReservationsPage() {
