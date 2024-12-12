@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { Calendar, Clock, Film, Pencil } from "lucide-react";
+import { Armchair, Calendar, Clock, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -84,24 +84,31 @@ function renderReservations(
             )}
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center">
-              <Calendar className="mr-2 h-4 w-4" />
-              {format(reservation.showtime.startTime, "d MMMM yyyy", {
-                locale: pl
-              })}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {format(reservation.showtime.startTime, "d MMMM yyyy", {
+                  locale: pl
+                })}
+              </span>
             </div>
-            <div className="flex items-center">
-              <Clock className="mr-2 h-4 w-4" />
-              {format(reservation.showtime.startTime, "HH:mm", {
-                locale: pl
-              })}
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {format(reservation.showtime.startTime, "HH:mm", {
+                  locale: pl
+                })}
+              </span>
             </div>
             <div className="flex flex-col gap-2">
-              <div>Miejsca:</div>
-              <ul className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Armchair className="h-4 w-4 text-muted-foreground" />
+                <span>Miejsca:</span>
+              </div>
+              <ul className="list-inside list-disc space-y-1">
                 {reservation.seats.map((seat) => (
                   <li key={`${seat.rowNumber}-${seat.seatNumber}`}>
-                    Rząd: {seat.rowNumber}; Miejsce: {seat.seatNumber}
+                    Rząd: {seat.rowNumber}; Numer: {seat.seatNumber}
                   </li>
                 ))}
               </ul>
