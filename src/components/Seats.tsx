@@ -1,6 +1,6 @@
 "use client";
 
-import Seat from "@/components/showtimes/Seat";
+import Seat from "@/components/Seat";
 import type { BookedSeat, SelectedSeat } from "@/lib/types";
 
 interface SeatsProps {

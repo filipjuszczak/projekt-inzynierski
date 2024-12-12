@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import ZoomButtons from "@/components/showtimes/ZoomButtons";
-import Screen from "@/components/showtimes/Screen";
-import Seats from "@/components/showtimes/Seats";
-import Legend from "@/components/showtimes/Legend";
-import type { BookedSeat, SelectedSeat, Step } from "@/lib/types";
-import { Button } from "@/components/ui/button";
 import { MoveRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ZoomButtons from "@/components/ZoomButtons";
+import Screen from "@/components/Screen";
+import Seats from "@/components/Seats";
+import Legend from "@/components/Legend";
+import type { BookedSeat, SelectedSeat, Step } from "@/lib/types";
 
 interface RoomProps {
   showtimeId?: string;
