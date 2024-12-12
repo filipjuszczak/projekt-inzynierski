@@ -3,214 +3,106 @@ import { cookies } from "next/headers";
 import ky from "ky";
 import type { Session } from "lucia";
 
+async function getSession(request: NextRequest, apiEndpoint: string) {
+  const sessionCookie = request.cookies.get("auth_session");
+  if (!sessionCookie) return null;
+
+  const { session } = await ky
+    .post(new URL(apiEndpoint, request.url), {
+      json: { sessionCookie },
+      headers: { secret: process.env.AUTH_API_SECRET_KEY }
+    })
+    .json<{ session: Session }>();
+
+  return session;
+}
+
+async function handleGuestSession(request: NextRequest) {
+  const guestSessionCookie = request.cookies.get("guest_session");
+  if (guestSessionCookie) return NextResponse.next();
+
+  const { sessionId, expiresAt } = await ky
+    .post(new URL("/api/create-guest-session", request.url), {
+      headers: { secret: process.env.AUTH_API_SECRET_KEY }
+    })
+    .json<{ sessionId: string; expiresAt: number }>();
+
+  const cookieStore = await cookies();
+  if (sessionId) {
+    cookieStore.set("guest_session", sessionId, { expires: expiresAt });
+  }
+
+  return NextResponse.next();
+}
+
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/seans")) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/seans")) {
     const authSessionCookie = request.cookies.get("auth_session");
-
     if (!authSessionCookie) {
-      const guestSessionCookie = request.cookies.get("guest_session");
-
-      if (guestSessionCookie) {
-        return NextResponse.next();
-      }
-
-      const { sessionId, expiresAt } = await ky
-        .post(new URL("/api/create-guest-session", request.url), {
-          headers: {
-            secret: process.env.AUTH_API_SECREY_KEY
-          }
-        })
-        .json<{ sessionId: string; expiresAt: number }>();
-
-      const cookieStore = await cookies();
-
-      if (sessionId) {
-        cookieStore.set("guest_session", sessionId, {
-          expires: expiresAt
-        });
-      }
-
-      return NextResponse.next();
+      return handleGuestSession(request);
     }
   }
 
-  if (request.nextUrl.pathname === "/panel-pracownika") {
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.redirect(
-        new URL("/panel-pracownika/logowanie", request.url)
-      );
+  if (
+    pathname === "/panel-pracownika" ||
+    pathname.startsWith("/panel-pracownika/pulpit") ||
+    pathname.startsWith("/panel-pracownika/zmien-haslo")
+  ) {
+    const session = await getSession(request, "/api/auth/employee");
+    if (session && session.userId) {
+      if (pathname === "/panel-pracownika") {
+        return NextResponse.redirect(
+          new URL("/panel-pracownika/pulpit", request.url)
+        );
+      }
+      return NextResponse.next();
     }
+    return NextResponse.redirect(
+      new URL("/panel-pracownika/logowanie", request.url)
+    );
+  }
 
-    const { session } = await ky
-      .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
+  if (pathname.startsWith("/panel-pracownika/logowanie")) {
+    const session = await getSession(request, "/api/auth/employee");
     if (session && session.userId) {
       return NextResponse.redirect(
         new URL("/panel-pracownika/pulpit", request.url)
       );
     }
-
-    return NextResponse.redirect(
-      new URL("/panel-pracownika/logowanie", request.url)
-    );
+    return NextResponse.next();
   }
 
-  if (request.nextUrl.pathname.startsWith("/panel-pracownika/pulpit")) {
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.redirect(
-        new URL("/panel-pracownika/logowanie", request.url)
-      );
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
-    if (session && session.userId) {
+  if (pathname.startsWith("/panel-pracownika/pulpit/pracownicy")) {
+    const adminSession = await getSession(request, "/api/auth/admin");
+    if (adminSession && adminSession.userId) {
       return NextResponse.next();
     }
-
-    return NextResponse.redirect(
-      new URL("/panel-pracownika/logowanie", request.url)
-    );
-  }
-
-  if (request.nextUrl.pathname.startsWith("/panel-pracownika/logowanie")) {
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.next();
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
-    if (session && session.userId) {
+    const employeeSession = await getSession(request, "/api/auth/employee");
+    if (employeeSession && employeeSession.userId) {
       return NextResponse.redirect(
         new URL("/panel-pracownika/pulpit", request.url)
       );
     }
-
-    return NextResponse.next();
-  }
-
-  if (request.nextUrl.pathname.startsWith("/panel-pracownika/zmien-haslo")) {
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.redirect(
-        new URL("/panel-pracownika/logowanie", request.url)
-      );
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/employee", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
-    if (session) {
-      return NextResponse.next();
-    }
-
     return NextResponse.redirect(
       new URL("/panel-pracownika/logowanie", request.url)
     );
   }
 
-  if (request.nextUrl.pathname.startsWith("/rejestracja")) {
-    console.log("Middleware for /rejestracja running...");
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.next();
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/user", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
+  if (pathname === "/rejestracja" || pathname === "/logowanie") {
+    const session = await getSession(request, "/api/auth/user");
     if (session && session.userId) {
       return NextResponse.redirect(new URL("/konto", request.url));
     }
-
     return NextResponse.next();
   }
 
-  if (request.nextUrl.pathname.startsWith("/logowanie")) {
-    console.log("Middleware for /logowanie running...");
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.next();
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/user", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
-    if (session && session.userId) {
-      return NextResponse.redirect(new URL("/konto", request.url));
-    }
-
-    return NextResponse.next();
-  }
-
-  if (request.nextUrl.pathname.startsWith("/konto")) {
-    console.log("Middleware for /konto running...");
-    const requestSessionCookie = request.cookies.get("auth_session");
-
-    if (!requestSessionCookie) {
-      return NextResponse.redirect(new URL("/logowanie", request.url));
-    }
-
-    const { session } = await ky
-      .post(new URL("/api/auth/user", request.url), {
-        json: { sessionCookie: requestSessionCookie },
-        headers: {
-          secret: process.env.AUTH_API_SECREY_KEY
-        }
-      })
-      .json<{ session: Session }>();
-
+  if (pathname.startsWith("/konto")) {
+    const session = await getSession(request, "/api/auth/user");
     if (session && session.userId) {
       return NextResponse.next();
     }
-
     return NextResponse.redirect(new URL("/logowanie", request.url));
   }
 
@@ -248,6 +140,7 @@ export const config = {
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" }
       ]
-    }
+    },
+    "/panel-pracownika/pulpit/pracownicy/:path*"
   ]
 };
