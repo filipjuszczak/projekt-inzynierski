@@ -5,18 +5,13 @@ import type { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const secret = request.headers.get("secret");
-
-    if (secret !== process.env.AUTH_API_SECREY_KEY) {
-      // return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (secret !== process.env.AUTH_API_SECRET_KEY) {
       return Response.json({ error: "Unauthorized" });
     }
 
     const { sessionCookie } = await request.json();
-
     const { session } = await authenticateUser(Role.NORMAL, sessionCookie);
-
     if (!session || !session.userId) {
-      // return Response.json({ error: "Unauthorized" }, { status: 401 });
       return Response.json({ error: "Unauthorized" });
     }
 

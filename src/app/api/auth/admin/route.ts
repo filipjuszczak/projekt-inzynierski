@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const secret = request.headers.get("secret");
 
-    if (secret !== process.env.AUTH_API_SECREY_KEY) {
+    if (secret !== process.env.AUTH_API_SECRET_KEY) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
