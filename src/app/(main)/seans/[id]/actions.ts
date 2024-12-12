@@ -4,14 +4,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { OrderType, UserType } from "@prisma/client";
+import ReservationCreatedEmail from "@/components/emails/ReservationCreatedEmail";
 import { validateSession } from "@/app/actions";
 import prisma from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
-import { checkoutFormSchema } from "@/lib/validation/checkout";
-import ReservationCreatedEmail from "@/components/emails/ReservationCreatedEmail";
-import type { SelectedSeat } from "@/lib/types";
 import { isUserOldEnough } from "@/lib/utils";
+import { checkoutFormSchema } from "@/lib/validation/checkout";
+import type { SelectedSeat } from "@/lib/types";
 
 export async function createCheckoutSession({
   showtimeId,
@@ -430,6 +430,10 @@ export async function makeReservation({
         error:
           "Rezerwacja została utworzona, ale nie udało się wysłać wiadomości email. Skontaktuj się z działem obsługi klienta."
       };
+    }
+
+    if (sessionCookie.name === "auth_session") {
+      return redirect(`/konto/rezerwacje`);
     }
 
     return redirect(`/rezerwacje/${createdOrder.id}`);
