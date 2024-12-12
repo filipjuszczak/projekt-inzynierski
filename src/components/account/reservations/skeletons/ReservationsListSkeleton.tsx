@@ -5,21 +5,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function ReservationsListSkeleton() {
   return (
     <Card>
-      <CardHeader>
-        <Skeleton className="mb-2 h-6 w-40" />
-        <Skeleton className="h-4 w-64" />
+      <CardHeader className="space-y-1.5">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-5 w-64" />
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="past">Past</TabsTrigger>
+            <TabsTrigger value="upcoming">Nadchodzące</TabsTrigger>
+            <TabsTrigger value="past">Przeszłe</TabsTrigger>
           </TabsList>
           <TabsContent value="upcoming">
-            <ReservationListItems />
+            <ReservationListItemsSkeleton />
           </TabsContent>
           <TabsContent value="past">
-            <ReservationListItems />
+            <ReservationListItemsSkeleton />
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -27,7 +27,7 @@ export default function ReservationsListSkeleton() {
   );
 }
 
-function ReservationListItems() {
+function ReservationListItemsSkeleton() {
   return (
     <ul className="space-y-4">
       {[1, 2, 3].map((_, index) => (
