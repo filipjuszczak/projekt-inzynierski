@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect";
-import { Role } from "@prisma/client";
+import { OrderType, Role } from "@prisma/client";
 import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
@@ -24,11 +24,15 @@ export async function cancelReservation(orderId: string) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, userId: true }
+      select: { id: true, type: true, userId: true }
     });
 
     if (!order) {
       return { error: "Nie znaleziono rezerwacji." };
+    }
+
+    if (order.type !== OrderType.RESERVATION) {
+      return { error: "Nie można zrezygnować z zapłaconej rezerwacji." };
     }
 
     if (order.userId !== user.id) {

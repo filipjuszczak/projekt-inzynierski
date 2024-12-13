@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Armchair, Ban, Calendar, Clock } from "lucide-react";
+import { OrderType } from "@prisma/client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -108,7 +109,7 @@ function renderReservations(
               >
                 {reservation.showtime.movie.title}
               </Link>
-              {isUpcoming && (
+              {isUpcoming && reservation.type === OrderType.RESERVATION && (
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Ban />

@@ -8,7 +8,8 @@ import type {
   TicketType,
   User,
   ViewingMode,
-  Order
+  Order,
+  OrderType
 } from "@prisma/client";
 
 export interface UserData {
@@ -63,6 +64,7 @@ export type EmployeeData = Pick<
 
 export interface UserReservation {
   id: string;
+  type: OrderType;
   createdAt: Date;
   showtime: {
     room: {

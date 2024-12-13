@@ -88,6 +88,7 @@ export async function getReservations(userId: string) {
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
+      type: true,
       createdAt: true,
       seats: {
         select: {
