@@ -20,14 +20,14 @@ import { DatePickerWithYears } from "@/components/ui/date-picker";
 import LoadingButton from "@/components/LoadingButton";
 import { useUserStore } from "@/hooks/use-user-store";
 import {
+  createCheckoutSession,
+  makeReservation
+} from "@/app/(main)/seans/[id]/actions";
+import {
   checkoutFormSchema,
   type CheckoutFormValues
 } from "@/lib/validation/checkout";
 import type { SelectedSeat } from "@/lib/types";
-import {
-  createCheckoutSession,
-  makeReservation
-} from "@/app/(main)/seans/[id]/actions";
 
 interface CheckoutFormProps {
   totalPrice: number;
@@ -98,6 +98,14 @@ export default function CheckoutForm({
 
         if ("error" in result) {
           toast.error(result.error);
+        }
+
+        if ("success" in result) {
+          toast.success(
+            "Udało się utworzyć rezerwację! Sprawdź swoją skrzynkę pocztową."
+          );
+        } else {
+          toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie.");
         }
       }
     });
