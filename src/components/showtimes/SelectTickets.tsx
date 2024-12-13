@@ -28,7 +28,7 @@ interface SelectTicketsProps {
   selectedSeats: SelectedSeat[];
   onChangeTicketType: (id: string, newTicketType: TicketType) => void;
   onChangeStep: (step: Step) => void;
-  onDeleteTicket: (id: string) => void;
+  onDeleteTicket: (id: string, rowNumber: number, seatNumber: number) => void;
 }
 
 export default function SelectTickets({
@@ -59,7 +59,11 @@ export default function SelectTickets({
                 type={seat.ticketType}
                 onChangeTicketType={onChangeTicketType}
                 onDelete={() =>
-                  onDeleteTicket(`${seat.rowNumber}-${seat.seatNumber}`)
+                  onDeleteTicket(
+                    `${seat.rowNumber}-${seat.seatNumber}`,
+                    seat.rowNumber,
+                    seat.seatNumber
+                  )
                 }
               />
             ))}

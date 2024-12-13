@@ -49,7 +49,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
   const [currentStep, setCurrentStep] = useState<Step>("select-seats");
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
 
-  const isUserBuyingRef = useRef(false);
+  const isUserBuying = useRef(false);
   const selectedSeatsRef = useRef(selectedSeats);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
 
   useEffect(() => {
     function onBeforeUnload() {
-      if (isUserBuyingRef.current || selectedSeatsRef.current.length === 0) {
+      if (isUserBuying.current || selectedSeatsRef.current.length === 0) {
         return;
       }
 
@@ -155,16 +155,38 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
     setCurrentStep(step);
   }
 
-  function onDeleteTicket(id: string) {
-    setSelectedSeats((prev) => prev.filter((s) => s.id !== id));
+  async function onDeleteTicket(
+    id: string,
+    rowNumber: number,
+    seatNumber: number
+  ) {
+    try {
+      const apiEndpoint = `/api/seats/unlock`;
+      const { success } = await ky
+        .post(apiEndpoint, {
+          json: { showtimeId: showtime.id, rowNumber, seatNumber }
+        })
+        .json<{ success: boolean }>();
+
+      if (success) {
+        setSelectedSeats((prev) => prev.filter((s) => s.id !== id));
+        setCurrentStep("select-seats");
+      } else {
+        toast.error(
+          "To miejsce zostało zarezerwowane przez innego użytkownika."
+        );
+      }
+    } catch (error) {
+      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+    }
   }
 
   function onCheckoutStart() {
-    isUserBuyingRef.current = true;
+    isUserBuying.current = true;
   }
 
   function onCheckoutCancel() {
-    isUserBuyingRef.current = false;
+    isUserBuying.current = false;
   }
 
   if (currentStep === "select-seats") {
