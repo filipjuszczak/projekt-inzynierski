@@ -1,6 +1,22 @@
 import prisma from "@/lib/prisma";
 
-export async function getFeaturedMovie() {}
+export async function getFeaturedMovie() {
+  const featuredMovie = await prisma.movie.findFirst({
+    where: { isFeatured: true },
+    select: {
+      id: true,
+      title: true,
+      posterUrl: true,
+      shortDescription: true
+    }
+  });
+
+  if (!featuredMovie) {
+    return null;
+  }
+
+  return featuredMovie;
+}
 
 export async function getLatestMovies() {
   const latestMovies = await prisma.movie.findMany({
