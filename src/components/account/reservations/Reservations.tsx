@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { Armchair, Calendar, Clock, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Armchair, Ban, Calendar, Clock } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,7 +15,19 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cancelReservation } from "@/app/(main)/konto/rezerwacje/actions";
 import type { UserReservation } from "@/lib/types";
 
 interface ReservationsProps {
@@ -61,59 +75,100 @@ function renderReservations(
   reservations: UserReservation[],
   isUpcoming: boolean
 ) {
+  const router = useRouter();
+
   if (reservations.length === 0) {
     return <div className="pt-4 text-center">Brak danych...</div>;
+  }
+
+  async function handleCancelReservation(orderId: string) {
+    const result = await cancelReservation(orderId);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+
+    if ("success" in result && result.success) {
+      toast.success("Udało się anulować rezerwację!");
+      router.refresh();
+    } else {
+      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+    }
   }
 
   return (
     <ul className="space-y-4">
       {reservations.map((reservation) => (
         <li key={reservation.id} className="rounded-lg border p-4">
-          <div className="mb-2 flex items-start justify-between">
-            <Link
-              href={`/filmy/${encodeURIComponent(reservation.showtime.movie.title)}`}
-              className="text-lg font-semibold"
-            >
-              {reservation.showtime.movie.title}
-            </Link>
-            {isUpcoming && (
-              <Button variant="outline" size="sm">
-                <Pencil />
-                Zarządzaj
-              </Button>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {format(reservation.showtime.startTime, "d MMMM yyyy", {
-                  locale: pl
-                })}
-              </span>
+          <AlertDialog>
+            <div className="mb-2 flex items-start justify-between">
+              <Link
+                href={`/filmy/${encodeURIComponent(reservation.showtime.movie.title)}`}
+                className="text-lg font-semibold"
+              >
+                {reservation.showtime.movie.title}
+              </Link>
+              {isUpcoming && (
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Ban />
+                    Anuluj rezerwację
+                  </Button>
+                </AlertDialogTrigger>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {format(reservation.showtime.startTime, "HH:mm", {
-                  locale: pl
-                })}
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <Armchair className="h-4 w-4 text-muted-foreground" />
-                <span>Miejsca:</span>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {format(reservation.showtime.startTime, "d MMMM yyyy", {
+                    locale: pl
+                  })}
+                </span>
               </div>
-              <ul className="list-inside list-disc space-y-1">
-                {reservation.seats.map((seat) => (
-                  <li key={`${seat.rowNumber}-${seat.seatNumber}`}>
-                    Rząd: {seat.rowNumber}; Numer: {seat.seatNumber}
-                  </li>
-                ))}
-              </ul>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {format(reservation.showtime.startTime, "HH:mm", {
+                    locale: pl
+                  })}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Armchair className="h-4 w-4 text-muted-foreground" />
+                  <span>Miejsca:</span>
+                </div>
+                <ul className="list-inside list-disc space-y-1">
+                  {reservation.seats.map((seat) => (
+                    <li key={`${seat.rowNumber}-${seat.seatNumber}`}>
+                      Rząd: {seat.rowNumber}; Numer: {seat.seatNumber}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Czy na pewno chcesz anulować rezerwację?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Ta operacja jest nieodwracalna.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleCancelReservation(reservation.id)}
+                  className={buttonVariants({ variant: "destructive" })}
+                >
+                  Anuluj rezerwację
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </li>
       ))}
     </ul>
