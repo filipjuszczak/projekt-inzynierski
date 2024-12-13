@@ -1,9 +1,11 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { resend } from "@/lib/resend";
 import prisma from "@/lib/prisma";
 import type Stripe from "stripe";
 import type { SelectedSeat } from "@/lib/types";
+import TicketsEmail from "@/components/emails/TicketsEmail";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,21 +40,29 @@ export async function POST(request: NextRequest) {
         throw new Error("Missing metadata");
       }
 
-      const createdOrder = await prisma.order.update({
-        where: { id: orderId },
-        data: { isPaid: true },
-        select: { id: true }
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { firstName: true, email: true }
       });
 
-      const selectedSeatsArr = JSON.parse(selectedSeats) as SelectedSeat[];
+      if (!existingUser) {
+        throw new Error("User not found");
+      }
 
       const showtime = await prisma.showtime.findUnique({
         where: { id: showtimeId },
         select: {
           id: true,
+          startTime: true,
+          movie: {
+            select: {
+              title: true
+            }
+          },
           room: {
             select: {
-              id: true
+              id: true,
+              number: true
             }
           }
         }
@@ -62,51 +72,79 @@ export async function POST(request: NextRequest) {
         throw new Error("Showtime not found");
       }
 
-      await prisma.seat.createMany({
-        data: selectedSeatsArr.map((seat) => ({
-          rowNumber: seat.rowNumber,
-          seatNumber: seat.seatNumber,
-          showtimeId: showtime.id,
-          roomId: showtime.room.id,
-          userId: userId,
-          orderId: createdOrder.id
-        }))
-      });
-
-      await prisma.seatReservation.deleteMany({
-        where: {
-          showtimeId: showtime.id,
-          rowNumber: { in: selectedSeatsArr.map((seat) => seat.rowNumber) },
-          seatNumber: { in: selectedSeatsArr.map((seat) => seat.seatNumber) }
-        }
-      });
-
       const tickets = await prisma.ticketInfo.findMany();
 
       if (!tickets) {
         throw new Error("Tickets not found");
       }
 
-      await prisma.ticket.createMany({
-        data: selectedSeatsArr.map((seat) => ({
-          type: seat.ticketType,
-          price: tickets.find((ticket) => ticket.type === seat.ticketType)!
-            .price,
-          ticketInfoId: tickets.find(
-            (ticket) => ticket.type === seat.ticketType
-          )!.id,
-          orderId: createdOrder.id
-        }))
+      const createdOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: { isPaid: true },
+        select: { id: true }
       });
+
+      const selectedSeatsArr = JSON.parse(selectedSeats) as SelectedSeat[];
+
+      const [createdSeats] = await prisma.$transaction([
+        prisma.seat.createManyAndReturn({
+          data: selectedSeatsArr.map((seat) => ({
+            rowNumber: seat.rowNumber,
+            seatNumber: seat.seatNumber,
+            showtimeId: showtime.id,
+            roomId: showtime.room.id,
+            userId: userId,
+            orderId: createdOrder.id
+          })),
+          select: {
+            id: true,
+            rowNumber: true,
+            seatNumber: true
+          }
+        }),
+        prisma.seatReservation.deleteMany({
+          where: {
+            showtimeId: showtime.id,
+            rowNumber: { in: selectedSeatsArr.map((seat) => seat.rowNumber) },
+            seatNumber: { in: selectedSeatsArr.map((seat) => seat.seatNumber) }
+          }
+        }),
+        prisma.ticket.createMany({
+          data: selectedSeatsArr.map((seat) => ({
+            type: seat.ticketType,
+            price: tickets.find((ticket) => ticket.type === seat.ticketType)!
+              .price,
+            ticketInfoId: tickets.find(
+              (ticket) => ticket.type === seat.ticketType
+            )!.id,
+            orderId: createdOrder.id
+          }))
+        })
+      ]);
+
+      await resend.emails.send({
+        from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+        to: [existingUser.email],
+        subject: "Cinema - zmiana hasła",
+        react: TicketsEmail({
+          firstName: existingUser.firstName,
+          showtime: {
+            startTime: showtime.startTime,
+            movie: showtime.movie.title,
+            room: showtime.room.number
+          },
+          seats: createdSeats
+        })
+      });
+
+      revalidatePath("/panel-pracownika/pulpit");
+
+      return NextResponse.json({ result: event, success: true });
     }
-
-    revalidatePath("/panel-pracownika/pulpit");
-
-    return NextResponse.json({ result: event, success: true });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Something went wrong", success: false },
+      { error: "Internal Server Error", success: false },
       { status: 500 }
     );
   }
