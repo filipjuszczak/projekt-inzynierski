@@ -141,6 +141,7 @@ model Movie {
   releaseDate      DateTime
   duration         Int
   posterUrl        String?
+  isFeatured       Boolean             @default(false)
   screenFormats    MovieScreenFormat[]
   viewingModes     MovieViewingMode[]
   genres           GenresOnMovies[]
