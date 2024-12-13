@@ -159,7 +159,14 @@ function createColumns(
                       <span>Wyświetl szczegóły</span>
                     </DropdownMenuItem>
                   </DialogTrigger>
-                  <DropdownMenuItem asChild></DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSetAsPaid(reservation.id)}
+                    >
+                      Oznacz jako opłacone
+                    </Button>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem>
@@ -232,7 +239,7 @@ function createColumns(
                 <AlertDialogFooter>
                   <AlertDialogCancel>Anuluj</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => reservation.id}
+                    onClick={() => handleDeleteReservation(reservation.id)}
                     className="bg-red-600 text-white hover:bg-red-800"
                   >
                     Usuń
