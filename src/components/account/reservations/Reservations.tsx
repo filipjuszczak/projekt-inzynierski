@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cancelReservation } from "@/app/(main)/konto/rezerwacje/actions";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { UserReservation } from "@/lib/types";
 
 interface ReservationsProps {
@@ -35,14 +36,13 @@ interface ReservationsProps {
 }
 
 export default function Reservations({ reservations }: ReservationsProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
 
   const currentDate = new Date();
-
   const upcomingReservations = reservations.filter(
     (r) => r.showtime.startTime >= currentDate
   );
-
   const pastReservations = reservations.filter(
     (r) => r.showtime.startTime < currentDate
   );
@@ -60,10 +60,10 @@ export default function Reservations({ reservations }: ReservationsProps) {
             <TabsTrigger value="past">Przeszłe</TabsTrigger>
           </TabsList>
           <TabsContent value="upcoming">
-            {renderReservations(upcomingReservations, true)}
+            {renderReservations(upcomingReservations, true, router)}
           </TabsContent>
           <TabsContent value="past">
-            {renderReservations(pastReservations, false)}
+            {renderReservations(pastReservations, false, router)}
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -73,10 +73,9 @@ export default function Reservations({ reservations }: ReservationsProps) {
 
 function renderReservations(
   reservations: UserReservation[],
-  isUpcoming: boolean
+  isUpcoming: boolean,
+  router: AppRouterInstance
 ) {
-  const router = useRouter();
-
   if (reservations.length === 0) {
     return <div className="pt-4 text-center">Brak danych...</div>;
   }
