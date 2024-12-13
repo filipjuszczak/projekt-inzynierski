@@ -33,18 +33,19 @@ export default function TicketsEmail({
             Film: <strong>{showtime.movie}</strong>
           </li>
           <li>
-            Sala: <strong>{showtime.room}</strong>
+            Numer sali: <strong>{showtime.room}</strong>
           </li>
           <li>
             Data:{" "}
             <strong>{format(showtime.startTime, "dd.MM.yyyy HH:mm")}</strong>
           </li>
           <li>
-            Miejsca:
+            Bilety:
             <ul>
               {seats.map((seat) => (
                 <li key={seat.id}>
-                  Rząd: {seat.rowNumber}; Miejsce: {seat.seatNumber}
+                  Rząd: <strong>{seat.rowNumber}</strong>, Miejsce:{" "}
+                  <strong>{seat.seatNumber}</strong>
                 </li>
               ))}
             </ul>
