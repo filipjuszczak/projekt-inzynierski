@@ -14,8 +14,19 @@ import { useUserStore } from "@/hooks/use-user-store";
 import ChangePasswordButton from "@/components/dashboard/ChangePasswordButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeChanger from "@/components/dashboard/ThemeChanger";
+import ChangeFeaturedMovie from "@/components/dashboard/ChangeFeaturedMovie";
 
-export default function EmployeeMenu() {
+interface EmployeeMenuProps {
+  movies:
+    | {
+        id: string;
+        title: string;
+        isFeatured: boolean;
+      }[]
+    | null;
+}
+
+export default function EmployeeMenu({ movies }: EmployeeMenuProps) {
   const user = useUserStore(
     useShallow((state) => ({
       username: state.username,
@@ -26,6 +37,9 @@ export default function EmployeeMenu() {
 
   return (
     <SidebarMenu>
+      <SidebarMenuItem className="mb-8">
+        <ChangeFeaturedMovie movies={movies} />
+      </SidebarMenuItem>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

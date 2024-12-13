@@ -272,6 +272,17 @@ export async function deleteMovie(movieId: string) {
       where: { id: movieId }
     });
 
+    const firstMovie = await prisma.movie.findFirst({
+      select: { id: true }
+    });
+
+    if (firstMovie) {
+      await prisma.movie.update({
+        where: { id: firstMovie.id },
+        data: { isFeatured: true }
+      });
+    }
+
     if (existingMovie.posterUrl) {
       const key = existingMovie.posterUrl.split("/f/").pop();
       await new UTApi().deleteFiles(key!);

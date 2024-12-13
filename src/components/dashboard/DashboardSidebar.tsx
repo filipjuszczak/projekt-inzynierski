@@ -115,7 +115,17 @@ const menuItems = [
   }
 ];
 
-export default function DashboardSidebar() {
+interface DashboardSidebarProps {
+  movies:
+    | {
+        id: string;
+        title: string;
+        isFeatured: boolean;
+      }[]
+    | null;
+}
+
+export default function DashboardSidebar({ movies }: DashboardSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader>
@@ -179,7 +189,7 @@ export default function DashboardSidebar() {
         <AdminSidebarSection />
       </SidebarContent>
       <SidebarFooter>
-        <EmployeeMenu />
+        <EmployeeMenu movies={movies} />
       </SidebarFooter>
     </Sidebar>
   );
