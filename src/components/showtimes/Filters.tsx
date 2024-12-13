@@ -81,7 +81,7 @@ export default function Filters({
   }
 
   return (
-    <div className="mb-8 flex flex-col gap-4 md:flex-row">
+    <div className="mb-8 flex flex-col flex-wrap gap-4 md:flex-row">
       <div className="flex-1 space-y-2">
         <div className="w-fit text-sm text-muted-foreground">Data</div>
         <DatePicker value={selectedDate} onValueChange={handleChangeDate} />
