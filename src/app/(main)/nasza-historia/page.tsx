@@ -7,7 +7,7 @@ export default function OurStoryPage() {
       <h1 className="mb-24 text-center text-4xl font-bold">Nasza historia</h1>
       <div className="mx-auto max-w-3xl space-y-24">
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">Narodziny CinemaPlus</h2>
+          <h2 className="text-2xl font-semibold">Narodziny Sunema</h2>
           <p className="max-w-prose text-pretty text-lg text-muted-foreground">
             Założone w 1985 roku Starlight Cinema rozpoczęło działalność jako
             małe, jednosalowe kino z wielkim marzeniem: przynieść magię filmów

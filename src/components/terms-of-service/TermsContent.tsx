@@ -10,8 +10,8 @@ export default function TermsContent() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Uzyskując dostęp lub korzystając z usług CinemaPlus, w tym naszej
-            strony internetowej, aplikacji mobilnej i fizycznych lokalizacji,
+            Uzyskując dostęp lub korzystając z usług Sunema, w tym naszej strony
+            internetowej, aplikacji mobilnej i fizycznych lokalizacji,
             użytkownik wyraża zgodę na przestrzeganie niniejszych Warunków
             świadczenia usług. Jeśli nie zgadzasz się z tymi warunkami, nie
             korzystaj z naszych usług.
@@ -24,10 +24,10 @@ export default function TermsContent() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            CinemaPlus świadczy usługi projekcji filmów, rezerwacji biletów
-            online i powiązane usługi rozrywkowe. Zastrzegamy sobie prawo do
-            modyfikacji, zawieszenia lub zaprzestania dowolnej części naszych
-            usług w dowolnym momencie bez powiadomienia.
+            Sunema świadczy usługi projekcji filmów, rezerwacji biletów online i
+            powiązane usługi rozrywkowe. Zastrzegamy sobie prawo do modyfikacji,
+            zawieszenia lub zaprzestania dowolnej części naszych usług w
+            dowolnym momencie bez powiadomienia.
           </p>
         </CardContent>
       </Card>
@@ -55,9 +55,9 @@ export default function TermsContent() {
         <CardContent>
           <p className="text-muted-foreground">
             Sprzedaż biletów jest ostateczna. Zwroty lub wymiany mogą być
-            dokonywane według uznania kierownictwa CinemaPlus w przypadku
-            problemów technicznych lub odwołania seansu. Więcej informacji można
-            znaleźć w naszej polityce.
+            dokonywane według uznania kierownictwa Sunema w przypadku problemów
+            technicznych lub odwołania seansu. Więcej informacji można znaleźć w
+            naszej polityce.
           </p>
         </CardContent>
       </Card>
@@ -80,7 +80,7 @@ export default function TermsContent() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            CinemaPlus nie ponosi odpowiedzialności za jakiekolwiek pośrednie,
+            Sunema nie ponosi odpowiedzialności za jakiekolwiek pośrednie,
             przypadkowe, szczególne, wynikowe lub karne szkody wynikające z
             korzystania lub niemożności korzystania z naszych usług. Nasza
             odpowiedzialność jest ograniczona do kwoty zapłaconej za daną
@@ -124,8 +124,8 @@ export default function TermsContent() {
             </div>
             <div className="flex items-center">
               <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-              <a href="mailto:info@cinemaplus.com" className="hover:underline">
-                info@cinemaplus.com
+              <a href="mailto:info@sunema.com" className="hover:underline">
+                info@sunema.com
               </a>
             </div>
             <div className="flex items-center">

@@ -132,7 +132,7 @@ export default function DashboardSidebar({ movies }: DashboardSidebarProps) {
         <div>
           <Link href="/" className="flex max-w-fit gap-2">
             <Film className="h-6 w-6" />
-            CinemaPlus
+            Sunema
           </Link>
         </div>
       </SidebarHeader>

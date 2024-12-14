@@ -20,8 +20,8 @@ export default function ContactInfo() {
         </div>
         <div className="flex items-center">
           <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-          <a href="mailto:info@cinemaplus.com" className="hover:underline">
-            info@cinemaplus.com
+          <a href="mailto:info@sunema.com" className="hover:underline">
+            info@sunema.com
           </a>
         </div>
         <div className="flex items-center">

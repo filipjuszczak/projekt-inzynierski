@@ -7,7 +7,7 @@ export default function CompanyCulture() {
       <h2 className="mb-6 text-2xl font-semibold">Kultura w naszym kinie</h2>
       <Card>
         <CardHeader>
-          <CardTitle>Życie w CinemaPlus</CardTitle>
+          <CardTitle>Życie w Sunema</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 text-muted-foreground md:grid-cols-2">
@@ -27,7 +27,7 @@ export default function CompanyCulture() {
             <div className="relative h-64 md:h-full">
               <Image
                 src="/images/image-placeholder.svg"
-                alt="Zespół CinemaPlus"
+                alt="Zespół Sunema"
                 fill
                 className="rounded-lg object-cover"
               />

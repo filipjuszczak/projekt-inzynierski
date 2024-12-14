@@ -11,7 +11,7 @@ export default function Map() {
         <div className="relative h-[300px] w-full">
           <Image
             src="/images/image-placeholder.svg"
-            alt="Mapa położenia CinemaPlus"
+            alt="Mapa położenia Sunema"
             fill
             className="rounded-md object-cover"
           />

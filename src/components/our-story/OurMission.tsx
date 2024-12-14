@@ -7,8 +7,8 @@ export default function OurMission() {
       <Card>
         <CardContent className="space-y-4 p-4">
           <p className="text-lg text-muted-foreground">
-            W CinemaPlus naszą misją jest tworzenie wciągających i
-            niezapomnianych wrażeń podczas oglądania filmów.
+            W Sunema naszą misją jest tworzenie wciągających i niezapomnianych
+            wrażeń podczas oglądania filmów.
           </p>
           <div className="text-lg font-bold">Dążymy do:</div>
           <ul className="mt-4 list-inside list-disc space-y-2 text-muted-foreground">

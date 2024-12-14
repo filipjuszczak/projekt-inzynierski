@@ -10,7 +10,7 @@ export default function MainHeader() {
         <div className="flex gap-2">
           <Link className="mr-6 flex items-center space-x-2" href="/">
             <Film className="h-6 w-6" />
-            <span className="inline-block font-bold">CinemaPlus</span>
+            <span className="inline-block font-bold">Sunema</span>
           </Link>
           <div className="mr-4 hidden md:flex">
             <nav className="flex items-center space-x-6 text-sm font-medium">

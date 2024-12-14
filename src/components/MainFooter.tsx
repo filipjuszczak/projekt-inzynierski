@@ -41,7 +41,7 @@ export default function MainFooter() {
           </div>
         </div>
         <div className="mt-6 text-sm text-muted-foreground">
-          © {currentYear} CinemaPlus. Wszelkie prawa zastrzeżone.
+          © {currentYear} Sunema. Wszelkie prawa zastrzeżone.
         </div>
       </div>
     </footer>

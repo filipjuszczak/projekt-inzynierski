@@ -13,8 +13,8 @@ export default function ContactSection() {
         <CardContent className="grid gap-6">
           <div className="flex items-center">
             <Mail className="mr-2 h-4 w-4" />
-            <a href="mailto:support@cinemaplus.com" className="hover:underline">
-              Email: support@cinemaplus.com
+            <a href="mailto:wsparcie@sunema.com" className="hover:underline">
+              Email: wsparcie@sunema.com
             </a>
           </div>
           <div className="flex items-center">

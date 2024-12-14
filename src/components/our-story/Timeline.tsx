@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const milestones = [
   {
     year: 1985,
-    event: "CinemaPlus otwiera swoje drzwi z jednym ekranem"
+    event: "Sunema otwiera swoje drzwi z jednym ekranem"
   },
   {
     year: 1992,
@@ -12,7 +12,7 @@ const milestones = [
   },
   {
     year: 2000,
-    event: "Rozpoczęcie naszego corocznego Festiwalu Filmowego CinemaPlus"
+    event: "Rozpoczęcie naszego corocznego Festiwalu Filmowego Sunema"
   },
   { year: 2010, event: "Gruntowna renowacja, wprowadzenie IMAX" },
   {
