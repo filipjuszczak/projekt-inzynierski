@@ -1,4 +1,9 @@
 import RoomForm from "@/components/dashboard/rooms/RoomForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Utwórz salę"
+};
 
 export default function CreateRoomPage() {
   return (

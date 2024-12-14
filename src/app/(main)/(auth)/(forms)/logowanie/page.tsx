@@ -1,5 +1,15 @@
 import Link from "next/link";
-import LoginForm from "@/app/(main)/(auth)/(forms)/logowanie/LoginForm";
+import LoginForm from "@/components/login/LoginForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zaloguj się",
+  description: "Zaloguj się do swojego konta.",
+  openGraph: {
+    title: "Zaloguj się | Sunema",
+    description: "Zaloguj się do swojego konta."
+  }
+};
 
 export default function LoginPage() {
   return (

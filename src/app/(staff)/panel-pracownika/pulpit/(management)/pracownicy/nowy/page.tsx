@@ -1,4 +1,9 @@
 import EmployeeForm from "@/components/dashboard/employees/EmployeeForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Utwórz konto dla pracownika"
+};
 
 export default function NewEmployeePage() {
   return (

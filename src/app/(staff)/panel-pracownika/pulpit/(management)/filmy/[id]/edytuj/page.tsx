@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import MovieForm from "@/components/dashboard/movies/MovieForm";
 import { getMovieById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
 import { getGenres } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Edytuj film"
+};
 
 interface EditMoviePageProps {
   params: Promise<{ id: string }>;

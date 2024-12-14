@@ -3,6 +3,11 @@ import { Role } from "@prisma/client";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 import { getSessionCookie } from "@/lib/session";
 import { authenticateUser } from "@/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zmień hasło"
+};
 
 export default async function ChangePasswordPage() {
   const sessionCookie = await getSessionCookie();

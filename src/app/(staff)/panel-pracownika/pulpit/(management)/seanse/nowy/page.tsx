@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import ShowtimeForm from "@/components/dashboard/showtimes/ShowtimeForm";
 import { getMoviesPromise } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
 import { getRoomsPromise } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dodaj seans"
+};
 
 export default async function CreateShowtimePage() {
   const [movies, rooms] = await Promise.all([

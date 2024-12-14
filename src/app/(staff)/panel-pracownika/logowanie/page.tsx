@@ -1,4 +1,10 @@
-import LoginForm from "@/app/(staff)/panel-pracownika/logowanie/LoginForm";
+import LoginForm from "@/components/dashboard/LoginForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zaloguj się",
+  description: "Zaloguj się do panelu pracownika."
+};
 
 export default function DashboardLoginPage() {
   return (

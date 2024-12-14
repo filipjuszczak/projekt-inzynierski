@@ -1,5 +1,10 @@
 import { getReservations } from "@/app/(staff)/panel-pracownika/pulpit/(management)/rezerwacje/data";
 import ReservationsTable from "@/components/dashboard/reservations/ReservationsTable";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Rezerwacje"
+};
 
 export default async function OrdersPage() {
   const reservations = await getReservations();

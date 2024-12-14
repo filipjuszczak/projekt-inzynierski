@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { format } from "date-fns";
 import { Calendar, Clock, Headphones, Monitor, Star } from "lucide-react";
 import { ScreenFormat, ViewingMode } from "@prisma/client";
@@ -10,6 +9,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { ImageWithLoader } from "@/components/ImageWithLoader";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 import type { EssentialGenreData } from "@/lib/types";
 
@@ -49,13 +49,12 @@ export default function MovieDetails({
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <div className="md:col-span-1">
-        <Image
-          src={posterUrl || "/images/placeholder.jpg"}
-          alt={`${title} poster`}
-          width={600}
-          height={900}
-          className="w-full rounded-lg shadow-lg"
+        <ImageWithLoader
+          src={posterUrl || "/images/image-placeholder.svg"}
+          fill
           priority
+          alt={`Plakat filmu ${title}`}
+          className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
         />
       </div>
       <div className="space-y-6 md:col-span-2">
@@ -132,7 +131,7 @@ export default function MovieDetails({
         <Card>
           <CardContent className="p-4">
             <h2 className="mb-2 text-xl font-semibold">Opis</h2>
-            <p>{description}</p>
+            <p className="text-muted-foreground">{description}</p>
           </CardContent>
         </Card>
         <div>
@@ -145,12 +144,14 @@ export default function MovieDetails({
         </div>
         <div>
           <h2 className="mb-2 text-xl font-semibold">Reżyser</h2>
-          <p>{director ? director : "Brak danych."}</p>
+          <p className="text-muted-foreground">
+            {director ? director : "Brak danych."}
+          </p>
         </div>
         <div>
           <h2 className="mb-2 text-xl font-semibold">Obsada</h2>
           {cast ? (
-            <ul className="list-inside list-disc">
+            <ul className="list-inside list-disc text-muted-foreground">
               {cast.split(", ").map((actor) => (
                 <li key={actor}>{actor}</li>
               ))}

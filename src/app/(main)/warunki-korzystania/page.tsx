@@ -1,5 +1,17 @@
 import TableOfContents from "@/components/terms-of-service/TableOfContents";
 import TermsContent from "@/components/terms-of-service/TermsContent";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Warunki korzystania z usług",
+  description:
+    "Przeczytaj warunki korzystania z usług Sunema, aby dowiedzieć się, jakie zasady obowiązują na naszej platformie.",
+  openGraph: {
+    title: "Warunki korzystania z usług | Sunema",
+    description:
+      "Przeczytaj warunki korzystania z usług Sunema, aby dowiedzieć się, jakie zasady obowiązują na naszej platformie."
+  }
+};
 
 export default function TermsOfServicePage() {
   return (

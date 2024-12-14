@@ -265,7 +265,12 @@ export default function MovieForm({
             <FormItem>
               <FormLabel htmlFor={field.name}>Opis filmu (wymagane)</FormLabel>
               <FormControl>
-                <Textarea id={field.name} className="resize-none" {...field} />
+                <Textarea
+                  id={field.name}
+                  rows={10}
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -280,7 +285,12 @@ export default function MovieForm({
                 Krótki opis filmu (wymagane)
               </FormLabel>
               <FormControl>
-                <Textarea id={field.name} className="resize-none" {...field} />
+                <Textarea
+                  id={field.name}
+                  rows={5}
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -14,10 +14,23 @@ import { Separator } from "@/components/ui/separator";
 import Room from "@/components/Room";
 import MovieDetails from "@/components/MovieDetails";
 import { getShowtimeById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/data";
+import { getShowtimeMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/[id]/metadata";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
+import type { Metadata } from "next";
 
 interface ShowtimeDetailsPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: ShowtimeDetailsPageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { id: showtimeId } = await getShowtimeMetadata(id);
+
+  return {
+    title: showtimeId ? "Seans" : "Nie znaleziono seansu"
+  };
 }
 
 export default async function ShowtimeDetailsPage({

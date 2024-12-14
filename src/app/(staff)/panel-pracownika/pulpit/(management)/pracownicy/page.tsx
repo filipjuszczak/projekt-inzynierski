@@ -3,6 +3,11 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmployeesTable from "@/components/dashboard/employees/EmployeesTable";
 import { getEmployees } from "@/app/(staff)/panel-pracownika/pulpit/(management)/pracownicy/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pracownicy"
+};
 
 export default async function EmployeesPage() {
   const employees = await getEmployees();

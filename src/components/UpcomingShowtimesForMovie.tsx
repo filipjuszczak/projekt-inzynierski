@@ -16,7 +16,9 @@ export default async function UpcomingShowtimesForMovie({
     <div className="space-y-12">
       <h2 className="max-w-fit text-2xl font-bold">Nadchodzące seanse</h2>
       {Object.keys(upcomingShowtimes).length === 0 ? (
-        <div>Brak nadchodzących seansów...</div>
+        <div className="text-muted-foreground">
+          Brak nadchodzących seansów dla tego filmu...
+        </div>
       ) : (
         <div className="space-y-8">
           {Object.entries(upcomingShowtimes).map(([date, showtimes]) => (

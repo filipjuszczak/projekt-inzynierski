@@ -4,9 +4,22 @@ import { Separator } from "@/components/ui/separator";
 import Room from "@/components/Room";
 import UpcomingShowtimes from "@/components/dashboard/rooms/UpcomingShowtimes";
 import { getRoomById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
+import { getRoomMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/[id]/metadata";
+import type { Metadata } from "next";
 
 interface RoomDetailsPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: RoomDetailsPageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { number } = await getRoomMetadata(id);
+
+  return {
+    title: number ? `Sala numer ${number}` : "Nie znaleziono sali"
+  };
 }
 
 export default async function RoomDetailsPage({

@@ -1,6 +1,14 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { getMovieList } from "@/app/(staff)/panel-pracownika/pulpit/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s - Panel pracownika | Sunema",
+    default: "Pulpit"
+  }
+};
 
 export default async function Layout({ children }: React.PropsWithChildren) {
   const movies = await getMovieList();

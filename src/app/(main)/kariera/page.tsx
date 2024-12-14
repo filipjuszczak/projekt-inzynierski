@@ -2,6 +2,18 @@ import { Button } from "@/components/ui/button";
 import Benefits from "@/components/careers/Benefits";
 import CompanyCulture from "@/components/careers/CompanyCulture";
 import JobListings from "@/components/careers/JobListings";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Kariera",
+  description:
+    "Dołącz do zespołu Sunema i pomóż nam tworzyć niezapomniane wrażenia dla miłośników kina.",
+  openGraph: {
+    title: "Kariera | Sunema",
+    description:
+      "Dołącz do zespołu Sunema i pomóż nam tworzyć niezapomniane wrażenia dla miłośników kina."
+  }
+};
 
 export default function CareersPage() {
   return (

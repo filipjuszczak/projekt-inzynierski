@@ -1,6 +1,16 @@
 import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import Map from "@/components/contact/Map";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Kontakt",
+  description: "Skontaktuj się z nami, jeśli masz pytania lub wątpliwości.",
+  openGraph: {
+    title: "Kontakt | Sunema",
+    description: "Skontaktuj się z nami, jeśli masz pytania lub wątpliwości."
+  }
+};
 
 export default function ContactPage() {
   return (

@@ -3,7 +3,17 @@ import ShowtimeFilters from "@/components/showtimes/ShowtimeFilters";
 import ShowtimeFiltersSkeleton from "@/components/showtimes/skeletons/ShowtimeFiltersSkeleton";
 import ShowtimesList from "@/components/showtimes/ShowtimesList";
 import ShowtimesListSkeleton from "@/components/showtimes/skeletons/ShowtimesListSkeleton";
+import type { Metadata } from "next";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
+
+export const metadata: Metadata = {
+  title: "Repertuar",
+  description: "Sprawdź aktualny repertuar kinowy i wybierz coś dla siebie.",
+  openGraph: {
+    title: "Repertuar | Sunema",
+    description: "Sprawdź aktualny repertuar kinowy i wybierz coś dla siebie."
+  }
+};
 
 interface ShowtimesPage {
   searchParams: Promise<{

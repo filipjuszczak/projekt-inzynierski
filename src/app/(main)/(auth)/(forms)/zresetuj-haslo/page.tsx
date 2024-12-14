@@ -1,5 +1,15 @@
 import { Frown } from "lucide-react";
-import Reset from "@/app/(main)/(auth)/(forms)/zresetuj-haslo/Reset";
+import Reset from "@/components/reset-password/Reset";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zresetuj hasło",
+  description: "Zresetuj hasło do swojego konta.",
+  openGraph: {
+    title: "Zresetuj hasło | Sunema",
+    description: "Zresetuj hasło do swojego konta."
+  }
+};
 
 interface ResetPasswordPageProps {
   searchParams: Promise<{

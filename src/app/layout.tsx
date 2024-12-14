@@ -8,9 +8,21 @@ import type { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sunema",
+  title: {
+    template: "%s | Sunema",
+    default: "Sunema - Twój świat filmowych emocji"
+  },
   description:
-    "Przeżyj filmy jak nigdy dotąd w kinie Sunema! Odkryj najnowsze hity, ciesz się specjalnymi seansami i rezerwuj bilety online, by zapewnić sobie idealny wieczór filmowy. Sunema - tu ożywają historie!"
+    "Przeżyj filmy jak nigdy dotąd w kinie Sunema! Odkryj najnowsze hity, ciesz się specjalnymi seansami i rezerwuj bilety online, by zapewnić sobie idealny wieczór filmowy. Sunema - tu ożywają historie!",
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    url: "https://sunema.pl",
+    siteName: "Sunema",
+    title: "Sunema - Twój świat filmowych emocji",
+    description:
+      "Przeżyj filmy jak nigdy dotąd w kinie Sunema! Odkryj najnowsze hity, ciesz się specjalnymi seansami i rezerwuj bilety online, by zapewnić sobie idealny wieczór filmowy. Sunema - tu ożywają historie!"
+  }
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {

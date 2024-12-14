@@ -1,4 +1,9 @@
 import GenreForm from "@/components/dashboard/genres/GenreForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Utwórz nowy gatunek"
+};
 
 export default function NewGenrePage() {
   return (

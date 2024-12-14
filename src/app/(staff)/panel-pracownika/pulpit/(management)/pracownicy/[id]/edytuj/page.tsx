@@ -1,9 +1,25 @@
 import { notFound } from "next/navigation";
 import EmployeeForm from "@/components/dashboard/employees/EmployeeForm";
 import { getEmployeeById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/pracownicy/data";
+import type { Metadata } from "next";
+import { getEmployeeMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/pracownicy/[id]/edytuj/metadata";
 
 interface EditEmployeePageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: EditEmployeePageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { firstName, lastName } = await getEmployeeMetadata(id);
+
+  return {
+    title:
+      firstName && lastName
+        ? `Edytuj pracownika ${firstName} ${lastName}`
+        : "Nie znaleziono pracownika"
+  };
 }
 
 export default async function EditEmployeePage({

@@ -7,6 +7,18 @@ import AccountOverviewSkeleton from "@/components/account/skeletons/AccountOverv
 import AccountSettingsSkeleton from "@/components/account/skeletons/AccountSettingsSkeleton";
 import PersonalInfoSkeleton from "@/components/account/skeletons/PersonalInfoSkeleton";
 import RecentActivitySkeleton from "@/components/account/skeletons/RecentActivitySkeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Moje konto",
+  description:
+    "Zarządzaj swoim kontem, przeglądaj i anuluj rezerwacje, zmieniaj ustawienia konta.",
+  openGraph: {
+    title: "Moje konto | Sunema",
+    description:
+      "Zarządzaj swoim kontem, przeglądaj i anuluj rezerwacje, zmieniaj ustawienia konta."
+  }
+};
 
 export default function AccountPage() {
   return (

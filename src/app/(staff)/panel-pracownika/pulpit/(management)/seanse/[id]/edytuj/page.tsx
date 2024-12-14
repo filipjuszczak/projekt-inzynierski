@@ -3,9 +3,22 @@ import ShowtimeForm from "@/components/dashboard/showtimes/ShowtimeForm";
 import { getShowtimeById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/data";
 import { getMoviesPromise } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
 import { getRoomsPromise } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
+import { getShowtimeMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/[id]/metadata";
+import type { Metadata } from "next";
 
 interface EditShowtimePageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: EditShowtimePageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { id: showtimeId } = await getShowtimeMetadata(id);
+
+  return {
+    title: showtimeId ? "Edytuj seans" : "Nie znaleziono seansu"
+  };
 }
 
 export default async function EditShowtimePage({

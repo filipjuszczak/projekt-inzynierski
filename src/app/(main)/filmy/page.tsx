@@ -13,10 +13,22 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/movies/SearchBar";
 import FilterSidebar from "@/components/movies/FilterSidebar";
 import FilterSidebarSkeleton from "@/components/movies/skeletons/FilterSidebarSkeleton";
-import Movies from "@/components/movies/Movies";
-import MovieGridSkeleton from "@/components/skeletons/MovieGridSkeleton";
+import MoviesGrid from "@/components/movies/MoviesGrid";
+import MoviesGridSkeleton from "@/components/skeletons/MoviesGridSkeleton";
+import type { Metadata } from "next";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
 import type { MoviesPage } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Filmy",
+  description:
+    "Przeglądaj filmy dostępne w naszej bibliotece i wybierz coś dla siebie.",
+  openGraph: {
+    title: "Filmy | Sunema",
+    description:
+      "Przeglądaj filmy dostępne w naszej bibliotece i wybierz coś dla siebie."
+  }
+};
 
 interface MoviesPageProps {
   searchParams: Promise<{
@@ -72,8 +84,8 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
             </Suspense>
           </aside>
           <main className="flex-1">
-            <Suspense fallback={<MovieGridSkeleton />}>
-              <Movies filters={filters} />
+            <Suspense fallback={<MoviesGridSkeleton />}>
+              <MoviesGrid filters={filters} />
             </Suspense>
           </main>
         </div>

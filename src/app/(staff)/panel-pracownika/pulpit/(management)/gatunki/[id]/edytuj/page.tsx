@@ -1,9 +1,22 @@
 import { notFound } from "next/navigation";
 import GenreForm from "@/components/dashboard/genres/GenreForm";
 import { getGenreById } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/data";
+import type { Metadata } from "next";
+import { getGenreMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/[id]/edytuj/metadata";
 
 interface EditGenrePageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: EditGenrePageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { name } = await getGenreMetadata(id);
+
+  return {
+    title: name ? name : "Nie znaleziono gatunku"
+  };
 }
 
 export default async function EditGenrePage({ params }: EditGenrePageProps) {

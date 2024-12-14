@@ -11,8 +11,8 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import SetNewPasswordForm from "@/app/(main)/(auth)/(forms)/zresetuj-haslo/SetNewPasswordForm";
-import ResetPasswordForm from "@/app/(main)/(auth)/(forms)/zresetuj-haslo/ResetPasswordForm";
+import SetNewPasswordForm from "@/components/reset-password/SetNewPasswordForm";
+import ResetPasswordForm from "@/components/reset-password/ResetPasswordForm";
 
 interface ResetProps {
   email: string;

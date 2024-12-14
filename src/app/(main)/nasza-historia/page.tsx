@@ -1,5 +1,15 @@
 import Timeline from "@/components/our-story/Timeline";
 import OurMission from "@/components/our-story/OurMission";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Nasza historia",
+  description: "Dowiedz się więcej o naszej historii i misji.",
+  openGraph: {
+    title: "Nasza historia | Sunema",
+    description: "Dowiedz się więcej o naszej historii i misji."
+  }
+};
 
 export default function OurStoryPage() {
   return (

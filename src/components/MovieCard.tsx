@@ -81,7 +81,7 @@ export default function MovieCard({
           href={`/filmy/${encodeURIComponent(title)}`}
           className={cn(buttonVariants({ variant: "default" }), "w-full")}
         >
-          Zarezerwuj bilety
+          Wyświetl szczegóły
         </Link>
       </CardFooter>
     </Card>

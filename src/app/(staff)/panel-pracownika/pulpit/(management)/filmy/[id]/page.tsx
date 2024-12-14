@@ -1,10 +1,23 @@
 import { notFound } from "next/navigation";
 import MovieDetails from "@/components/MovieDetails";
 import UpcomingShowtimes from "@/components/dashboard/rooms/UpcomingShowtimes";
+import { getMovieMetadata } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/[id]/metadata";
 import { getMovieWithExternalData } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
+import type { Metadata } from "next";
 
 interface MovieDetailsPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params
+}: MovieDetailsPageProps): Promise<Metadata> {
+  const id = (await params).id;
+  const { title } = await getMovieMetadata(id);
+
+  return {
+    title: title ? title : "Nie znaleziono filmu"
+  };
 }
 
 export default async function MovieDetailsPage({

@@ -1,7 +1,17 @@
 import { Frown } from "lucide-react";
-import Success from "@/app/(main)/(auth)/aktywuj-konto/Success";
-import Error from "@/app/(main)/(auth)/aktywuj-konto/Error";
+import Success from "@/components/activate-account/Success";
+import Error from "@/components/activate-account/Error";
 import { activateAccount } from "@/app/(main)/(auth)/aktywuj-konto/actions";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Aktywacja konta",
+  description: "Aktywuj konto, aby móc korzystać z pełni możliwości serwisu.",
+  openGraph: {
+    title: "Aktywacja konta | Sunema",
+    description: "Aktywuj konto, aby móc korzystać z pełni możliwości serwisu."
+  }
+};
 
 interface ConfirmPasswordPageProps {
   searchParams: Promise<{ email: string; token: string }>;

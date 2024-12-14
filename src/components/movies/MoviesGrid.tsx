@@ -7,7 +7,7 @@ interface MoviesProps {
   filters: Filters;
 }
 
-export default async function Movies({ filters }: MoviesProps) {
+export default async function MoviesGrid({ filters }: MoviesProps) {
   const { movies, totalCount } = await getMovies(filters);
 
   if (movies.length === 0) {

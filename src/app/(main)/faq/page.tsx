@@ -1,5 +1,17 @@
 import ContactSection from "@/components/faq/ContactSection";
 import FAQAccordion from "@/components/faq/FAQAccordion";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Najczęściej zadawane pytania",
+  description:
+    "Odpowiedzi na najczęściej zadawane pytania dotyczące naszego kina.",
+  openGraph: {
+    title: "Najczęściej zadawane pytania | Sunema",
+    description:
+      "Odpowiedzi na najczęściej zadawane pytania dotyczące naszego kina."
+  }
+};
 
 export default function FAQPage() {
   return (

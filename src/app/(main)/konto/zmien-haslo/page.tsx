@@ -3,6 +3,16 @@ import { Role } from "@prisma/client";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 import { getSessionCookie } from "@/lib/session";
 import { authenticateUser } from "@/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zmień hasło",
+  description: "Zmień hasło swojego konta w serwisie.",
+  openGraph: {
+    title: "Zmień hasło | Sunema",
+    description: "Zmień hasło swojego konta w serwisie."
+  }
+};
 
 export default async function ChangePasswordPage() {
   const sessionCookie = await getSessionCookie();

@@ -3,6 +3,11 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MoviesTable from "@/components/dashboard/movies/MoviesTable";
 import { getMovies } from "@/app/(staff)/panel-pracownika/pulpit/(management)/filmy/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Filmy"
+};
 
 export default async function MoviesPage() {
   const movies = await getMovies();

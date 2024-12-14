@@ -3,6 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getRooms } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
 import RoomList from "@/components/dashboard/rooms/RoomList";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sale"
+};
 
 export default async function RoomsPage() {
   const rooms = await getRooms();

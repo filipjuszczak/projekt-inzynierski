@@ -3,6 +3,11 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GenreList from "@/components/dashboard/genres/GenreList";
 import { getGenres } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/data";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Gatunki filmowe"
+};
 
 export default async function GenresPage() {
   const genres = await getGenres();

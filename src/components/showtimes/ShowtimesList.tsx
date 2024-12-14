@@ -23,9 +23,11 @@ export default async function ShowtimesList({ filters }: ShowtimesListProps) {
   const showtimesByMovies = Object.entries(showtimes);
 
   if (showtimesByMovies.length === 0) {
-    <div className="text-center">
-      Brak wyników wyszukiwania dla podanych kryteriów.
-    </div>;
+    return (
+      <div className="text-center">
+        Brak wyników wyszukiwania dla podanych kryteriów.
+      </div>
+    );
   }
 
   return (

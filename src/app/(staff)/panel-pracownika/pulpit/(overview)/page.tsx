@@ -1,7 +1,12 @@
+import QuickStats from "@/app/(staff)/panel-pracownika/pulpit/(overview)/QuickStats";
 import ShowtimesToday from "@/app/(staff)/panel-pracownika/pulpit/(overview)/ShowtimesToday";
 import RecentGenres from "@/app/(staff)/panel-pracownika/pulpit/(overview)/RecentGenres";
 import RecentMovies from "@/app/(staff)/panel-pracownika/pulpit/(overview)/RecentMovies";
-import QuickStats from "@/app/(staff)/panel-pracownika/pulpit/(overview)/QuickStats";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pulpit"
+};
 
 export default function DashboardPage() {
   return (

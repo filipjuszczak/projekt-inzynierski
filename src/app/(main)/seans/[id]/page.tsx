@@ -5,10 +5,20 @@ import {
   getEssentialShowtimeDataById,
   getTickets
 } from "@/app/(main)/seans/[id]/data";
+import type { Metadata } from "next";
 
 interface ShowtimePageProps {
   params: Promise<{ id: string }>;
 }
+
+export const metadata: Metadata = {
+  title: "Kup bilet na seans",
+  description: "Kup lub zarezerwuj bilety na wybrany seans w naszym kinie.",
+  openGraph: {
+    title: "Kup bilet na seans | Sunema",
+    description: "Kup lub zarezerwuj bilety na wybrany seans w naszym kinie."
+  }
+};
 
 export default async function ShowtimePage({ params }: ShowtimePageProps) {
   const { id } = await params;

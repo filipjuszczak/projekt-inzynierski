@@ -3,6 +3,16 @@ import ReservationsList from "@/components/account/reservations/ReservationsList
 import ReservationStats from "@/components/account/reservations/ReservationStats";
 import ReservationsListSkeleton from "@/components/account/reservations/skeletons/ReservationsListSkeleton";
 import ReservationStatsSkeleton from "@/components/account/reservations/skeletons/ReservationStatsSkeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Moje rezerwacje",
+  description: "Przeglądaj i anuluj swoje rezerwacje.",
+  openGraph: {
+    title: "Moje rezerwacje | Sunema",
+    description: "Przeglądaj i anuluj swoje rezerwacje."
+  }
+};
 
 export default async function ReservationsPage() {
   return (

@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import { getGenres } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/data";
 import MovieForm from "@/components/dashboard/movies/MovieForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dodaj nowy film"
+};
 
 export default async function CreateMoviePage() {
   const genres = await getGenres();
