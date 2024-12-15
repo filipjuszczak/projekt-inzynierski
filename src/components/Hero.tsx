@@ -14,8 +14,8 @@ export default async function Hero({ featuredMovie }: HeroProps) {
   return (
     <section className="w-full py-12 text-foreground md:py-24 lg:py-32 xl:py-48">
       <div className="container px-4 md:px-6">
-        <div className="grid gap-6 md:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-          <div className="relative aspect-[2/3] w-full md:order-last">
+        <div className="grid gap-6 md:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-2">
+          <div className="relative mx-auto aspect-[2/3] w-[80%] min-[640px]:w-full md:order-last">
             <ImageWithLoader
               src={featuredMovie?.posterUrl || "/images/image-placeholder.svg"}
               fill

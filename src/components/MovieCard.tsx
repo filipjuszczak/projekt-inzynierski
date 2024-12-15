@@ -39,7 +39,10 @@ export default function MovieCard({
   sizes
 }: MovieCardProps) {
   return (
-    <Card key={id} className="flex w-full flex-grow flex-col overflow-hidden">
+    <Card
+      key={id}
+      className="mx-auto flex w-[80%] flex-grow flex-col overflow-hidden min-[640px]:w-full"
+    >
       <CardHeader className="relative aspect-[2/3] w-full p-0">
         <ImageWithLoader
           src={posterUrl || "/images/image-placeholder.svg"}
