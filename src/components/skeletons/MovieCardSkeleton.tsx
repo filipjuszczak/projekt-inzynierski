@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MovieCardSkeleton() {
   return (
-    <Card className="flex w-full flex-col">
+    <Card className="mx-auto flex w-[80%] flex-col min-[640px]:w-full">
       <Skeleton className="aspect-[2/3] w-full" />
       <CardContent className="space-y-2 p-4 pb-10">
         <Skeleton className="h-7 w-24" />
