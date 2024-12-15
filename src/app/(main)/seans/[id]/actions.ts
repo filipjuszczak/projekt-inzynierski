@@ -433,11 +433,7 @@ export async function makeReservation({
       };
     }
 
-    if (sessionCookie.name === "auth_session") {
-      return redirect(`/konto/rezerwacje`);
-    }
-
-    return redirect(`/rezerwacje/${createdOrder.id}`);
+    return redirect(`/twoja-rezerwacja?id=${createdOrder.id}`);
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
