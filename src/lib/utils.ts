@@ -2,14 +2,14 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import crypto from "crypto";
 import { addMinutes, isValid as isValidDate } from "date-fns";
-import type { UseFormReturn } from "react-hook-form";
-import type { SignupValues } from "@/lib/validation/auth";
-import type { EmployeeValues } from "@/lib/validation/employee";
-import type { UpdateUserDataValues } from "@/lib/validation/user";
 import {
   checkoutFormSchema,
   type CheckoutFormValues
 } from "@/lib/validation/checkout";
+import type { UseFormReturn } from "react-hook-form";
+import type { SignupValues } from "@/lib/validation/auth";
+import type { EmployeeValues } from "@/lib/validation/employee";
+import type { UpdateUserDataValues } from "@/lib/validation/user";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -74,6 +74,24 @@ export const forbiddenUsernames = [
 
 export const allowedUsernameRegex = /^[a-zA-Z0-9_]{2,20}$/;
 
+function checkPasswordConditions(password: string, repeatPassword: string) {
+  const minLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const passwordsMatch = password === repeatPassword;
+
+  return (
+    minLength &&
+    hasUppercase &&
+    hasLowercase &&
+    hasNumber &&
+    hasSpecialChar &&
+    passwordsMatch
+  );
+}
+
 export function validateSignupValues(
   form: UseFormReturn<SignupValues>,
   values: SignupValues
@@ -123,6 +141,14 @@ export function validateSignupValues(
     form.setError("repeatPassword", {
       type: "value",
       message: "Hasła nie są identyczne"
+    });
+    isValid = false;
+  }
+
+  if (!checkPasswordConditions(values.password, values.repeatPassword)) {
+    form.setError("password", {
+      type: "value",
+      message: "Hasło nie spełnia wymagań"
     });
     isValid = false;
   }
