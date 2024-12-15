@@ -45,8 +45,14 @@ export async function getEssentialShowtimeDataById(id: string) {
     return null;
   }
 
+  const seatReservations = await prisma.seatReservation.findMany({
+    where: { showtimeId: showtime.id },
+    select: { id: true, rowNumber: true, seatNumber: true }
+  });
+
   const flattenedShowtime = {
     ...showtime,
+    seatReservations,
     movie: {
       ...showtime.movie,
       genres: showtime.movie.genres.map(({ genre }) => genre)

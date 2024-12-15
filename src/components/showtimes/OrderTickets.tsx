@@ -34,6 +34,11 @@ interface OrderTicketsProps {
       rowNumber: number;
       seatNumber: number;
     }[];
+    seatReservations: {
+      id: string;
+      rowNumber: number;
+      seatNumber: number;
+    }[];
   };
   tickets: Record<
     string,
@@ -79,6 +84,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
 
   useEffect(() => {
     function onBeforeUnload() {
+      console.log(isUserBuying.current, selectedSeatsRef.current.length);
       if (isUserBuying.current || selectedSeatsRef.current.length === 0) {
         return;
       }
@@ -88,7 +94,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
         `${baseUrl}/api/seats/unlock-selected`,
         JSON.stringify({
           showtimeId: showtime.id,
-          seats: selectedSeats.map((seat) => ({
+          seats: selectedSeatsRef.current.map((seat) => ({
             rowNumber: seat.rowNumber,
             seatNumber: seat.seatNumber
           }))

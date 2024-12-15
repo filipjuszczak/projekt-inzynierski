@@ -24,6 +24,11 @@ interface SelectSeatsProps {
       rowNumber: number;
       seatNumber: number;
     }[];
+    seatReservations: {
+      id: string;
+      rowNumber: number;
+      seatNumber: number;
+    }[];
   };
   selectedSeats: SelectedSeat[];
   onSeatClick: (rowNumber: number, seatNumber: number) => void;
@@ -48,7 +53,7 @@ export default function SelectSeats({
         showtimeId={showtime.id}
         numberOfRows={showtime.room.numberOfRows}
         seatsPerRow={showtime.room.seatsPerRow}
-        bookedSeats={showtime.seats}
+        bookedSeats={[...showtime.seats, ...showtime.seatReservations]}
         selectedSeats={selectedSeats}
         onSeatClick={onSeatClick}
         onChangeStep={onChangeStep}
