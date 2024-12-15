@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ImageWithLoader } from "@/components/ImageWithLoader";
-import Link from "next/link";
 
 interface HeroProps {
   featuredMovie: {
@@ -26,6 +26,7 @@ export default async function Hero({ featuredMovie }: HeroProps) {
                   : "Obraz zastępczy"
               }
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+              sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 768px) 50vw, (min-width: 1024px) 40vw, (min-width: 1280px) 50vw, (min-width: 1536px) 40vw"
               border
               rounded
             />

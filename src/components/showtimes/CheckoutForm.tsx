@@ -98,6 +98,7 @@ export default function CheckoutForm({
 
         if ("error" in result) {
           toast.error(result.error);
+          return;
         }
 
         if ("success" in result) {

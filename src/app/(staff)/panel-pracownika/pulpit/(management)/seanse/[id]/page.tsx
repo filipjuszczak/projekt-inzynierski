@@ -123,6 +123,7 @@ export default async function ShowtimeDetailsPage({
         rating={movie.rating}
         director={movie.director}
         cast={movie.cast}
+        sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 768px) 70vw, (min-width: 1024px) 20vw, (min-width: 1280px) 25vw"
       />
     </div>
   );

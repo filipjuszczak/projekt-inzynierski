@@ -53,7 +53,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   }
 
   return (
-    <main className="container mx-auto flex-grow items-center space-y-16 px-4 py-24 md:px-0">
+    <main className="flex-grow items-center space-y-16 px-4 py-24">
       <MovieDetails
         posterUrl={movie.posterUrl || "/images/image-placeholder.svg"}
         title={movie.title}
@@ -66,6 +66,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
         rating={movie.rating}
         director={movie.director}
         cast={movie.cast}
+        sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 1024px) 30vw"
       />
       <Separator />
       <Suspense fallback={<UpcomingShowtimesForMovieSkeleton />}>

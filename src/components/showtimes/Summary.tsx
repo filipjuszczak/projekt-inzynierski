@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import CheckoutForm from "@/components/showtimes/CheckoutForm";
 import { TICKET_LABELS } from "@/lib/constants";
 import type { SelectedSeat, Step } from "@/lib/types";
+import { ImageWithLoader } from "@/components/ImageWithLoader";
 
 interface SummaryProps {
   showtime: {
@@ -71,13 +72,25 @@ export default function Summary({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="relative aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
-            <Image
+        <div className="grid gap-4 min-[640px]:grid-cols-2">
+          <div className="relative mx-auto aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
+            {/* <Image
               src={showtime.movie.posterUrl || "/images/image-placeholder.svg"}
               alt={`Plakat filmu ${showtime.movie.title}`}
               fill
               className="aspect-[2/3] rounded-lg object-cover"
+            /> */}
+            <ImageWithLoader
+              src={showtime.movie.posterUrl || "/images/image-placeholder.svg"}
+              fill
+              priority
+              alt={
+                showtime.movie.posterUrl
+                  ? `Plakat filmu ${showtime.movie.title}`
+                  : "Obraz zastępczy"
+              }
+              className="aspect-[2/3] rounded-lg object-cover"
+              sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 768px) 50vw, (min-width: 1024px) 40vw, (min-width: 1280px) 50vw, (min-width: 1536px) 40vw"
             />
           </div>
           <div className="space-y-2">

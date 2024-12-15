@@ -31,6 +31,7 @@ interface MovieDetailsProps {
   rating: string | null;
   director: string | null;
   cast: string | null;
+  sizes?: string;
 }
 
 export default function MovieDetails({
@@ -44,10 +45,11 @@ export default function MovieDetails({
   genres,
   rating,
   director,
-  cast
+  cast,
+  sizes
 }: MovieDetailsProps) {
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-y-8 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-0">
       <div className="md:col-span-1">
         <ImageWithLoader
           src={posterUrl || "/images/image-placeholder.svg"}
@@ -55,6 +57,7 @@ export default function MovieDetails({
           priority
           alt={`Plakat filmu ${title}`}
           className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+          sizes={sizes}
         />
       </div>
       <div className="space-y-6 md:col-span-2">

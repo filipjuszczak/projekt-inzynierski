@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { ImageWithLoader } from "@/components/ImageWithLoader";
 import { getShowtimes } from "@/app/(main)/repertuar/data";
 import { AGE_RESTRICTION_LABELS } from "@/lib/constants";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
@@ -55,13 +55,15 @@ function MovieCard({ title, posterUrl, genres, showtimes }: MovieCardProps) {
     <Card>
       <CardContent className="p-6">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4 *:w-full md:flex-row">
-            <div className="relative aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
-              <Image
+          <div className="flex flex-col gap-4 *:w-full min-[640px]:flex-row">
+            <div className="relative mx-auto flex aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
+              <ImageWithLoader
                 src={posterUrl || "/images/image-placeholder.svg"}
-                alt={`Plakat filmu ${title}`}
                 fill
+                priority
+                alt={`Plakat filmu ${title}`}
                 className="aspect-[2/3] rounded-lg object-cover"
+                sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 768px) 50vw, (min-width: 1024px) 40vw, (min-width: 1280px) 50vw, (min-width: 1536px) 40vw"
               />
             </div>
             <div>

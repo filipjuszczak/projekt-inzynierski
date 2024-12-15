@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -12,15 +13,6 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { DatePickerWithYears } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import LoadingButton from "@/components/LoadingButton";
-import { signUp } from "@/app/(main)/(auth)/(forms)/actions";
-import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
-import { validateSignupValues } from "@/lib/utils";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,6 +20,14 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DatePickerWithYears } from "@/components/ui/date-picker";
+import LoadingButton from "@/components/LoadingButton";
+import { signUp } from "@/app/(main)/(auth)/(forms)/actions";
+import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
+import { validateSignupValues } from "@/lib/utils";
 
 interface SignupFormProps {
   onSuccessfulSignup: () => void;

@@ -26,6 +26,7 @@ interface MovieCardProps {
   releaseDate: Date;
   genres: string[];
   shortDescription: string;
+  sizes?: string;
 }
 
 export default function MovieCard({
@@ -34,7 +35,8 @@ export default function MovieCard({
   title,
   releaseDate,
   genres,
-  shortDescription
+  shortDescription,
+  sizes
 }: MovieCardProps) {
   return (
     <Card key={id} className="flex w-full flex-grow flex-col overflow-hidden">
@@ -43,6 +45,7 @@ export default function MovieCard({
           src={posterUrl || "/images/image-placeholder.svg"}
           alt={`Plakat filmu ${title}`}
           fill
+          sizes={sizes}
           className="aspect-[2/3] rounded-t-lg object-cover"
         />
       </CardHeader>

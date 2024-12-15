@@ -41,7 +41,10 @@ export default function LatestMovies({ movies }: LatestMoviesProps) {
             key={movie.id}
             className="flex flex-col md:basis-1/2 lg:basis-1/4"
           >
-            <MovieCard {...movie} />
+            <MovieCard
+              {...movie}
+              sizes="(max-width: 450px) 100vw, (min-width: 450px) 60vw, (min-width: 640px) 100vw, (min-width: 768px) 50vw, (min-width: 1024px) 25vw"
+            />
           </CarouselItem>
         ))}
       </CarouselContent>

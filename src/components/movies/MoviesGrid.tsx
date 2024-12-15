@@ -24,7 +24,11 @@ export default async function MoviesGrid({ filters }: MoviesProps) {
     <div className="space-y-12">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {movies.map((movie) => (
-          <MovieCard key={movie.id} {...movie} />
+          <MovieCard
+            key={movie.id}
+            sizes="(max-width: 450px) 100vw, (min-width: 640px) 50vw, (min-width: 768px) 33vw, (min-width: 1024px) 25vw, (min-width: 1280px) 20vw"
+            {...movie}
+          />
         ))}
       </div>
       {movies.length > 0 && (
