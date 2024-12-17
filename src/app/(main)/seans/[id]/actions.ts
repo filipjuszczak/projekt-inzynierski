@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { OrderType, UserType } from "@prisma/client";
 import ReservationCreatedEmail from "@/components/emails/ReservationCreatedEmail";
 import { validateSession } from "@/app/actions";

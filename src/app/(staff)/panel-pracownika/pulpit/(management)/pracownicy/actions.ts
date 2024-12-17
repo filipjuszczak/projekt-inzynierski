@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { isValid as isValidDate } from "date-fns";
 import { hash } from "@node-rs/argon2";
 import { Role } from "@prisma/client";

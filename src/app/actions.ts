@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { hash, verify } from "@node-rs/argon2";
 import { UserActivities, Role } from "@prisma/client";
 import PasswordChangedEmail from "@/components/emails/PasswordChangedEmail";

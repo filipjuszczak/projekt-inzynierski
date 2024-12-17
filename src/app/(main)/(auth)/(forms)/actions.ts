@@ -1,6 +1,6 @@
 "use server";
 
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { hash, verify } from "@node-rs/argon2";
 import { addMinutes, isValid as isValidDate } from "date-fns";
 import { TokenType, UserActivities, UserType } from "@prisma/client";

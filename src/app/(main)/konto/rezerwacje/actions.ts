@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { OrderType, Role } from "@prisma/client";
 import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
