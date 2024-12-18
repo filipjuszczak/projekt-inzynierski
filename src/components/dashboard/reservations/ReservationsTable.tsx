@@ -159,14 +159,16 @@ function createColumns(
                       <span>Wyświetl szczegóły</span>
                     </DropdownMenuItem>
                   </DialogTrigger>
-                  <DropdownMenuItem asChild>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSetAsPaid(reservation.id)}
-                    >
-                      Oznacz jako opłacone
-                    </Button>
-                  </DropdownMenuItem>
+                  {reservation.type === "RESERVATION" && (
+                    <DropdownMenuItem asChild>
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleSetAsPaid(reservation.id)}
+                      >
+                        Oznacz jako opłacone
+                      </Button>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem>
