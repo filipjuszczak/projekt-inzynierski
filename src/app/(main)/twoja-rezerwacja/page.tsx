@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
+import { toZonedTime, format } from "date-fns-tz";
 import { pl } from "date-fns/locale";
 import { CalendarPlus, Share2, Home, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { getReservation } from "@/app/(main)/twoja-rezerwacja/data";
+import { TIME_ZONE } from "@/lib/constants";
 
 interface YourReservationPageProps {
   searchParams: Promise<{
@@ -25,13 +26,25 @@ export default async function YourReservationPage({
   searchParams
 }: YourReservationPageProps) {
   const { id } = await searchParams;
-  const reservation = await getReservation(id);
+  if (!id) {
+    notFound();
+  }
 
+  const reservation = await getReservation(id);
   if (!reservation) {
     notFound();
   }
 
   const { showtime } = reservation;
+  const zonedDate = toZonedTime(showtime.startTime, TIME_ZONE);
+  const formattedDate = format(zonedDate, "d MMMM yyyy", {
+    timeZone: TIME_ZONE,
+    locale: pl
+  });
+  const formattedTime = format(zonedDate, "HH:mm", {
+    timeZone: TIME_ZONE,
+    locale: pl
+  });
 
   return (
     <main className="container mx-auto flex flex-grow items-center justify-center px-4 py-24">
@@ -51,8 +64,7 @@ export default async function YourReservationPage({
               Sala numer: <strong>{showtime.room.number}</strong>
             </p>
             <p className="text-muted-foreground">
-              {format(showtime.startTime, "d MMMM yyyy", { locale: pl })} o{" "}
-              {format(showtime.startTime, "HH:mm")}
+              {formattedDate} o {formattedTime}
             </p>
             <p className="text-muted-foreground">
               Liczba biletów: <strong>{showtime.seats.length}</strong>
