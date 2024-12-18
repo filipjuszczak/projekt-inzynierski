@@ -24,17 +24,39 @@ export async function getReservations() {
             select: {
               number: true
             }
-          },
-          seats: {
-            select: {
-              rowNumber: true,
-              seatNumber: true
-            }
           }
+          // seats: {
+          //   select: {
+          //     rowNumber: true,
+          //     seatNumber: true
+          //   }
+          // }
         }
       }
     }
   });
 
-  return reservations;
+  const reservationsWithSeats = [];
+
+  for (const reservation of reservations) {
+    const seats = await prisma.seat.findMany({
+      where: {
+        orderId: reservation.id
+      },
+      select: {
+        rowNumber: true,
+        seatNumber: true
+      }
+    });
+
+    reservationsWithSeats.push({
+      ...reservation,
+      showtime: {
+        ...reservation.showtime,
+        seats
+      }
+    });
+  }
+
+  return reservationsWithSeats;
 }
