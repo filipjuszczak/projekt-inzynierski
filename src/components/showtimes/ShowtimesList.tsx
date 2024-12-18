@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { toZonedTime, format } from "date-fns-tz";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { ImageWithLoader } from "@/components/ImageWithLoader";
 import { getShowtimes } from "@/app/(main)/repertuar/data";
-import { AGE_RESTRICTION_LABELS } from "@/lib/constants";
+import { AGE_RESTRICTION_LABELS, TIME_ZONE } from "@/lib/constants";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
 
 interface ShowtimesListProps {
@@ -87,18 +87,28 @@ function MovieCard({ title, posterUrl, genres, showtimes }: MovieCardProps) {
               </Badge>
               <div className="flex-grow">
                 <div className="flex flex-wrap gap-2">
-                  {showtimes.map((showtime, index) => (
-                    <Link
-                      key={index}
-                      href={`/seans/${showtime.id}`}
-                      className={buttonVariants({
-                        variant: "outline",
-                        size: "sm"
-                      })}
-                    >
-                      {format(showtime.startTime, "HH:mm")}
-                    </Link>
-                  ))}
+                  {showtimes.map((showtime, index) => {
+                    const zonedDate = toZonedTime(
+                      showtime.startTime,
+                      TIME_ZONE
+                    );
+                    const formattedDate = format(zonedDate, "HH:mm", {
+                      timeZone: TIME_ZONE
+                    });
+
+                    return (
+                      <Link
+                        key={index}
+                        href={`/seans/${showtime.id}`}
+                        className={buttonVariants({
+                          variant: "outline",
+                          size: "sm"
+                        })}
+                      >
+                        {formattedDate}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>

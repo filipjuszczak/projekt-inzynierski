@@ -6,6 +6,8 @@ import {
   ViewingMode
 } from "@prisma/client";
 
+export const TIME_ZONE = "Europe/Warsaw";
+
 export const MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS = 5;
 
 export const MAX_SELECTED_SEATS = 5;
