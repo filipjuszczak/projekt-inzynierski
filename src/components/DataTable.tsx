@@ -95,7 +95,13 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex-1 text-sm text-muted-foreground">
-        Wyświetlone rekordy {table.getRowCount()} z {data.length}.
+        {table.getFilteredRowModel().rows.length
+          ? `Wyświetlone rekordy: ${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-${Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )} z ${table.getFilteredRowModel().rows.length} rekordów.`
+          : "Brak rekordów do wyświetlenia."}
       </div>
       <div className="flex items-center justify-center space-x-2 py-4">
         <Button
