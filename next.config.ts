@@ -13,11 +13,11 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb"
-    },
-    staleTimes: {
-      static: 60 * 10,
-      dynamic: 60
     }
+    // staleTimes: {
+    //   static: 60 * 10,
+    //   dynamic: 60
+    // }
   }
 };
 
