@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { toZonedTime, format } from "date-fns-tz";
 import { pl } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getShowtimesToday } from "@/app/(staff)/panel-pracownika/pulpit/(overview)/data";
+import { TIME_ZONE } from "@/lib/constants";
 
 export default async function ShowtimesToday() {
   const movies = await getShowtimesToday();
@@ -34,20 +35,31 @@ export default async function ShowtimesToday() {
                   </Link>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2 md:mt-0">
-                  {movie.showtimes.map((showtime) => (
-                    <Button
-                      key={showtime.id}
-                      variant="default"
-                      size="sm"
-                      asChild
-                    >
-                      <Link
-                        href={`/panel-pracownika/pulpit/seanse/${showtime.id}`}
+                  {movie.showtimes.map((showtime) => {
+                    const zonedTime = toZonedTime(
+                      showtime.startTime,
+                      TIME_ZONE
+                    );
+                    const formattedTime = format(zonedTime, "HH:mm", {
+                      timeZone: TIME_ZONE,
+                      locale: pl
+                    });
+
+                    return (
+                      <Button
+                        key={showtime.id}
+                        variant="default"
+                        size="sm"
+                        asChild
                       >
-                        {format(showtime.startTime, "HH:mm")}
-                      </Link>
-                    </Button>
-                  ))}
+                        <Link
+                          href={`/panel-pracownika/pulpit/seanse/${showtime.id}`}
+                        >
+                          {formattedTime}
+                        </Link>
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
