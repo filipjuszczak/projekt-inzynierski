@@ -35,7 +35,7 @@ export default async function YourReservationPage({
     notFound();
   }
 
-  const { showtime } = reservation;
+  const { showtime, seats } = reservation;
   const zonedDate = toZonedTime(showtime.startTime, TIME_ZONE);
   const formattedDate = format(zonedDate, "d MMMM yyyy", {
     timeZone: TIME_ZONE,
@@ -67,11 +67,11 @@ export default async function YourReservationPage({
               {formattedDate} o {formattedTime}
             </p>
             <p className="text-muted-foreground">
-              Liczba biletów: <strong>{showtime.seats.length}</strong>
+              Liczba biletów: <strong>{seats.length}</strong>
             </p>
           </div>
           <div className="flex flex-col items-center gap-4">
-            {showtime.seats.map((seat, index) => (
+            {seats.map((seat, index) => (
               <Fragment key={seat.id}>
                 <div className="text-muted-foreground">
                   Rząd: {seat.rowNumber}; Miejsce: {seat.seatNumber}

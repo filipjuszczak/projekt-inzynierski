@@ -5,19 +5,13 @@ export async function getReservation(id: string) {
     where: { id },
     select: {
       id: true,
+      userId: true,
       showtime: {
         select: {
           startTime: true,
           movie: {
             select: {
               title: true
-            }
-          },
-          seats: {
-            select: {
-              id: true,
-              rowNumber: true,
-              seatNumber: true
             }
           },
           room: {
@@ -34,5 +28,14 @@ export async function getReservation(id: string) {
     return null;
   }
 
-  return reservation;
+  const seats = await prisma.seat.findMany({
+    where: { orderId: id, userId: reservation.userId }
+  });
+
+  const reservationWithSeats = {
+    ...reservation,
+    seats
+  };
+
+  return reservationWithSeats;
 }
