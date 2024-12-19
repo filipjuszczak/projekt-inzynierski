@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingButton from "@/components/LoadingButton";
 import { setFeaturedMovie } from "@/app/(staff)/panel-pracownika/pulpit/actions";
 import { cn } from "@/lib/utils";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface ChangeFeaturedMovieProps {
   movies:
@@ -56,7 +57,7 @@ export default function ChangeFeaturedMovie({
     if ("success" in result && result.success) {
       toast.success("Pomyślnie zmieniono wyróżniony film!");
     } else {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 
@@ -114,9 +115,6 @@ export default function ChangeFeaturedMovie({
           </Command>
         </PopoverContent>
       </Popover>
-      {/* <Button size="sm" onClick={handleSetFeaturedMovie} className="w-full">
-        Zapisz
-      </Button> */}
       <LoadingButton
         onClick={handleSetFeaturedMovie}
         isPending={isPending}

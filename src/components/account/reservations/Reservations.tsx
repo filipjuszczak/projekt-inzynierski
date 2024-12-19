@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cancelReservation } from "@/app/(main)/konto/rezerwacje/actions";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { UserReservation } from "@/lib/types";
 
@@ -93,7 +94,7 @@ function renderReservations(
       toast.success("Udało się anulować rezerwację!");
       router.refresh();
     } else {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 

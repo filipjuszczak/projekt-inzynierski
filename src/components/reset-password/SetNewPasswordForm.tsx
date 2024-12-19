@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
 import { setNewPassword } from "@/app/(main)/(auth)/(forms)/actions";
@@ -20,7 +21,7 @@ import {
   setNewPasswordSchema,
   SetNewPasswordValues
 } from "@/lib/validation/set-new-password";
-import { Button } from "@/components/ui/button";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface SetNewPasswordFormProps {
   email: string;
@@ -91,7 +92,7 @@ export default function SetNewPasswordForm({
         onSuccess();
         toast.success("Hasło zostało zaktualizowane.");
       } else {
-        toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+        toast.error(GENERIC_ERROR_MESSAGE);
       }
     });
   }

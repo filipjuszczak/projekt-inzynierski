@@ -8,7 +8,7 @@ import { TicketType } from "@prisma/client";
 import SelectTickets from "@/components/showtimes/SelectTickets";
 import SelectSeats from "@/components/showtimes/SelectSeats";
 import Summary from "@/components/showtimes/Summary";
-import { MAX_SELECTED_SEATS } from "@/lib/constants";
+import { GENERIC_ERROR_MESSAGE, MAX_SELECTED_SEATS } from "@/lib/constants";
 import type { SelectedSeat, Step } from "@/lib/types";
 
 interface OrderTicketsProps {
@@ -183,7 +183,7 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
         );
       }
     } catch (error) {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 

@@ -31,11 +31,11 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/DataTable";
 import { deleteGenre } from "@/app/(staff)/panel-pracownika/pulpit/(management)/gatunki/actions";
+import { AGE_RESTRICTION_LABELS, GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { GenreWithMovieCount } from "@/lib/types";
-import { DataTable } from "@/components/DataTable";
-import { AGE_RESTRICTION_LABELS } from "@/lib/constants";
 
 function createColumns(
   handleDeleteGenre: (genreId: string) => void
@@ -200,7 +200,7 @@ export default function GenresTable({ data }: GenresTableProps) {
       toast.success("Gatunek został usunięty.");
       router.refresh();
     } else {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 

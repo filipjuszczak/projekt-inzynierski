@@ -18,6 +18,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { deleteAccount } from "@/app/(main)/konto/actions";
 import { useUserStore } from "@/hooks/use-user-store";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface DeleteAccountButtonProps {
   userId: string;
@@ -45,7 +46,7 @@ export default function DeleteAccountButton({
       toast.success("Pomyślnie usunięto Twoje konto. Trwa wylogowanie...");
       return redirect("/");
     } else {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 

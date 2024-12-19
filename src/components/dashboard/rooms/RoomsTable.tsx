@@ -26,6 +26,7 @@ import {
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { deleteRoom } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/actions";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Room } from "@prisma/client";
 
@@ -156,7 +157,7 @@ export default function RoomsTable({ data }: RoomsTableProps) {
       toast.success("Sala została usunięta.");
       router.refresh();
     } else {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 

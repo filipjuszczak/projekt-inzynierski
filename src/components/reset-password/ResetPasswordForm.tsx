@@ -19,6 +19,7 @@ import {
   resetPasswordSchema,
   ResetPasswordValues
 } from "@/lib/validation/reset-password";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface ResetPasswordFormProps {
   onSuccess: () => void;
@@ -53,7 +54,7 @@ export default function ResetPasswordForm({
           "Wysłaliśmy link resetujący hasło na podany adres e-mail."
         );
       } else {
-        toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+        toast.error(GENERIC_ERROR_MESSAGE);
       }
     });
   }

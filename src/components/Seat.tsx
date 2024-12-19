@@ -3,7 +3,7 @@
 import ky from "ky";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { MAX_SELECTED_SEATS } from "@/lib/constants";
+import { GENERIC_ERROR_MESSAGE, MAX_SELECTED_SEATS } from "@/lib/constants";
 
 interface SeatProps {
   showtimeId?: string;
@@ -51,7 +51,7 @@ export default function Seat({
         );
       }
     } catch (error) {
-      toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
+      toast.error(GENERIC_ERROR_MESSAGE);
     }
   }
 
