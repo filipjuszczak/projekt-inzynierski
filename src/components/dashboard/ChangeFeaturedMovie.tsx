@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,9 +18,9 @@ import {
   PopoverTrigger
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import LoadingButton from "@/components/LoadingButton";
 import { setFeaturedMovie } from "@/app/(staff)/panel-pracownika/pulpit/actions";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ChangeFeaturedMovieProps {
   movies:
@@ -36,13 +37,16 @@ export default function ChangeFeaturedMovie({
 }: ChangeFeaturedMovieProps) {
   const [open, setOpen] = useState(false);
   const [newFeaturedMovieId, setNewFeaturedMovieId] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
   const currentFeaturedMovie = movies?.find((movie) => movie.isFeatured);
 
   async function handleSetFeaturedMovie() {
     if (!newFeaturedMovieId) return;
 
+    setIsPending(true);
     const result = await setFeaturedMovie(newFeaturedMovieId);
+    setIsPending(false);
 
     if ("error" in result) {
       toast.error(result.error);
@@ -69,11 +73,10 @@ export default function ChangeFeaturedMovie({
             aria-expanded={open}
             className="mb-4 w-full justify-between"
           >
-            {currentFeaturedMovie
-              ? currentFeaturedMovie.title
-              : newFeaturedMovieId
-                ? movies?.find((movie) => movie.id === newFeaturedMovieId)!
-                    .title
+            {newFeaturedMovieId
+              ? movies?.find((movie) => movie.id === newFeaturedMovieId)!.title
+              : currentFeaturedMovie
+                ? currentFeaturedMovie.title
                 : "Wybierz film..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>
@@ -111,9 +114,16 @@ export default function ChangeFeaturedMovie({
           </Command>
         </PopoverContent>
       </Popover>
-      <Button size="sm" onClick={handleSetFeaturedMovie} className="w-full">
+      {/* <Button size="sm" onClick={handleSetFeaturedMovie} className="w-full">
         Zapisz
-      </Button>
+      </Button> */}
+      <LoadingButton
+        onClick={handleSetFeaturedMovie}
+        isPending={isPending}
+        loadingText="Zapisywanie..."
+        idleText="Zapisz"
+        className="w-full"
+      />
     </div>
   );
 }
