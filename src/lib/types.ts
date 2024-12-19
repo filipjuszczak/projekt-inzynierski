@@ -45,7 +45,7 @@ export interface MovieData
 export interface ShowtimeData
   extends Pick<
     Showtime,
-    "id" | "startTime" | "endTime" | "viewingMode" | "screenFormat"
+    "id" | "startTime" | "endTime" | "viewingMode" | "screenFormat" | "status"
   > {
   movie: Pick<Movie, "id" | "title">;
   room: Pick<Room, "id" | "number">;
