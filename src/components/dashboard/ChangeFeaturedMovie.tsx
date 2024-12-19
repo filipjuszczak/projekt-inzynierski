@@ -37,16 +37,20 @@ export default function ChangeFeaturedMovie({
   movies
 }: ChangeFeaturedMovieProps) {
   const [open, setOpen] = useState(false);
-  const [newFeaturedMovieId, setNewFeaturedMovieId] = useState("");
+  const [newFeaturedMovieTitle, setNewFeaturedMovieTitle] = useState("");
   const [isPending, setIsPending] = useState(false);
 
   const currentFeaturedMovie = movies?.find((movie) => movie.isFeatured);
 
   async function handleSetFeaturedMovie() {
-    if (!newFeaturedMovieId) return;
+    if (!newFeaturedMovieTitle) return;
 
     setIsPending(true);
-    const result = await setFeaturedMovie(newFeaturedMovieId);
+    const newFeaturedMovie = movies?.find(
+      (movie) => movie.title === newFeaturedMovieTitle
+    );
+
+    const result = await setFeaturedMovie(newFeaturedMovie!.id);
     setIsPending(false);
 
     if ("error" in result) {
@@ -74,11 +78,15 @@ export default function ChangeFeaturedMovie({
             aria-expanded={open}
             className="mb-4 w-full justify-between"
           >
-            {newFeaturedMovieId
-              ? movies?.find((movie) => movie.id === newFeaturedMovieId)!.title
-              : currentFeaturedMovie
-                ? currentFeaturedMovie.title
-                : "Wybierz film..."}
+            <span className="max-w-[80%] truncate">
+              {newFeaturedMovieTitle
+                ? movies?.find(
+                    (movie) => movie.title === newFeaturedMovieTitle
+                  )!.title
+                : currentFeaturedMovie
+                  ? currentFeaturedMovie.title
+                  : "Wybierz film..."}
+            </span>
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -92,9 +100,9 @@ export default function ChangeFeaturedMovie({
                   {movies?.map((movie) => (
                     <CommandItem
                       key={movie.id}
-                      value={movie.id}
+                      value={movie.title}
                       onSelect={(currentValue) => {
-                        setNewFeaturedMovieId(currentValue);
+                        setNewFeaturedMovieTitle(currentValue);
                         setOpen(false);
                       }}
                     >
@@ -102,7 +110,7 @@ export default function ChangeFeaturedMovie({
                       <Check
                         className={cn(
                           "ml-auto",
-                          newFeaturedMovieId === movie.id
+                          newFeaturedMovieTitle === movie.id
                             ? "opacity-100"
                             : "opacity-0"
                         )}

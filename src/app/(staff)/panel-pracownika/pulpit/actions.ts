@@ -41,7 +41,7 @@ export async function setFeaturedMovie(movieId: string) {
 
     if (currentFeaturedMovie) {
       await prisma.movie.update({
-        where: { id: currentFeaturedMovie?.id || undefined },
+        where: { id: currentFeaturedMovie.id },
         data: { isFeatured: false }
       });
     }
