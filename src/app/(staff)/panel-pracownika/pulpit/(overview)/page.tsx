@@ -4,6 +4,8 @@ import RecentGenres from "@/app/(staff)/panel-pracownika/pulpit/(overview)/Recen
 import RecentMovies from "@/app/(staff)/panel-pracownika/pulpit/(overview)/RecentMovies";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Pulpit"
 };

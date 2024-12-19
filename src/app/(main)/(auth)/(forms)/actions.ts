@@ -17,7 +17,7 @@ import {
   createActivationToken
 } from "@/lib/utils";
 import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
-import { HASHING_CONFIG } from "@/lib/constants";
+import { HASHING_CONFIG, GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function signUp(
   data: SignupValues
@@ -147,14 +147,14 @@ export async function signUp(
 
     if (resendError) {
       console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+      return { error: GENERIC_ERROR_MESSAGE };
     }
 
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 
@@ -227,14 +227,14 @@ export async function requestPasswordReset(email: string) {
 
     if (resendError) {
       console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+      return { error: GENERIC_ERROR_MESSAGE };
     }
 
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 
@@ -319,13 +319,13 @@ export async function setNewPassword(
 
     if (resendError) {
       console.error(resendError);
-      return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+      return { error: GENERIC_ERROR_MESSAGE };
     }
 
     return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }

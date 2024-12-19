@@ -8,6 +8,7 @@ import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { genreSchema, type GenreValues } from "@/lib/validation/genre";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function createGenre(values: GenreValues) {
   try {
@@ -47,12 +48,11 @@ export async function createGenre(values: GenreValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/gatunki");
-  revalidatePath("/panel-pracownika/pulpit/movie/nowy");
+  revalidatePath("/panel-pracownika/pulpit/filmy/nowy");
 
   return { success: true };
 }
@@ -95,12 +95,11 @@ export async function editGenre(id: string, values: GenreValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/gatunki");
-  revalidatePath("/panel-pracownika/pulpit/movie/nowy");
+  revalidatePath("/panel-pracownika/pulpit/filmy/nowy");
 
   return { success: true };
 }
@@ -134,12 +133,11 @@ export async function deleteGenre(id: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/gatunki");
-  revalidatePath("/panel-pracownika/pulpit/movie/nowy");
+  revalidatePath("/panel-pracownika/pulpit/filmy/nowy");
 
   return { success: true };
 }

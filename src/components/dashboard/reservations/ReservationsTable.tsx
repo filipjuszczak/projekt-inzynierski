@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { ArrowUpDown, HandCoins, MoreVertical, User } from "lucide-react";
@@ -261,6 +262,8 @@ interface ReservationsTableProps {
 }
 
 export default function ReservationsTable({ data }: ReservationsTableProps) {
+  const router = useRouter();
+
   async function handleDeleteReservation(orderId: string) {
     const result = await deleteReservation(orderId);
 
@@ -271,6 +274,7 @@ export default function ReservationsTable({ data }: ReservationsTableProps) {
 
     if ("success" in result && result.success) {
       toast.success("Rezerwacja została usunięta.");
+      router.refresh();
     } else {
       toast.error("Wystąpił błąd podczas usuwania rezerwacji.");
     }
@@ -286,6 +290,7 @@ export default function ReservationsTable({ data }: ReservationsTableProps) {
 
     if ("success" in result && result.success) {
       toast.success("Rezerwacja została zaktualizowana jako opłacona.");
+      router.refresh();
     } else {
       toast.error("Wystąpił błąd podczas aktualizacji rezerwacji.");
     }

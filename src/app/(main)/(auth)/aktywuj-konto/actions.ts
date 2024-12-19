@@ -6,6 +6,7 @@ import { resend } from "@/lib/resend";
 import { createActivationToken, isValidEmail } from "@/lib/utils";
 import AccountActivationEmail from "@/components/emails/AccountActivationEmail";
 import AccountActivationConfirmationEmail from "@/components/emails/AccountActivationConfirmationEmail";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function activateAccount(
   email: string,
@@ -97,7 +98,7 @@ export async function activateAccount(
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj ponownie później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 

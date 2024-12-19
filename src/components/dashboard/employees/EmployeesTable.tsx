@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -207,6 +208,8 @@ interface EmployeeTableProps {
 }
 
 export default function EmployeesTable({ data }: EmployeeTableProps) {
+  const router = useRouter();
+
   async function handleDeleteEmployee(employeeId: string) {
     const result = await deleteEmployee(employeeId);
 
@@ -217,6 +220,7 @@ export default function EmployeesTable({ data }: EmployeeTableProps) {
 
     if ("success" in result && result.success) {
       toast.success("Konto pracownika zostało usunięte.");
+      router.refresh();
     } else {
       toast.error("Wystąpił błąd podczas usuwania konta pracownika.");
     }

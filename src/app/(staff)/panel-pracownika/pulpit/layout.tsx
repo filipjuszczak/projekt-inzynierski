@@ -3,6 +3,8 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { getMovieList } from "@/app/(staff)/panel-pracownika/pulpit/data";
 import type { Metadata } from "next";
 
+// export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     template: "%s - Panel pracownika | Sunema",

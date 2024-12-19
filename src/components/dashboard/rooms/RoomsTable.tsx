@@ -1,8 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUpDown, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -142,7 +142,7 @@ interface RoomsTableProps {
 }
 
 export default function RoomsTable({ data }: RoomsTableProps) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
   async function handleDeleteRoom(roomId: string) {
     const result = await deleteRoom(roomId);
@@ -153,8 +153,8 @@ export default function RoomsTable({ data }: RoomsTableProps) {
     }
 
     if ("success" in result && result.success) {
-      await queryClient.invalidateQueries({ queryKey: ["rooms"] });
       toast.success("Sala została usunięta.");
+      router.refresh();
     } else {
       toast.error("Ups! Coś poszło nie tak. Spróbuj ponownie później.");
     }

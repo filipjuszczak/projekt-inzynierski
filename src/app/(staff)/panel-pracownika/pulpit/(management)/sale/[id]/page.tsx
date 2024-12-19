@@ -60,7 +60,10 @@ export default async function RoomDetailsPage({
         </div>
         <Room numberOfRows={room.numberOfRows} seatsPerRow={room.seatsPerRow} />
       </div>
-      <Separator orientation="vertical" className="justify-self-center" />
+      <Separator
+        orientation="vertical"
+        className="hidden justify-self-center 2xl:block"
+      />
       <UpcomingShowtimes showtimes={upcomingShowtimes} />
     </div>
   );

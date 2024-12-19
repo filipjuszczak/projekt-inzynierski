@@ -1,7 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArrowUpDown, Calendar, Clock, MoreVertical } from "lucide-react";
@@ -215,7 +215,7 @@ interface MoviesTableProps {
 }
 
 export default function MoviesTable({ data }: MoviesTableProps) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
   async function handleDeleteMovie(movieId: string) {
     const result = await deleteMovie(movieId);
@@ -226,8 +226,8 @@ export default function MoviesTable({ data }: MoviesTableProps) {
     }
 
     if ("success" in result && result.success) {
-      await queryClient.invalidateQueries({ queryKey: ["movies"] });
       toast.success("Film został usunięty.");
+      router.refresh();
     } else {
       toast.error("Wystąpił błąd podczas usuwania filmu.");
     }

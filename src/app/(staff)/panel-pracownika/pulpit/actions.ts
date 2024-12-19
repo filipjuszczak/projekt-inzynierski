@@ -7,6 +7,7 @@ import { Role } from "@prisma/client";
 import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function setFeaturedMovie(movieId: string) {
   try {
@@ -52,7 +53,7 @@ export async function setFeaturedMovie(movieId: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
   revalidatePath("/");

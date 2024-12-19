@@ -8,6 +8,7 @@ import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { roomSchema, type RoomValues } from "@/lib/validation/room";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function createRoom(values: RoomValues) {
   try {
@@ -47,10 +48,9 @@ export async function createRoom(values: RoomValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/sale");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 
@@ -124,10 +124,9 @@ export async function editRoom(id: string, values: RoomValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/sale");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 
@@ -163,10 +162,9 @@ export async function deleteRoom(id: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/sale");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 

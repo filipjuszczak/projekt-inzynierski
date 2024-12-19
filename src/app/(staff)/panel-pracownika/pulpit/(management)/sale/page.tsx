@@ -1,8 +1,8 @@
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import RoomsTable from "@/components/dashboard/rooms/RoomsTable";
 import { getRooms } from "@/app/(staff)/panel-pracownika/pulpit/(management)/sale/data";
-import RoomList from "@/components/dashboard/rooms/RoomList";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default async function RoomsPage() {
           </Link>
         </Button>
       </div>
-      <RoomList rooms={rooms} />
+      <RoomsTable data={rooms} />;
     </div>
   );
 }

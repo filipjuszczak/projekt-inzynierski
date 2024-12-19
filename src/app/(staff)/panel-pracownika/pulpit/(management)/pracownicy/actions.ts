@@ -11,7 +11,7 @@ import { authenticateUser } from "@/auth";
 import prisma from "@/lib/prisma";
 import { getSessionCookie } from "@/lib/session";
 import { resend } from "@/lib/resend";
-import { HASHING_CONFIG } from "@/lib/constants";
+import { GENERIC_ERROR_MESSAGE, HASHING_CONFIG } from "@/lib/constants";
 import { employeeSchema, type EmployeeValues } from "@/lib/validation/employee";
 
 export async function createEmployee(values: EmployeeValues) {
@@ -101,10 +101,9 @@ export async function createEmployee(values: EmployeeValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/pracownicy");
 
   return { success: true };
@@ -170,10 +169,9 @@ export async function editEmployee(id: string, values: EmployeeValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/pracownicy");
 
   return { success: true };
@@ -210,10 +208,9 @@ export async function deleteEmployee(employeeId: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/pracownicy");
 
   return { success: true };

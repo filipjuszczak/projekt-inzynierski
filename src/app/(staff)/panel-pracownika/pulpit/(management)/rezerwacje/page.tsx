@@ -2,6 +2,8 @@ import { getReservations } from "@/app/(staff)/panel-pracownika/pulpit/(manageme
 import ReservationsTable from "@/components/dashboard/reservations/ReservationsTable";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Rezerwacje"
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -28,16 +27,47 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
-import { deleteShowtime } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
-import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
+import {
+  deleteShowtime,
+  markShowtimeAsFinished,
+  markShowtimeAsOngoing
+} from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/actions";
+import {
+  SCREEN_FORMAT_LABELS,
+  SHOWTIME_STATUS_LABELS,
+  VIEWING_MODE_LABELS
+} from "@/lib/constants";
 import type { ShowtimeData } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 type Columns = ColumnDef<ShowtimeData>[];
 
 function createColumns(
-  handleDeleteShowtime: (showtimeId: string) => void
+  handleDeleteShowtime: (showtimeId: string) => void,
+  handleMarkShowtimeAsOngoing: (showtimeId: string) => void,
+  handleMarkShowtimeAsFinished: (showtimeId: string) => void
 ): Columns {
   return [
+    {
+      accessorKey: "status",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Status
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <Badge variant="outline">{SHOWTIME_STATUS_LABELS[status]}</Badge>
+        );
+      }
+    },
     {
       accessorKey: "movie.title",
       header: ({ column }) => {
@@ -166,6 +196,16 @@ function createColumns(
                     Edytuj
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleMarkShowtimeAsOngoing(showtimeId)}
+                >
+                  Oznacz jako trwający
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleMarkShowtimeAsFinished(showtimeId)}
+                >
+                  Oznacz jako zakończony
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem>
@@ -205,7 +245,7 @@ interface ShowtimesTableProps {
 }
 
 export default function ShowtimesTable({ data }: ShowtimesTableProps) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
   async function handleDeleteShowtime(showtimeId: string) {
     const result = await deleteShowtime(showtimeId);
@@ -216,14 +256,50 @@ export default function ShowtimesTable({ data }: ShowtimesTableProps) {
     }
 
     if ("success" in result && result.success) {
-      await queryClient.invalidateQueries({ queryKey: ["showtimes"] });
       toast.success("Seans został usunięty.");
+      router.refresh();
     } else {
       toast.error("Wystąpił błąd podczas usuwania seansu.");
     }
   }
 
-  const columns = createColumns(handleDeleteShowtime);
+  async function handleMarkShowtimeAsOngoing(showtimeId: string) {
+    const result = await markShowtimeAsOngoing(showtimeId);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+
+    if ("success" in result && result.success) {
+      toast.success("Seans został oznaczony jako trwający.");
+      router.refresh();
+    } else {
+      toast.error("Wystąpił błąd podczas oznaczania seansu jako trwającego.");
+    }
+  }
+
+  async function handleMarkShowtimeAsFinished(showtimeId: string) {
+    const result = await markShowtimeAsFinished(showtimeId);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+
+    if ("success" in result && result.success) {
+      toast.success("Seans został oznaczony jako zakończony.");
+      router.refresh();
+    } else {
+      toast.error("Wystąpił błąd podczas oznaczania seansu jako zakończonego.");
+    }
+  }
+
+  const columns = createColumns(
+    handleDeleteShowtime,
+    handleMarkShowtimeAsOngoing,
+    handleMarkShowtimeAsFinished
+  );
 
   return <DataTable columns={columns} data={data} />;
 }

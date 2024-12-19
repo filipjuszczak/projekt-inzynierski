@@ -14,6 +14,7 @@ import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { showtimeSchema, type ShowtimeValues } from "@/lib/validation/showtime";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function createShowtime(values: ShowtimeValues) {
   try {
@@ -157,10 +158,9 @@ export async function createShowtime(values: ShowtimeValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj ponownie później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/seanse");
 
   return { success: true };
@@ -300,10 +300,9 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj ponownie później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/seanse");
 
   return { success: true };
@@ -352,10 +351,89 @@ export async function deleteShowtime(id: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj ponownie później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
+  revalidatePath("/panel-pracownika/pulpit/seanse");
+
+  return { success: true };
+}
+
+export async function markShowtimeAsOngoing(id: string) {
+  try {
+    const requestSessionCookie = await getSessionCookie();
+
+    if (!requestSessionCookie) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const { session } = await authenticateUser(
+      Role.EMPLOYEE,
+      requestSessionCookie
+    );
+
+    if (!session || !session.userId) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const existingShowtime = await prisma.showtime.findUnique({
+      where: { id }
+    });
+
+    if (!existingShowtime) {
+      return { error: "Seans nie istnieje." };
+    }
+
+    await prisma.showtime.update({
+      where: { id },
+      data: { status: ShowtimeStatus.ONGOING }
+    });
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    console.error(error);
+    return { error: GENERIC_ERROR_MESSAGE };
+  }
+
+  revalidatePath("/panel-pracownika/pulpit/seanse");
+
+  return { success: true };
+}
+
+export async function markShowtimeAsFinished(id: string) {
+  try {
+    const requestSessionCookie = await getSessionCookie();
+
+    if (!requestSessionCookie) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const { session } = await authenticateUser(
+      Role.EMPLOYEE,
+      requestSessionCookie
+    );
+
+    if (!session || !session.userId) {
+      return redirect("/panel-pracownika/logowanie");
+    }
+
+    const existingShowtime = await prisma.showtime.findUnique({
+      where: { id }
+    });
+
+    if (!existingShowtime) {
+      return { error: "Seans nie istnieje." };
+    }
+
+    await prisma.showtime.update({
+      where: { id },
+      data: { status: ShowtimeStatus.FINISHED }
+    });
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    console.error(error);
+    return { error: GENERIC_ERROR_MESSAGE };
+  }
+
   revalidatePath("/panel-pracownika/pulpit/seanse");
 
   return { success: true };

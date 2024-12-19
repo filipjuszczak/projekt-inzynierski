@@ -17,7 +17,8 @@ import {
 import { isValidEmail, passwordsMatch } from "@/lib/utils";
 import {
   HASHING_CONFIG,
-  MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS
+  MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS,
+  GENERIC_ERROR_MESSAGE
 } from "@/lib/constants";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
@@ -142,7 +143,7 @@ export async function logIn(
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 
@@ -173,7 +174,7 @@ export async function logOut(role: Role) {
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 
@@ -274,7 +275,7 @@ export async function changePassword(
     if (resendError) {
       return {
         error:
-          "Hasło zostało zmienione, ale nie udało się wysłać wiadomości e-mail."
+          "Hasło zostało zmienione, ale nie udało się wysłać wiadomości e-mail. Skontaktuj się z działem obsługi klienta."
       };
     }
 
@@ -282,7 +283,7 @@ export async function changePassword(
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }
 

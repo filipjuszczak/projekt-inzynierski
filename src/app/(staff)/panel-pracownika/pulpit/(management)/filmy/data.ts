@@ -153,6 +153,7 @@ export async function getMovieWithExternalData({
       endTime: true,
       viewingMode: true,
       screenFormat: true,
+      status: true,
       room: {
         select: {
           id: true,

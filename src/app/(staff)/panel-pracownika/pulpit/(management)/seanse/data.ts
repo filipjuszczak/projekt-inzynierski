@@ -9,6 +9,7 @@ export async function getShowtimes() {
       endTime: true,
       screenFormat: true,
       viewingMode: true,
+      status: true,
       movie: {
         select: {
           id: true,

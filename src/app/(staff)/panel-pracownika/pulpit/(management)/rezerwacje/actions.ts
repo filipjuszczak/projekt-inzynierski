@@ -1,12 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Role } from "@prisma/client";
 import { getSessionCookie } from "@/lib/session";
 import { authenticateUser } from "@/auth";
 import prisma from "@/lib/prisma";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function setReservationAsPaid(orderId: string) {
   try {
@@ -40,11 +40,8 @@ export async function setReservationAsPaid(orderId: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
-
-  revalidatePath("/panel-pracownika/pulpit");
-  revalidatePath("/panel-pracownika/pulpit/rezerwacje");
 
   return { success: true };
 }
@@ -89,11 +86,8 @@ export async function deleteReservation(orderId: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
-
-  revalidatePath("/panel-pracownika/pulpit");
-  revalidatePath("/panel-pracownika/pulpit/rezerwacje");
 
   return { success: true };
 }

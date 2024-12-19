@@ -14,6 +14,7 @@ import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { movieSchema, type MovieValues } from "@/lib/validation/movie";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function createMovie(values: MovieValues) {
   let createdMovie: { id: string };
@@ -103,10 +104,9 @@ export async function createMovie(values: MovieValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/filmy");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 
@@ -219,10 +219,9 @@ export async function editMovie(movieId: string, values: MovieValues) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/filmy");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 
@@ -290,10 +289,9 @@ export async function deleteMovie(movieId: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 
-  revalidatePath("/panel-pracownika/pulpit");
   revalidatePath("/panel-pracownika/pulpit/filmy");
   revalidatePath("/panel-pracownika/pulpit/seanse/nowy");
 
@@ -342,6 +340,6 @@ export async function updatePosterUrl(movieId: string, posterUrl: string) {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
-    return { error: "Ups! Coś poszło nie tak. Spróbuj później." };
+    return { error: GENERIC_ERROR_MESSAGE };
   }
 }

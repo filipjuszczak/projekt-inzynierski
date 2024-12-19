@@ -5,6 +5,8 @@ import ShowtimesTable from "@/components/dashboard/showtimes/ShowtimesTable";
 import { getShowtimes } from "@/app/(staff)/panel-pracownika/pulpit/(management)/seanse/data";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Seanse"
 };

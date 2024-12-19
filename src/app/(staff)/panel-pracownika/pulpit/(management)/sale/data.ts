@@ -37,6 +37,7 @@ export async function getRoomById(id: string) {
       endTime: true,
       viewingMode: true,
       screenFormat: true,
+      status: true,
       room: {
         select: {
           id: true,
