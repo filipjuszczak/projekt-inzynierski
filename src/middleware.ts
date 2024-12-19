@@ -111,36 +111,44 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/seans/:path*",
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     {
-      source: "/rejestracja",
+      source:
+        "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" }
       ]
-    },
-    {
-      source: "/logowanie",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" }
-      ]
-    },
-    {
-      source: "/konto/:path*",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" }
-      ]
-    },
-    {
-      source: "/panel-pracownika/:path*",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" }
-      ]
-    },
-    "/panel-pracownika/pulpit/pracownicy/:path*"
+    }
+    // "/seans/:path*",
+    // "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // {
+    //   source: "/rejestracja",
+    //   missing: [
+    //     { type: "header", key: "next-router-prefetch" },
+    //     { type: "header", key: "purpose", value: "prefetch" }
+    //   ]
+    // },
+    // {
+    //   source: "/logowanie",
+    //   missing: [
+    //     { type: "header", key: "next-router-prefetch" },
+    //     { type: "header", key: "purpose", value: "prefetch" }
+    //   ]
+    // },
+    // {
+    //   source: "/konto/:path*",
+    //   missing: [
+    //     { type: "header", key: "next-router-prefetch" },
+    //     { type: "header", key: "purpose", value: "prefetch" }
+    //   ]
+    // },
+    // {
+    //   source: "/panel-pracownika/:path*",
+    //   missing: [
+    //     { type: "header", key: "next-router-prefetch" },
+    //     { type: "header", key: "purpose", value: "prefetch" }
+    //   ]
+    // },
+    // "/panel-pracownika/pulpit/pracownicy/:path*"
   ]
 };
