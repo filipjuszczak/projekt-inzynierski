@@ -2,6 +2,7 @@ import {
   OrderType,
   Role,
   ScreenFormat,
+  ShowtimeStatus,
   TicketType,
   ViewingMode
 } from "@prisma/client";
@@ -59,3 +60,12 @@ export const RESERVATION_LABELS = {
   [OrderType.RESERVATION]: "Rezerwacja",
   [OrderType.PAID]: "Zakup"
 };
+
+export const SHOWTIME_STATUS_LABELS = {
+  [ShowtimeStatus.UPCOMING]: "Nadchodzący",
+  [ShowtimeStatus.ONGOING]: "Trwający",
+  [ShowtimeStatus.FINISHED]: "Zakończony"
+};
+
+export const GENERIC_ERROR_MESSAGE =
+  "Ups! Coś poszło nie tak. Spróbuj ponownie później.";
