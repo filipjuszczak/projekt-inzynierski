@@ -19,9 +19,9 @@ export default function OurStoryPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold">Narodziny Sunema</h2>
           <p className="max-w-prose text-pretty text-lg text-muted-foreground">
-            Założone w 1985 roku Starlight Cinema rozpoczęło działalność jako
-            małe, jednosalowe kino z wielkim marzeniem: przynieść magię filmów
-            naszej lokalnej społeczności. To, co zaczęło się jako projekt pasji
+            Założone w 1985 roku Sunema rozpoczęło działalność jako małe,
+            jednosalowe kino z wielkim marzeniem: przynieść magię filmów naszej
+            lokalnej społeczności. To, co zaczęło się jako projekt pasji
             entuzjastów filmowych Janusza i Grażyny Kowalskich, stało się
             ukochaną instytucją kulturalną.
           </p>

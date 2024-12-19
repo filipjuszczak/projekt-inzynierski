@@ -24,8 +24,8 @@ export default function FAQPage() {
           <section>
             <p className="mx-auto mb-4 max-w-prose text-lg text-muted-foreground">
               Tutaj znajdziesz odpowiedzi na najczęściej zadawane pytania
-              dotyczące Starlight Cinema. Jeśli nie możesz znaleźć informacji
-              których szukasz, skontaktuj się z nami.
+              dotyczące Sunema. Jeśli nie możesz znaleźć informacji których
+              szukasz, skontaktuj się z nami.
             </p>
           </section>
           <FAQAccordion />

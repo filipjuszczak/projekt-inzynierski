@@ -13,10 +13,10 @@ export default function CompanyCulture() {
           <div className="grid gap-6 text-muted-foreground md:grid-cols-2">
             <div>
               <p className="mb-4 text-lg">
-                W Starlight Cinema wierzymy w promowanie pozytywnego,
-                integracyjnego i opartego na współpracy środowiska pracy. Nasz
-                zespół łączy wspólna pasja do filmu i zaangażowanie w
-                dostarczanie wyjątkowych wrażeń naszym klientom.
+                W Sunema wierzymy w promowanie pozytywnego, integracyjnego i
+                opartego na współpracy środowiska pracy. Nasz zespół łączy
+                wspólna pasja do filmu i zaangażowanie w dostarczanie
+                wyjątkowych wrażeń naszym klientom.
               </p>
               <p className="mb-4 text-lg">
                 Cenimy kreatywność, innowacyjność i rozwój osobisty. Niezależnie
