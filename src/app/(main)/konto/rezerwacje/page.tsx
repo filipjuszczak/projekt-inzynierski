@@ -1,8 +1,5 @@
-import { Suspense } from "react";
 import ReservationsList from "@/components/account/reservations/ReservationsList";
-import ReservationStats from "@/components/account/reservations/ReservationStats";
-import ReservationsListSkeleton from "@/components/account/reservations/skeletons/ReservationsListSkeleton";
-import ReservationStatsSkeleton from "@/components/account/reservations/skeletons/ReservationStatsSkeleton";
+import ReservationsStats from "@/components/account/reservations/ReservationsStats";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,18 +13,14 @@ export const metadata: Metadata = {
 
 export default async function ReservationsPage() {
   return (
-    <div className="container mx-auto flex-grow py-10">
+    <div className="container mx-auto flex-grow px-4 py-10 2xl:px-0">
       <h1 className="mb-8 text-4xl font-bold">Moje rezerwacje</h1>
       <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2">
-          <Suspense fallback={<ReservationsListSkeleton />}>
-            <ReservationsList />
-          </Suspense>
+          <ReservationsList />
         </div>
-        <div>
-          <Suspense fallback={<ReservationStatsSkeleton />}>
-            <ReservationStats />
-          </Suspense>
+        <div className="row-start-1 md:row-start-auto">
+          <ReservationsStats />
         </div>
       </div>
     </div>

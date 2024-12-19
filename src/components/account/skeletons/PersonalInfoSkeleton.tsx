@@ -1,12 +1,18 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PersonalInfoSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-4 w-64" />
+        <CardTitle>Twoje dane</CardTitle>
+        <CardDescription>Zaktualizuj swoje dane</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

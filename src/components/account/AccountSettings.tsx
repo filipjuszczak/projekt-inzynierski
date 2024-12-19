@@ -1,6 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
+import { CircleAlert } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,25 +13,21 @@ import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button";
 import ChangeAccountSettingsForm from "@/components/account/ChangeAccountSettingsForm";
 import DeleteAccountButton from "@/components/account/DeleteAccountButton";
-import { getUserAccountSettings } from "@/app/(main)/konto/data";
-import { getSessionCookie } from "@/lib/session";
-import { authenticateUser } from "@/auth";
+import AccountSettingsSkeleton from "@/components/account/skeletons/AccountSettingsSkeleton";
+import ErrorCard from "@/components/account/ErrorCard";
+import { useAccountData } from "@/app/(main)/konto/queries";
 import { cn } from "@/lib/utils";
 
-export default async function AccountSettings() {
-  const sessionCookie = await getSessionCookie();
+export default function AccountSettings() {
+  const { data, isLoading, isError } = useAccountData();
 
-  if (!sessionCookie) {
-    redirect("/logowanie");
+  if (isLoading) {
+    return <AccountSettingsSkeleton />;
   }
 
-  const { user, session } = await authenticateUser(Role.NORMAL, sessionCookie);
-
-  if (!user || !session || !session.userId) {
-    redirect("/logowanie");
+  if (isError) {
+    return <ErrorCard />;
   }
-
-  const userAccountSettings = await getUserAccountSettings(user.id);
 
   return (
     <Card>
@@ -40,13 +37,13 @@ export default async function AccountSettings() {
       </CardHeader>
       <CardContent className="space-y-8">
         <ChangeAccountSettingsForm
-          userId={user.id}
-          newsletterConsent={userAccountSettings.newsletterConsent!}
+          userId={data?.userData.id || ""}
+          newsletterConsent={data?.userData.newsletterConsent || false}
         />
         <Separator />
         <div className="space-y-8">
           <div className="space-y-4">
-            <div className="font-semibold leading-none tracking-tight">
+            <div className="w-fit font-semibold leading-none tracking-tight">
               Zmień hasło do swojego konta
             </div>
             <Link
@@ -57,10 +54,10 @@ export default async function AccountSettings() {
             </Link>
           </div>
           <div className="space-y-4">
-            <div className="font-semibold leading-none tracking-tight">
+            <div className="w-fit font-semibold leading-none tracking-tight">
               Usuń konto
             </div>
-            <DeleteAccountButton userId={user.id} />
+            <DeleteAccountButton userId={data?.userData.id || ""} />
           </div>
         </div>
       </CardContent>

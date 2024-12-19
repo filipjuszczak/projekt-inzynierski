@@ -37,7 +37,7 @@ interface ReservationsProps {
   reservations: UserReservation[];
 }
 
-export default function Reservations({ reservations }: ReservationsProps) {
+export default function ReservationsList({ reservations }: ReservationsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
 

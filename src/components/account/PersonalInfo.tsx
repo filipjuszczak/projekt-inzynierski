@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
+"use client";
+
 import {
   Card,
   CardContent,
@@ -8,38 +8,39 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import UpdateUserDataForm from "@/components/account/UpdateUserDataForm";
-import { getSessionCookie } from "@/lib/session";
-import { authenticateUser } from "@/auth";
+import PersonalInfoSkeleton from "@/components/account/skeletons/PersonalInfoSkeleton";
+import ErrorCard from "@/components/account/ErrorCard";
+import { useAccountData } from "@/app/(main)/konto/queries";
 
-export default async function PersonalInfo() {
-  const sessionCookie = await getSessionCookie();
+export default function PersonalInfo() {
+  const { data, isLoading, isError } = useAccountData();
 
-  if (!sessionCookie) {
-    redirect("/logowanie");
+  if (isLoading) {
+    return <PersonalInfoSkeleton />;
   }
 
-  const { user, session } = await authenticateUser(Role.NORMAL, sessionCookie);
-
-  if (!user || !session || !session.userId) {
-    redirect("/logowanie");
+  if (isError) {
+    return <ErrorCard />;
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Twoje dane</CardTitle>
-        <CardDescription>Zaktualizuj swoje dane</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <UpdateUserDataForm
-          id={user.id}
-          username={user.username || ""}
-          firstName={user.firstName}
-          lastName={user.lastName}
-          email={user.email}
-          dateOfBirth={user.dateOfBirth}
-        />
-      </CardContent>
-    </Card>
-  );
+  if (data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Twoje dane</CardTitle>
+          <CardDescription>Zaktualizuj swoje dane</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <UpdateUserDataForm
+            id={data.userData.id}
+            username={data.userData.username || ""}
+            firstName={data.userData.firstName}
+            lastName={data.userData.lastName}
+            email={data.userData.email}
+            dateOfBirth={new Date(data.userData.dateOfBirth)}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
 }

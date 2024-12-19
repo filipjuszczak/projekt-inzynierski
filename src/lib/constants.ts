@@ -4,8 +4,18 @@ import {
   ScreenFormat,
   ShowtimeStatus,
   TicketType,
-  ViewingMode
+  ViewingMode,
+  UserActivities
 } from "@prisma/client";
+import {
+  BookOpen,
+  CircleCheck,
+  CircleX,
+  FileText,
+  KeyRound,
+  MailCheck,
+  MailX
+} from "lucide-react";
 
 export const TIME_ZONE = "Europe/Warsaw";
 
@@ -69,3 +79,38 @@ export const SHOWTIME_STATUS_LABELS = {
 
 export const GENERIC_ERROR_MESSAGE =
   "Ups! Coś poszło nie tak. Spróbuj ponownie później.";
+
+export const USER_ACTIVITIES = {
+  [UserActivities.ACTIVATED_ACCOUNT]: {
+    icon: CircleCheck,
+    text: "Aktywacja konta"
+  },
+  [UserActivities.DELETED_ACCOUNT]: {
+    icon: CircleX,
+    text: "Usunięcie konta"
+  },
+  [UserActivities.PASSWORD_CHANGED]: {
+    icon: KeyRound,
+    text: "Zmiana hasła"
+  },
+  [UserActivities.REQUESTED_PASSWORD_RESET]: {
+    icon: KeyRound,
+    text: "Prośba o reset hasła"
+  },
+  [UserActivities.DATA_CHANGED]: {
+    icon: FileText,
+    text: "Aktualizacja danych"
+  },
+  [UserActivities.CREATED_RESERVATION]: {
+    icon: BookOpen,
+    text: "Utworzenie rezerwacji"
+  },
+  [UserActivities.NEWSLETTER_CONSENT_GRANTED]: {
+    icon: MailCheck,
+    text: "Przyznanie zgody na newsletter"
+  },
+  [UserActivities.NEWSLETTER_CONSENT_REVOKED]: {
+    icon: MailX,
+    text: "Wycofanie zgody na newsletter"
+  }
+};

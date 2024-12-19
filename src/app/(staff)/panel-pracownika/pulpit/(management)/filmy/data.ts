@@ -193,7 +193,7 @@ export async function getMovieWithExternalData({
 
   return {
     ...flattenedMovie,
-    rating: movieData.Ratings?.[0].Value || null,
+    rating: movieData.Ratings?.[0]?.Value || null,
     director: movieData.Director || null,
     cast: movieData.Actors || null
   };

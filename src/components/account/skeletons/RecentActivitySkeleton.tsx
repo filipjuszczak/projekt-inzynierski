@@ -1,12 +1,18 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RecentActivitySkeleton() {
   return (
     <Card>
       <CardHeader>
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-4 w-64" />
+        <CardTitle>Ostatnia aktywność</CardTitle>
+        <CardDescription>Twoja ostatnia aktywność</CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="space-y-4">

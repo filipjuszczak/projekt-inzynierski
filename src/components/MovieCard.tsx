@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { buttonVariants } from "@/components/ui/button";
 import { ImageWithLoader } from "@/components/ImageWithLoader";
-import Genres from "@/components/GenresBadges";
+// import Genres from "@/components/GenresBadges";
 import { cn } from "@/lib/utils";
 
 interface MovieCardProps {
@@ -24,7 +24,7 @@ interface MovieCardProps {
   posterUrl: string | null;
   title: string;
   releaseDate: Date;
-  genres: string[];
+  // genres: string[];
   shortDescription: string;
   sizes?: string;
 }
@@ -34,7 +34,7 @@ export default function MovieCard({
   posterUrl,
   title,
   releaseDate,
-  genres,
+  // genres,
   shortDescription,
   sizes
 }: MovieCardProps) {
@@ -73,7 +73,7 @@ export default function MovieCard({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Genres genres={genres} />
+          {/* <Genres genres={genres} /> */}
         </div>
         <div
           className="line-clamp-3 max-w-[40ch] text-pretty text-sm text-muted-foreground"

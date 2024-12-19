@@ -1,49 +1,5 @@
-import {
-  BookOpen,
-  CircleCheck,
-  CircleX,
-  FileText,
-  KeyRound,
-  MailCheck,
-  MailX
-} from "lucide-react";
-import { UserActivities } from "@prisma/client";
 import prisma from "@/lib/prisma";
-
-const USER_ACTIVITIES = {
-  [UserActivities.ACTIVATED_ACCOUNT]: {
-    icon: CircleCheck,
-    text: "Aktywacja konta"
-  },
-  [UserActivities.DELETED_ACCOUNT]: {
-    icon: CircleX,
-    text: "Usunięcie konta"
-  },
-  [UserActivities.PASSWORD_CHANGED]: {
-    icon: KeyRound,
-    text: "Zmiana hasła"
-  },
-  [UserActivities.REQUESTED_PASSWORD_RESET]: {
-    icon: KeyRound,
-    text: "Prośba o reset hasła"
-  },
-  [UserActivities.DATA_CHANGED]: {
-    icon: FileText,
-    text: "Aktualizacja danych"
-  },
-  [UserActivities.CREATED_RESERVATION]: {
-    icon: BookOpen,
-    text: "Utworzenie rezerwacji"
-  },
-  [UserActivities.NEWSLETTER_CONSENT_GRANTED]: {
-    icon: MailCheck,
-    text: "Przyznanie zgody na newsletter"
-  },
-  [UserActivities.NEWSLETTER_CONSENT_REVOKED]: {
-    icon: MailX,
-    text: "Wycofanie zgody na newsletter"
-  }
-};
+import { USER_ACTIVITIES } from "@/lib/constants";
 
 export async function getRecentUserActivity(userId: string) {
   const recentUserActivity = await prisma.userActivity.findMany({

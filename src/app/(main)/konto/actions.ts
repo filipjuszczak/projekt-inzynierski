@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { isValid as isValidDate } from "date-fns";
@@ -14,7 +15,6 @@ import {
   type UpdateAccountSettingsValues,
   type UpdateUserDataValues
 } from "@/lib/validation/user";
-import { cookies } from "next/headers";
 
 export async function updateUserData(
   userId: string,
@@ -215,13 +215,13 @@ export async function updateAccountSettings(
         }
       })
     ]);
-
-    return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
     return { error: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później." };
   }
+
+  return { success: true };
 }
 
 export async function deleteAccount(userId: string) {
@@ -266,11 +266,11 @@ export async function deleteAccount(userId: string) {
       blankSessionCookie.value,
       blankSessionCookie.attributes
     );
-
-    return { success: true };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);
     return { error: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później." };
   }
+
+  return { success: true };
 }

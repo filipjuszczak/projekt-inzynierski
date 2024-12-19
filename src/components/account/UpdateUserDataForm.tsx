@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useShallow } from "zustand/react/shallow";
@@ -41,6 +42,7 @@ export default function UpdateUserDataForm({
   email,
   dateOfBirth
 }: UpdateUserDataFormProps) {
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const setUserData = useUserStore(useShallow((state) => state.setUserData));
 
@@ -76,6 +78,7 @@ export default function UpdateUserDataForm({
           role: result.userData.role
         });
         toast.success("Dane zostały pomyślnie zapisane.");
+        await queryClient.invalidateQueries({ queryKey: ["accountData"] });
       }
     });
   }

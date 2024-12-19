@@ -9,8 +9,11 @@ import type {
   User,
   ViewingMode,
   Order,
-  OrderType
+  OrderType,
+  UserActivities
 } from "@prisma/client";
+import type { LucideProps } from "lucide-react";
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface UserData {
   firstName: string;
@@ -144,4 +147,48 @@ export interface Reservation
     firstName: string;
     lastName: string;
   } | null;
+}
+
+export interface AccountData {
+  userData: {
+    id: string;
+    username: string | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    dateOfBirth: Date;
+    newsletterConsent: boolean | null;
+    createdAt: Date;
+  };
+  recentUserActivity: {
+    type: UserActivities;
+    date: Date;
+  }[];
+}
+
+export interface ReservationsData {
+  reservations: {
+    id: string;
+    createdAt: Date;
+    type: OrderType;
+    showtime: {
+      room: {
+        number: string;
+      };
+      startTime: Date;
+      movie: {
+        id: string;
+        title: string;
+      };
+    };
+    seats: {
+      rowNumber: number;
+      seatNumber: number;
+    }[];
+    tickets: {
+      type: TicketType;
+      price: number;
+    }[];
+  }[];
+  favoriteGenre: string | null;
 }
