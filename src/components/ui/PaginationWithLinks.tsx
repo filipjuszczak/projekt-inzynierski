@@ -19,6 +19,8 @@ import {
 } from "./select";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Button } from "./button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface PaginationWithLinksProps {
   pageSizeSelectOptions?: {
@@ -56,15 +58,24 @@ export function PaginationWithLinks({
 
   const totalPageCount = Math.ceil(totalCount / pageSize);
 
-  const buildLink = useCallback(
+  const buildSearchParams = useCallback(
     (newPage: number) => {
       const key = pageSearchParam || "page";
-      if (!searchParams) return `${pathname}?${key}=${newPage}`;
-      const newSearchParams = new URLSearchParams(searchParams);
+      const newSearchParams = new URLSearchParams(searchParams || undefined);
       newSearchParams.set(key, String(newPage));
-      return `${pathname}?${newSearchParams.toString()}`;
+      return newSearchParams.toString();
     },
-    [searchParams, pathname]
+    [searchParams, pageSearchParam]
+  );
+
+  const navigateToPage = useCallback(
+    (newPage: number) => {
+      const queryString = buildSearchParams(newPage);
+      window.history.pushState({}, "", `${pathname}?${queryString}`);
+      // Manually trigger a router refresh since pushState doesn't
+      // router.refresh();
+    },
+    [pathname, buildSearchParams, router]
   );
 
   const navToPageSize = useCallback(
@@ -73,7 +84,7 @@ export function PaginationWithLinks({
       const newSearchParams = new URLSearchParams(searchParams || undefined);
       newSearchParams.set(key, String(newPageSize));
       newSearchParams.delete(pageSearchParam || "page"); // Clear the page number when changing page size
-      router.push(`${pathname}?${newSearchParams.toString()}`);
+      // router.push(`${pathname}?${newSearchParams.toString()}`);
     },
     [searchParams, pathname]
   );
@@ -86,18 +97,26 @@ export function PaginationWithLinks({
       for (let i = 1; i <= totalPageCount; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <Button
+              variant="ghost"
+              className={cn("h-9 w-9", { "bg-muted": page === i })}
+              onClick={() => navigateToPage(i)}
+            >
               {i}
-            </PaginationLink>
+            </Button>
           </PaginationItem>
         );
       }
     } else {
       items.push(
         <PaginationItem key={1}>
-          <PaginationLink href={buildLink(1)} isActive={page === 1}>
+          <Button
+            variant="ghost"
+            className={cn("h-9 w-9", { "bg-muted": page === 1 })}
+            onClick={() => navigateToPage(1)}
+          >
             1
-          </PaginationLink>
+          </Button>
         </PaginationItem>
       );
 
@@ -115,9 +134,13 @@ export function PaginationWithLinks({
       for (let i = start; i <= end; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <Button
+              variant="ghost"
+              className={cn("h-9 w-9", { "bg-muted": page === i })}
+              onClick={() => navigateToPage(i)}
+            >
               {i}
-            </PaginationLink>
+            </Button>
           </PaginationItem>
         );
       }
@@ -132,12 +155,13 @@ export function PaginationWithLinks({
 
       items.push(
         <PaginationItem key={totalPageCount}>
-          <PaginationLink
-            href={buildLink(totalPageCount)}
-            isActive={page === totalPageCount}
+          <Button
+            variant="ghost"
+            className={cn("h-9 w-9", { "bg-muted": page === totalPageCount })}
+            onClick={() => navigateToPage(totalPageCount)}
           >
             {totalPageCount}
-          </PaginationLink>
+          </Button>
         </PaginationItem>
       );
     }
@@ -159,27 +183,31 @@ export function PaginationWithLinks({
       <Pagination className={cn({ "md:justify-end": pageSizeSelectOptions })}>
         <PaginationContent className="max-sm:gap-0">
           <PaginationItem>
-            <PaginationPrevious
-              href={buildLink(Math.max(page - 1, 1))}
-              aria-disabled={page === 1}
-              tabIndex={page === 1 ? -1 : undefined}
-              className={
-                page === 1 ? "pointer-events-none opacity-50" : undefined
-              }
-            />
+            <Button
+              variant="ghost"
+              onClick={() => navigateToPage(Math.max(page - 1, 1))}
+              disabled={page === 1}
+              className={cn("gap-1 pl-2.5", {
+                "pointer-events-none opacity-50": page === 1
+              })}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Poprzednia</span>
+            </Button>
           </PaginationItem>
           {renderPageNumbers()}
           <PaginationItem>
-            <PaginationNext
-              href={buildLink(Math.min(page + 1, totalPageCount))}
-              aria-disabled={page === totalPageCount}
-              tabIndex={page === totalPageCount ? -1 : undefined}
-              className={
-                page === totalPageCount
-                  ? "pointer-events-none opacity-50"
-                  : undefined
-              }
-            />
+            <Button
+              variant="ghost"
+              onClick={() => navigateToPage(Math.min(page + 1, totalPageCount))}
+              disabled={page === totalPageCount}
+              className={cn("gap-1 pr-2.5", {
+                "pointer-events-none opacity-50": page === totalPageCount
+              })}
+            >
+              <span>Następna</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </PaginationItem>
         </PaginationContent>
       </Pagination>

@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ky from "ky";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
 import type { CheckedState } from "@radix-ui/react-checkbox";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface FiltersProps {
   genres: {
@@ -23,8 +25,9 @@ export default function Filters({
   viewingModes,
   screenFormats
 }: FiltersProps) {
-  const router = useRouter();
+  // const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   const initialGenres = searchParams.getAll("genre");
   const initialViewingModes = searchParams.getAll("viewingMode");
@@ -38,17 +41,21 @@ export default function Filters({
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    setCheckedGenres(searchParams.getAll("genre"));
-    setCheckedViewingModes(searchParams.getAll("viewingMode"));
-    setCheckedScreenFormats(searchParams.getAll("screenFormat"));
-  }, [searchParams]);
+  // useEffect(() => {
+  //   setCheckedGenres(searchParams.getAll("genre"));
+  //   setCheckedViewingModes(searchParams.getAll("viewingMode"));
+  //   setCheckedScreenFormats(searchParams.getAll("screenFormat"));
+  // }, [searchParams]);
 
-  function updateSearchParams(param: string, values: string[]) {
+  async function updateSearchParams(param: string, values: string[]) {
     const params = new URLSearchParams(searchParams);
     params.delete(param);
     values.forEach((value) => params.append(param, value));
-    router.push(`?${params.toString()}`, { scroll: false });
+    // router.push(`?${params.toString()}`, { scroll: false });
+    window.history.pushState({}, "", `?${params.toString()}`);
+    // await queryClient.refetchQueries({
+    //   queryKey: ["movies", params.toString()]
+    // });
   }
 
   function debouncedUpdateParams(param: string, values: string[]) {
@@ -56,8 +63,8 @@ export default function Filters({
       clearTimeout(debounceTimeout.current);
     }
 
-    debounceTimeout.current = setTimeout(() => {
-      updateSearchParams(param, values);
+    debounceTimeout.current = setTimeout(async () => {
+      await updateSearchParams(param, values);
     }, 500);
   }
 

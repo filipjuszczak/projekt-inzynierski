@@ -114,3 +114,7 @@ export const USER_ACTIVITIES = {
     text: "Wycofanie zgody na newsletter"
   }
 };
+
+export const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
+
+export const PAGE_SIZE = 8;

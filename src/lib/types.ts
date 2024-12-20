@@ -192,3 +192,24 @@ export interface ReservationsData {
   }[];
   favoriteGenre: string | null;
 }
+
+export interface MoviesResponse {
+  movies: {
+    genres: string[];
+    viewingModes: ViewingMode[];
+    screenFormats: ScreenFormat[];
+    title: string;
+    id: string;
+    _count: {
+      screenFormats: number;
+      viewingModes: number;
+      genres: number;
+      showtimes: number;
+    };
+    shortDescription: string;
+    releaseDate: Date;
+    duration: number;
+    posterUrl: string | null;
+  }[];
+  totalCount: number;
+}

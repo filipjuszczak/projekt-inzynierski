@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/movies/SearchBar";
 import FilterSidebar from "@/components/movies/FilterSidebar";
 import FilterSidebarSkeleton from "@/components/movies/skeletons/FilterSidebarSkeleton";
-import MoviesGrid from "@/components/movies/MoviesGrid";
+import Movies from "@/components/movies/Movies";
 import MoviesGridSkeleton from "@/components/skeletons/MoviesGridSkeleton";
 import type { Metadata } from "next";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
@@ -85,7 +85,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
           </aside>
           <main className="flex-1">
             <Suspense fallback={<MoviesGridSkeleton />}>
-              <MoviesGrid filters={filters} />
+              <Movies filters={filters} />
             </Suspense>
           </main>
         </div>
