@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import ky from "ky";
+import { useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
 import type { CheckedState } from "@radix-ui/react-checkbox";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface FiltersProps {
   genres: {
@@ -25,9 +23,7 @@ export default function Filters({
   viewingModes,
   screenFormats
 }: FiltersProps) {
-  // const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const initialGenres = searchParams.getAll("genre");
   const initialViewingModes = searchParams.getAll("viewingMode");
@@ -41,21 +37,11 @@ export default function Filters({
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // useEffect(() => {
-  //   setCheckedGenres(searchParams.getAll("genre"));
-  //   setCheckedViewingModes(searchParams.getAll("viewingMode"));
-  //   setCheckedScreenFormats(searchParams.getAll("screenFormat"));
-  // }, [searchParams]);
-
   async function updateSearchParams(param: string, values: string[]) {
     const params = new URLSearchParams(searchParams);
     params.delete(param);
     values.forEach((value) => params.append(param, value));
-    // router.push(`?${params.toString()}`, { scroll: false });
     window.history.pushState({}, "", `?${params.toString()}`);
-    // await queryClient.refetchQueries({
-    //   queryKey: ["movies", params.toString()]
-    // });
   }
 
   function debouncedUpdateParams(param: string, values: string[]) {
@@ -85,16 +71,21 @@ export default function Filters({
 
   return (
     <div className="space-y-6">
-      <GenreFilter
-        genres={genres}
-        checkedGenres={checkedGenres}
+      <Filter
+        title="Gatunki"
+        items={genres}
+        checkedItems={checkedGenres}
         onFilterChange={(genre, isChecked) =>
           handleFilterChange("genre", checkedGenres, genre, isChecked)
         }
+        getLabel={(genre) => genre.name}
+        getId={(genre) => genre.id}
+        scrollable
       />
-      <ViewingModeFilter
-        viewingModes={viewingModes}
-        checkedViewingModes={checkedViewingModes}
+      <Filter
+        title="Rodzaj audio"
+        items={viewingModes}
+        checkedItems={checkedViewingModes}
         onFilterChange={(mode, isChecked) =>
           handleFilterChange(
             "viewingMode",
@@ -103,10 +94,13 @@ export default function Filters({
             isChecked
           )
         }
+        getLabel={(mode) => VIEWING_MODE_LABELS[mode]}
+        getId={(mode) => mode}
       />
-      <ScreenFormatFilter
-        screenFormats={screenFormats}
-        checkedScreenFormats={checkedScreenFormats}
+      <Filter
+        title="Format"
+        items={screenFormats}
+        checkedItems={checkedScreenFormats}
         onFilterChange={(format, isChecked) =>
           handleFilterChange(
             "screenFormat",
@@ -115,102 +109,63 @@ export default function Filters({
             isChecked
           )
         }
+        getLabel={(format) => SCREEN_FORMAT_LABELS[format]}
+        getId={(format) => format}
       />
     </div>
   );
 }
 
-function GenreFilter({
-  genres,
-  checkedGenres,
-  onFilterChange
-}: {
-  genres: { id: string; name: string }[];
-  checkedGenres: string[];
-  onFilterChange: (genre: string, isChecked: CheckedState) => void;
-}) {
-  return (
+interface FilterProps<T> {
+  title: string;
+  items: T[];
+  checkedItems: string[];
+  onFilterChange: (item: string, isChecked: CheckedState) => void;
+  getLabel: (item: T) => string;
+  getId: (item: T) => string;
+  scrollable?: boolean;
+}
+
+function Filter<T>({
+  items,
+  checkedItems,
+  onFilterChange,
+  title,
+  getLabel,
+  getId,
+  scrollable = false
+}: FilterProps<T>) {
+  const Content = (
     <div>
-      <h3 className="mb-2 text-lg font-semibold">Gatunki</h3>
-      <ScrollArea className="h-[6.9rem] md:h-[8rem]">
-        {genres.map((genre) => (
-          <div key={genre.id} className="mb-2 flex items-center">
+      {items.map((item) => (
+        <div key={getId(item)}>
+          <Label
+            htmlFor={getId(item)}
+            className="flex cursor-pointer items-center gap-2 p-1 hover:text-primary peer-hover:text-primary"
+          >
             <Checkbox
-              id={genre.id}
-              checked={checkedGenres.includes(genre.name)}
+              id={getId(item)}
+              checked={checkedItems.includes(getLabel(item))}
               onCheckedChange={(isChecked) =>
-                onFilterChange(genre.name, isChecked)
+                onFilterChange(getLabel(item), isChecked)
               }
               className="size-6 md:size-4"
             />
-            <Label htmlFor={genre.id} className="ml-2">
-              {genre.name}
-            </Label>
-          </div>
-        ))}
-      </ScrollArea>
+            <span>{getLabel(item)}</span>
+          </Label>
+        </div>
+      ))}
     </div>
   );
-}
 
-function ViewingModeFilter({
-  viewingModes,
-  checkedViewingModes,
-  onFilterChange
-}: {
-  viewingModes: ViewingMode[];
-  checkedViewingModes: string[];
-  onFilterChange: (mode: ViewingMode, isChecked: CheckedState) => void;
-}) {
   return (
     <div>
-      <h3 className="mb-2 text-lg font-semibold">Rodzaj audio</h3>
-      <div className="space-y-2">
-        {viewingModes.map((mode) => (
-          <div key={mode} className="flex items-center">
-            <Checkbox
-              id={mode}
-              checked={checkedViewingModes.includes(mode)}
-              onCheckedChange={(isChecked) => onFilterChange(mode, isChecked)}
-              className="size-6 md:size-4"
-            />
-            <Label htmlFor={mode} className="ml-2">
-              {VIEWING_MODE_LABELS[mode]}
-            </Label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ScreenFormatFilter({
-  screenFormats,
-  checkedScreenFormats,
-  onFilterChange
-}: {
-  screenFormats: ScreenFormat[];
-  checkedScreenFormats: string[];
-  onFilterChange: (format: ScreenFormat, isChecked: CheckedState) => void;
-}) {
-  return (
-    <div>
-      <h3 className="mb-2 text-lg font-semibold">Format</h3>
-      <div className="space-y-2">
-        {screenFormats.map((format) => (
-          <div key={format} className="flex items-center">
-            <Checkbox
-              id={format}
-              checked={checkedScreenFormats.includes(format)}
-              onCheckedChange={(isChecked) => onFilterChange(format, isChecked)}
-              className="size-6 md:size-4"
-            />
-            <Label htmlFor={format} className="ml-2">
-              {SCREEN_FORMAT_LABELS[format]}
-            </Label>
-          </div>
-        ))}
-      </div>
+      <div className="mb-2 text-lg font-semibold">{title}</div>
+      {scrollable ? (
+        <ScrollArea className="h-[6.9rem] md:h-[8rem]">{Content}</ScrollArea>
+      ) : (
+        Content
+      )}
     </div>
   );
 }
