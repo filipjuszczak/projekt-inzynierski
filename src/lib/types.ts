@@ -213,3 +213,19 @@ export interface MoviesResponse {
   }[];
   totalCount: number;
 }
+
+export type ShowtimesResponse = {
+  [key: string]: {
+    title: string;
+    posterUrl: string | null;
+    genres: {
+      id: string;
+      name: string;
+      ageRestriction: number;
+    }[];
+    showtimes: {
+      id: string;
+      startTime: Date;
+    }[];
+  };
+};

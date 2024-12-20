@@ -67,10 +67,11 @@ export default function MoviesGrid({
       const params = new URLSearchParams(window.location.search);
       return ky.get(`/api/movies?${params.toString()}`).json<MoviesResponse>();
     },
-    initialData: () =>
-      JSON.stringify(currentQueryKey) === JSON.stringify(initialQueryKey)
+    initialData: () => {
+      return JSON.stringify(currentQueryKey) === JSON.stringify(initialQueryKey)
         ? { movies, totalCount }
-        : undefined,
+        : undefined;
+    },
     enabled: shouldFetch,
     staleTime: FIVE_MINUTES_IN_MS
   });

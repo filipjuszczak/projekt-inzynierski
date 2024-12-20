@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { isValid as isValidDate } from "date-fns";
 import {
   Select,
@@ -11,10 +11,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 import type { ScreenFormat, ViewingMode } from "@prisma/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ShowtimeFiltersProps {
   genres: { id: string; name: string }[];
@@ -29,7 +29,6 @@ export default function Filters({
   viewingModes,
   screenFormats
 }: ShowtimeFiltersProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const initialTitle = searchParams.get("title");
@@ -55,7 +54,7 @@ export default function Filters({
     } else {
       params.set(param, value);
     }
-    router.push(`?${params.toString()}`, { scroll: false });
+    window.history.pushState({}, "", `?${params.toString()}`);
   }
 
   function handleFilterChange(
@@ -77,106 +76,173 @@ export default function Filters({
       "date",
       `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate().toString().padStart(2, "0")}`
     );
-    router.push(`?${params.toString()}`, { scroll: false });
+    window.history.pushState({}, "", `?${params.toString()}`);
   }
 
   return (
     <div className="mb-8 flex flex-col flex-wrap gap-4 md:flex-row">
-      <div className="flex-1 space-y-2">
-        <div className="w-fit text-sm text-muted-foreground">Data</div>
-        <DatePicker value={selectedDate} onValueChange={handleChangeDate} />
-      </div>
-      <div className="flex-1 space-y-2">
-        <div className="w-fit text-sm text-muted-foreground">Film</div>
-        <Select
-          value={selectedTitle || undefined}
-          onValueChange={(value) => handleFilterChange("title", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Wybierz film" />
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-72 rounded-md border">
-              <SelectItem value="reset">Brak</SelectItem>
-              <SelectSeparator />
-              {movies.map((movie) => (
-                <SelectItem
-                  key={movie.id}
-                  value={encodeURIComponent(movie.title)}
-                >
-                  {movie.title}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex-1 space-y-2">
-        <div className="w-fit text-sm text-muted-foreground">Gatunek filmu</div>
-        <Select
-          value={selectedGenre || undefined}
-          onValueChange={(value) => handleFilterChange("genre", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Wybierz gatunek filmu" />
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-72 rounded-md border">
-              <SelectItem value="reset">Brak</SelectItem>
-              <SelectSeparator />
-              {genres.map(({ id, name }) => (
-                <SelectItem key={id} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex-1 space-y-2">
-        <div className="w-fit text-sm text-muted-foreground">Format ekranu</div>
-        <Select
-          value={selectedScreenFormat || undefined}
-          onValueChange={(value) => handleFilterChange("screenFormat", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Wybierz format ekranu" />
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-fit rounded-md border">
-              <SelectItem value="reset">Brak</SelectItem>
-              <SelectSeparator />
-              {screenFormats.map((format) => (
-                <SelectItem key={format} value={format}>
-                  {SCREEN_FORMAT_LABELS[format]}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex-1 space-y-2">
-        <div className="w-fit text-sm text-muted-foreground">Rodzaj audio</div>
-        <Select
-          value={selectedViewingMode || undefined}
-          onValueChange={(value) => handleFilterChange("viewingMode", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Wybierz format ekranu" />
-          </SelectTrigger>
-          <SelectContent>
-            <ScrollArea className="h-fit rounded-md border">
-              <SelectItem value="reset">Brak</SelectItem>
-              <SelectSeparator />
-              {viewingModes.map((mode) => (
-                <SelectItem key={mode} value={mode}>
-                  {VIEWING_MODE_LABELS[mode]}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
+      <DateFilter value={selectedDate} onValueChange={handleChangeDate} />
+      <MovieFilter
+        value={selectedTitle}
+        onValueChange={(value) => handleFilterChange("title", value)}
+        movies={movies}
+      />
+      <GenreFilter
+        value={selectedGenre}
+        onValueChange={(value) => handleFilterChange("genre", value)}
+        genres={genres}
+      />
+      <ScreenFormatFilter
+        value={selectedScreenFormat}
+        onValueChange={(value) => handleFilterChange("screenFormat", value)}
+        formats={screenFormats}
+      />
+      <ViewingModeFilter
+        value={selectedViewingMode}
+        onValueChange={(value) => handleFilterChange("viewingMode", value)}
+        modes={viewingModes}
+      />
+    </div>
+  );
+}
+
+interface FilterProps {
+  value: string | Date | null | undefined;
+  onValueChange: (value: any) => void;
+}
+
+function DateFilter({ value, onValueChange }: FilterProps) {
+  return (
+    <div className="flex-1 space-y-2">
+      <div className="w-fit text-sm text-muted-foreground">Data</div>
+      <DatePicker value={value as Date} onValueChange={onValueChange} />
+    </div>
+  );
+}
+
+function MovieFilter({
+  value,
+  onValueChange,
+  movies
+}: FilterProps & { movies: ShowtimeFiltersProps["movies"] }) {
+  return (
+    <div className="flex-1 space-y-2">
+      <div className="w-fit text-sm text-muted-foreground">Film</div>
+      <Select
+        value={(value as string) || undefined}
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Wybierz film" />
+        </SelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-72 rounded-md border">
+            <SelectItem value="reset">Brak</SelectItem>
+            <SelectSeparator />
+            {movies.map((movie) => (
+              <SelectItem
+                key={movie.id}
+                value={encodeURIComponent(movie.title)}
+              >
+                {movie.title}
+              </SelectItem>
+            ))}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function GenreFilter({
+  value,
+  onValueChange,
+  genres
+}: FilterProps & { genres: ShowtimeFiltersProps["genres"] }) {
+  return (
+    <div className="flex-1 space-y-2">
+      <div className="w-fit text-sm text-muted-foreground">Gatunek filmu</div>
+      <Select
+        value={(value as string) || undefined}
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Wybierz gatunek filmu" />
+        </SelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-72 rounded-md border">
+            <SelectItem value="reset">Brak</SelectItem>
+            <SelectSeparator />
+            {genres.map(({ id, name }) => (
+              <SelectItem key={id} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function ScreenFormatFilter({
+  value,
+  onValueChange,
+  formats
+}: FilterProps & { formats: ShowtimeFiltersProps["screenFormats"] }) {
+  return (
+    <div className="flex-1 space-y-2">
+      <div className="w-fit text-sm text-muted-foreground">Format ekranu</div>
+      <Select
+        value={(value as string) || undefined}
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Wybierz format ekranu" />
+        </SelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-fit rounded-md border">
+            <SelectItem value="reset">Brak</SelectItem>
+            <SelectSeparator />
+            {formats.map((format) => (
+              <SelectItem key={format} value={format}>
+                {SCREEN_FORMAT_LABELS[format]}
+              </SelectItem>
+            ))}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function ViewingModeFilter({
+  value,
+  onValueChange,
+  modes
+}: FilterProps & { modes: ShowtimeFiltersProps["viewingModes"] }) {
+  return (
+    <div className="flex-1 space-y-2">
+      <div className="w-fit text-sm text-muted-foreground">Rodzaj audio</div>
+      <Select
+        value={(value as string) || undefined}
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Wybierz format ekranu" />
+        </SelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-fit rounded-md border">
+            <SelectItem value="reset">Brak</SelectItem>
+            <SelectSeparator />
+            {modes.map((mode) => (
+              <SelectItem key={mode} value={mode}>
+                {VIEWING_MODE_LABELS[mode]}
+              </SelectItem>
+            ))}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

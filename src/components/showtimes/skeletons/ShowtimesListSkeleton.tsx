@@ -17,7 +17,7 @@ function MovieCardSkeleton() {
       <CardContent className="p-6">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-4 *:w-full md:flex-row">
-            <div className="relative aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
+            <div className="relative mx-auto aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
               <Skeleton className="h-full w-full rounded-lg" />
             </div>
             <div className="flex w-full flex-col gap-4">
