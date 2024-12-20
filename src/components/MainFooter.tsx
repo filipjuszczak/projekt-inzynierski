@@ -54,7 +54,7 @@ interface FooterLinkProps extends React.PropsWithChildren {
 
 function FooterLink({ href, children }: FooterLinkProps) {
   return (
-    <Link href={href} className="text-sm hover:underline">
+    <Link href={href} className="text-sm hover:text-primary hover:underline">
       {children}
     </Link>
   );

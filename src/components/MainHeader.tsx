@@ -37,7 +37,7 @@ interface HeaderLinkProps extends React.PropsWithChildren {
 
 function NavLink({ href, children }: HeaderLinkProps) {
   return (
-    <Link href={href} className="hover:underline">
+    <Link href={href} className="hover:text-primary hover:underline">
       {children}
     </Link>
   );
