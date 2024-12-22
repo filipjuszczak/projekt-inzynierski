@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import ky from "ky";
 import { AlertCircle } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
 import MoviesGridSkeleton from "@/components/skeletons/MoviesGridSkeleton";
 import { PaginationWithLinks } from "@/components/ui/PaginationWithLinks";
+import { useFilteredQuery } from "@/hooks/use-filtered-query";
 import { FIVE_MINUTES_IN_MS, PAGE_SIZE } from "@/lib/constants";
 import type { Filters, MoviesResponse } from "@/lib/types";
 
@@ -21,58 +19,9 @@ export default function MoviesGrid({
   totalCount
 }: MoviesGridProps) {
   const searchParams = useSearchParams();
-
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const [initialQueryKey] = useState(() => [
-    "movies",
-    {
-      filters: Array.from(searchParams.entries()).reduce(
-        (acc, [key, value]) => {
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(value);
-          acc[key].sort();
-          return acc;
-        },
-        {} as Record<string, string[]>
-      )
-    }
-  ]);
-
-  useEffect(() => {
-    setShouldFetch(true);
-  }, []);
-
-  const currentQueryKey = [
-    "movies",
-    {
-      filters: Array.from(searchParams.entries()).reduce(
-        (acc, [key, value]) => {
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(value);
-          acc[key].sort();
-          return acc;
-        },
-        {} as Record<string, string[]>
-      )
-    }
-  ];
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: currentQueryKey,
-    queryFn: () => {
-      const params = new URLSearchParams(window.location.search);
-      return ky.get(`/api/movies?${params.toString()}`).json<MoviesResponse>();
-    },
-    initialData: () => {
-      return JSON.stringify(currentQueryKey) === JSON.stringify(initialQueryKey)
-        ? { movies, totalCount }
-        : undefined;
-    },
-    enabled: shouldFetch,
+  const { data, isLoading, isError } = useFilteredQuery<MoviesResponse>({
+    endpoint: "/api/movies",
+    initialData: { movies, totalCount },
     staleTime: FIVE_MINUTES_IN_MS
   });
 
@@ -92,8 +41,15 @@ export default function MoviesGrid({
   }
 
   if (data) {
-    // const moviesToDisplay = data.movies || movies;
-    // const totalCountToDisplay = data.totalCount || totalCount;
+    if (data.movies.length === 0) {
+      return (
+        <div className="flex items-center justify-center">
+          <p className="text-lg font-bold text-muted-foreground">
+            Brak filmów spełniających podane kryteria...
+          </p>
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-12">

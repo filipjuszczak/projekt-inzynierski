@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { toZonedTime, format } from "date-fns-tz";
-import ky from "ky";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { ImageWithLoader } from "@/components/ImageWithLoader";
 import ShowtimesListSkeleton from "@/components/showtimes/skeletons/ShowtimesListSkeleton";
+import { useFilteredQuery } from "@/hooks/use-filtered-query";
 import {
   AGE_RESTRICTION_LABELS,
   FIVE_MINUTES_IN_MS,
@@ -26,59 +24,9 @@ interface ShowtimesProps {
 export default function Showtimes({ showtimes }: ShowtimesProps) {
   const searchParams = useSearchParams();
 
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const [initialQueryKey] = useState(() => [
-    "showtimes",
-    {
-      filters: Array.from(searchParams.entries()).reduce(
-        (acc, [key, value]) => {
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(value);
-          acc[key].sort();
-          return acc;
-        },
-        {} as Record<string, string[]>
-      )
-    }
-  ]);
-
-  useEffect(() => {
-    setShouldFetch(true);
-  }, []);
-
-  const currentQueryKey = [
-    "showtimes",
-    {
-      filters: Array.from(searchParams.entries()).reduce(
-        (acc, [key, value]) => {
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(value);
-          acc[key].sort();
-          return acc;
-        },
-        {} as Record<string, string[]>
-      )
-    }
-  ];
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: currentQueryKey,
-    queryFn: () => {
-      const params = new URLSearchParams(window.location.search);
-      return ky
-        .get(`/api/showtimes?${params.toString()}`)
-        .json<ShowtimesResponse>();
-    },
-    initialData: () => {
-      return JSON.stringify(currentQueryKey) === JSON.stringify(initialQueryKey)
-        ? showtimes
-        : undefined;
-    },
-    enabled: shouldFetch,
+  const { data, isLoading, isError } = useFilteredQuery<ShowtimesResponse>({
+    endpoint: "/api/showtimes",
+    initialData: showtimes,
     staleTime: FIVE_MINUTES_IN_MS
   });
 
