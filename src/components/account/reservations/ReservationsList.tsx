@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -37,7 +37,7 @@ import type { UserReservation } from "@/lib/types";
 import ErrorCard from "@/components/account/ErrorCard";
 
 export default function ReservationsList() {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("upcoming");
   const { data, isLoading, isError } = useReservations();
 
@@ -76,10 +76,10 @@ export default function ReservationsList() {
               <TabsTrigger value="past">Przeszłe</TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming">
-              {renderReservations(upcomingReservations, true, router)}
+              {renderReservations(upcomingReservations, true, queryClient)}
             </TabsContent>
             <TabsContent value="past">
-              {renderReservations(pastReservations, false, router)}
+              {renderReservations(pastReservations, false, queryClient)}
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -91,7 +91,7 @@ export default function ReservationsList() {
 function renderReservations(
   reservations: UserReservation[],
   isUpcoming: boolean,
-  router: AppRouterInstance
+  queryClient: QueryClient
 ) {
   if (reservations.length === 0) {
     return <div className="pt-4 text-center">Brak danych...</div>;
@@ -107,7 +107,7 @@ function renderReservations(
 
     if ("success" in result && result.success) {
       toast.success("Udało się anulować rezerwację!");
-      router.refresh();
+      await queryClient.invalidateQueries({ queryKey: ["reservations"] });
     } else {
       toast.error(GENERIC_ERROR_MESSAGE);
     }
