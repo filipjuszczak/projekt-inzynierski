@@ -24,6 +24,7 @@ import {
   updateUserDataSchema,
   type UpdateUserDataValues
 } from "@/lib/validation/user";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface UpdateUserDataFormProps {
   id: string;
@@ -69,6 +70,7 @@ export default function UpdateUserDataForm({
       }
 
       if ("success" in result && result.success) {
+        toast.success("Dane zostały pomyślnie zapisane.");
         setUserData({
           username: result.userData.username || "",
           firstName: result.userData.firstName,
@@ -77,8 +79,9 @@ export default function UpdateUserDataForm({
           dateOfBirth: result.userData.dateOfBirth,
           role: result.userData.role
         });
-        toast.success("Dane zostały pomyślnie zapisane.");
         await queryClient.invalidateQueries({ queryKey: ["accountData"] });
+      } else {
+        toast.error(GENERIC_ERROR_MESSAGE);
       }
     });
   }
