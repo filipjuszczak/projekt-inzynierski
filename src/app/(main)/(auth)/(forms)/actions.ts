@@ -91,7 +91,6 @@ export async function signUp(
     let user;
 
     if (existingGuestUser) {
-      console.log("User is currently a guest user. Updating its data...");
       user = await prisma.user.update({
         where: { id: existingGuestUser.id },
         data: {
@@ -106,7 +105,6 @@ export async function signUp(
         select: { id: true }
       });
     } else {
-      console.log("Creating a new user...");
       user = await prisma.user.create({
         data: {
           username: username || null,

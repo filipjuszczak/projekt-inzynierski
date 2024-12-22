@@ -84,7 +84,6 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
 
   useEffect(() => {
     function onBeforeUnload() {
-      console.log(isUserBuying.current, selectedSeatsRef.current.length);
       if (isUserBuying.current || selectedSeatsRef.current.length === 0) {
         return;
       }

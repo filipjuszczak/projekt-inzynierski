@@ -164,7 +164,5 @@ export async function getOccupancy() {
     0
   );
 
-  console.log(occupancy, totalSeats);
-
   return (occupancy / totalSeats) * 100;
 }
