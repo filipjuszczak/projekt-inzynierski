@@ -29,38 +29,40 @@ export default function AccountSettings() {
     return <ErrorCard />;
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Ustawienia konta</CardTitle>
-        <CardDescription>Zarządzaj swoimi ustawieniami konta</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <ChangeAccountSettingsForm
-          userId={data?.userData.id || ""}
-          newsletterConsent={data?.userData.newsletterConsent || false}
-        />
-        <Separator />
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <div className="w-fit font-semibold leading-none tracking-tight">
-              Zmień hasło do swojego konta
+  if (data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Ustawienia konta</CardTitle>
+          <CardDescription>Zarządzaj swoimi ustawieniami konta</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <ChangeAccountSettingsForm
+            userId={data.userData.id}
+            newsletterConsent={data.userData.newsletterConsent || false}
+          />
+          <Separator />
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="w-fit font-semibold leading-none tracking-tight">
+                Zmień hasło do swojego konta
+              </div>
+              <Link
+                href="/konto/zmien-haslo"
+                className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+              >
+                Zmień hasło
+              </Link>
             </div>
-            <Link
-              href="/konto/zmien-haslo"
-              className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-            >
-              Zmień hasło
-            </Link>
-          </div>
-          <div className="space-y-4">
-            <div className="w-fit font-semibold leading-none tracking-tight">
-              Usuń konto
+            <div className="space-y-4">
+              <div className="w-fit font-semibold leading-none tracking-tight">
+                Usuń konto
+              </div>
+              <DeleteAccountButton userId={data.userData.id} />
             </div>
-            <DeleteAccountButton userId={data?.userData.id || ""} />
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  }
 }
