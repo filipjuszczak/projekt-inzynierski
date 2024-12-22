@@ -1,9 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -20,6 +20,7 @@ import {
   updateAccountSettingsSchema,
   type UpdateAccountSettingsValues
 } from "@/lib/validation/user";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 interface ChangeAccountSettingsFormProps {
   userId: string;
@@ -30,8 +31,7 @@ export default function ChangeAccountSettingsForm({
   userId,
   newsletterConsent
 }: ChangeAccountSettingsFormProps) {
-  const router = useRouter();
-
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<UpdateAccountSettingsValues>({
@@ -47,11 +47,14 @@ export default function ChangeAccountSettingsForm({
 
       if ("error" in result) {
         toast.error(result.error);
+        return;
       }
 
       if ("success" in result && result.success) {
         toast.success("Ustawienia konta zostały pomyślnie zapisane!");
-        router.refresh();
+        await queryClient.invalidateQueries({ queryKey: ["accountData"] });
+      } else {
+        toast.error(GENERIC_ERROR_MESSAGE);
       }
     });
   }
