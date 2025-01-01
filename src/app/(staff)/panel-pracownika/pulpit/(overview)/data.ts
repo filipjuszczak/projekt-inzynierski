@@ -96,6 +96,11 @@ export async function getAllSales() {
   const tickets = await prisma.ticket.findMany({
     select: {
       price: true
+    },
+    where: {
+      order: {
+        isPaid: true
+      }
     }
   });
 

@@ -29,12 +29,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReservationsListSkeleton from "@/components/account/reservations/skeletons/ReservationsListSkeleton";
+import ErrorCard from "@/components/account/ErrorCard";
 import { useReservations } from "@/app/(main)/konto/rezerwacje/queries";
 import { cancelReservation } from "@/app/(main)/konto/rezerwacje/actions";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { UserReservation } from "@/lib/types";
-import ErrorCard from "@/components/account/ErrorCard";
 
 export default function ReservationsList() {
   const queryClient = useQueryClient();
@@ -62,6 +61,9 @@ export default function ReservationsList() {
         pastReservations.push(r);
       }
     });
+
+    console.log(upcomingReservations);
+    console.log(pastReservations);
 
     return (
       <Card>

@@ -8,9 +8,9 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import { useReservations } from "@/app/(main)/konto/rezerwacje/queries";
 import ReservationStatsSkeleton from "@/components/account/reservations/skeletons/ReservationStatsSkeleton";
 import ErrorCard from "@/components/account/ErrorCard";
+import { useReservations } from "@/app/(main)/konto/rezerwacje/queries";
 
 export default function ReservationsStats() {
   const { data, isLoading, isError } = useReservations();
@@ -27,7 +27,7 @@ export default function ReservationsStats() {
     const currentDate = new Date();
 
     const upcomingShowtimes = data.reservations.filter(
-      (reservation) => reservation.showtime.startTime > currentDate
+      (reservation) => new Date(reservation.showtime.startTime) >= currentDate
     );
 
     return (

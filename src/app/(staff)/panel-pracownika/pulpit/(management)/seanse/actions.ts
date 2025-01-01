@@ -94,52 +94,47 @@ export async function createShowtime(values: ShowtimeValues) {
 
     const fifteenMinutes = 15 * 60 * 1000;
     const showtimeDate = new Date(startTime.getTime());
+    const showtimeEndTime = new Date(
+      showtimeDate.getTime() + movie.duration * 60 * 1000
+    );
+    const showtimeEndTimeWithBreak = new Date(
+      showtimeEndTime.getTime() + fifteenMinutes
+    );
 
-    const prevShowtimeInRoom = await prisma.showtime.findFirst({
+    const overlappingShowtime = await prisma.showtime.findFirst({
       where: {
         roomId,
-        startTime: { lte: showtimeDate }
-      },
-      orderBy: { startTime: "desc" }
+        OR: [
+          {
+            AND: [
+              { startTime: { lte: showtimeDate } },
+              {
+                endTime: {
+                  gte: new Date(showtimeDate.getTime() - fifteenMinutes)
+                }
+              }
+            ]
+          },
+          {
+            AND: [
+              { startTime: { lte: showtimeEndTimeWithBreak } },
+              { endTime: { gte: showtimeEndTime } }
+            ]
+          },
+          {
+            AND: [
+              { startTime: { gte: showtimeDate } },
+              { endTime: { lte: showtimeEndTimeWithBreak } }
+            ]
+          }
+        ]
+      }
     });
 
-    if (prevShowtimeInRoom) {
-      const diff =
-        showtimeDate.getTime() - prevShowtimeInRoom.endTime.getTime();
-
-      if (diff < fifteenMinutes) {
-        return {
-          error: `Poprzedni seans w tej sali kończy się ${format(new Date(prevShowtimeInRoom.endTime), "dd/MM/yyyy HH:mm")}. Następny seans w tej sali musi rozpoczynać się co najmniej 15 minut po zakończeniu poprzedniego.`
-        };
-      }
-    }
-
-    const nextShowtimeInRoom = await prisma.showtime.findFirst({
-      where: {
-        roomId,
-        startTime: { gte: showtimeDate },
-        status: {
-          in: [ShowtimeStatus.ONGOING, ShowtimeStatus.FINISHED]
-        }
-      },
-      orderBy: { startTime: "asc" }
-    });
-
-    if (nextShowtimeInRoom) {
-      const showtimeEndTime = new Date(
-        showtimeDate.getTime() + movie.duration * 60 * 1000
-      );
-
-      const diff =
-        showtimeEndTime.getTime() +
-        fifteenMinutes -
-        nextShowtimeInRoom.startTime.getTime();
-
-      if (diff < 0) {
-        return {
-          error: "Wybrany seans koliduje z kolejnym seansem w tej sali."
-        };
-      }
+    if (overlappingShowtime) {
+      return {
+        error: `Wybrany termin koliduje z innym seansem w tej sali: ${format(new Date(overlappingShowtime.startTime), "dd.MM.yyyy HH:mm")} - ${format(new Date(overlappingShowtime.endTime), "dd.MM.yyyy HH:mm")}`
+      };
     }
 
     await prisma.showtime.create({
@@ -147,7 +142,7 @@ export async function createShowtime(values: ShowtimeValues) {
         movieId,
         roomId,
         startTime: showtimeDate,
-        endTime: new Date(showtimeDate.getTime() + movie.duration * 60 * 1000),
+        endTime: showtimeEndTime,
         status: ShowtimeStatus.UPCOMING,
         viewingMode,
         screenFormat,
@@ -235,55 +230,48 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
 
     const fifteenMinutes = 15 * 60 * 1000;
     const showtimeDate = new Date(startTime.getTime());
+    const showtimeEndTime = new Date(
+      showtimeDate.getTime() + movie.duration * 60 * 1000
+    );
+    const showtimeEndTimeWithBreak = new Date(
+      showtimeEndTime.getTime() + fifteenMinutes
+    );
 
-    const prevShowtimeInRoom = await prisma.showtime.findFirst({
+    const overlappingShowtime = await prisma.showtime.findFirst({
       where: {
         roomId,
-        startTime: { lte: showtimeDate },
-        status: {
-          in: [ShowtimeStatus.ONGOING, ShowtimeStatus.FINISHED]
-        },
-        id: { not: id }
-      },
-      orderBy: { startTime: "desc" }
+        id: { not: id },
+        OR: [
+          {
+            AND: [
+              { startTime: { lte: showtimeDate } },
+              {
+                endTime: {
+                  gte: new Date(showtimeDate.getTime() - fifteenMinutes)
+                }
+              }
+            ]
+          },
+          {
+            AND: [
+              { startTime: { lte: showtimeEndTimeWithBreak } },
+              { endTime: { gte: showtimeEndTime } }
+            ]
+          },
+          {
+            AND: [
+              { startTime: { gte: showtimeDate } },
+              { endTime: { lte: showtimeEndTimeWithBreak } }
+            ]
+          }
+        ]
+      }
     });
 
-    if (prevShowtimeInRoom) {
-      const diff =
-        showtimeDate.getTime() - prevShowtimeInRoom.endTime.getTime();
-      if (diff < fifteenMinutes) {
-        return {
-          error: "Kolejne seanse muszą być oddzielone o co najmniej 15 minut."
-        };
-      }
-    }
-
-    const nextShowtimeInRoom = await prisma.showtime.findFirst({
-      where: {
-        roomId,
-        startTime: { gte: showtimeDate },
-        status: {
-          in: [ShowtimeStatus.ONGOING, ShowtimeStatus.FINISHED]
-        }
-      },
-      orderBy: { startTime: "asc" }
-    });
-
-    if (nextShowtimeInRoom) {
-      const showtimeEndTime = new Date(
-        showtimeDate.getTime() + movie.duration * 60 * 1000
-      );
-
-      const diff =
-        showtimeEndTime.getTime() +
-        fifteenMinutes -
-        nextShowtimeInRoom.startTime.getTime();
-
-      if (diff < 0) {
-        return {
-          error: "Wybrany seans koliduje z kolejnym seansem w tej sali."
-        };
-      }
+    if (overlappingShowtime) {
+      return {
+        error: `Wybrany termin koliduje z innym seansem w tej sali: ${format(new Date(overlappingShowtime.startTime), "dd.MM.yyyy HH:mm")} - ${format(new Date(overlappingShowtime.endTime), "dd.MM.yyyy HH:mm")}`
+      };
     }
 
     await prisma.showtime.update({
@@ -292,8 +280,10 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
         movieId,
         roomId,
         startTime: showtimeDate,
-        endTime: new Date(showtimeDate.getTime() + movie.duration * 60 * 1000),
+        endTime: showtimeEndTime,
         status: ShowtimeStatus.UPCOMING,
+        viewingMode,
+        screenFormat,
         updatedBy: session.userId
       }
     });
