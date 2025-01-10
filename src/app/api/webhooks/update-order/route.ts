@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "Cinema <notifications@notifications.filipjuszczak.pl>",
         to: [existingUser.email],
-        subject: "Cinema - zmiana hasła",
+        subject: "Cinema - Twoje bilety",
         react: TicketsEmail({
           firstName: existingUser.firstName,
           showtime: {
