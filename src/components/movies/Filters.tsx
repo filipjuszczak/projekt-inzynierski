@@ -80,6 +80,7 @@ export default function Filters({
         }
         getLabel={(genre) => genre.name}
         getId={(genre) => genre.id}
+        valueBy="name"
         scrollable
       />
       <Filter
@@ -96,6 +97,7 @@ export default function Filters({
         }
         getLabel={(mode) => VIEWING_MODE_LABELS[mode]}
         getId={(mode) => mode}
+        valueBy="id"
       />
       <Filter
         title="Format"
@@ -111,6 +113,7 @@ export default function Filters({
         }
         getLabel={(format) => SCREEN_FORMAT_LABELS[format]}
         getId={(format) => format}
+        valueBy="id"
       />
     </div>
   );
@@ -123,6 +126,7 @@ interface FilterProps<T> {
   onFilterChange: (item: string, isChecked: CheckedState) => void;
   getLabel: (item: T) => string;
   getId: (item: T) => string;
+  valueBy: "id" | "name";
   scrollable?: boolean;
 }
 
@@ -133,6 +137,7 @@ function Filter<T>({
   title,
   getLabel,
   getId,
+  valueBy,
   scrollable = false
 }: FilterProps<T>) {
   const Content = (
@@ -145,9 +150,14 @@ function Filter<T>({
           >
             <Checkbox
               id={getId(item)}
-              checked={checkedItems.includes(getLabel(item))}
+              checked={checkedItems.includes(
+                valueBy === "id" ? getId(item) : getLabel(item)
+              )}
               onCheckedChange={(isChecked) =>
-                onFilterChange(getLabel(item), isChecked)
+                onFilterChange(
+                  valueBy === "id" ? getId(item) : getLabel(item),
+                  isChecked
+                )
               }
               className="size-6 md:size-4"
             />
