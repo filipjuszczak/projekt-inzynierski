@@ -118,7 +118,7 @@ function createColumns(
                   </DialogTrigger>
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/panel-pracownika/pulpit/genre/${genre.id}/edytuj`}
+                      href={`/panel-pracownika/pulpit/gatunki/${genre.id}/edytuj`}
                     >
                       Edytuj
                     </Link>
