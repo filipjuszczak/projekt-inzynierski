@@ -98,24 +98,6 @@ export function validateSignupValues(
 ) {
   let isValid = true;
 
-  if (values.username) {
-    if (!allowedUsernameRegex.test(values.username)) {
-      form.setError("username", {
-        type: "value",
-        message: "Nazwa użytkownika zawiera niedozwolone znaki"
-      });
-      isValid = false;
-    }
-
-    if (forbiddenUsernames.includes(values.username.toLowerCase())) {
-      form.setError("username", {
-        type: "value",
-        message: "Ta nazwa użytkownika jest zablokowana"
-      });
-      isValid = false;
-    }
-  }
-
   if (!isValidDate(values.dateOfBirth)) {
     form.setError("dateOfBirth", {
       type: "value",
@@ -161,24 +143,6 @@ export function validateUserDataValues(
   values: UpdateUserDataValues
 ) {
   let isValid = true;
-
-  if (values.username) {
-    if (!allowedUsernameRegex.test(values.username)) {
-      form.setError("username", {
-        type: "value",
-        message: "Nazwa użytkownika zawiera niedozwolone znaki"
-      });
-      isValid = false;
-    }
-
-    if (forbiddenUsernames.includes(values.username.toLowerCase())) {
-      form.setError("username", {
-        type: "value",
-        message: "Ta nazwa użytkownika jest zablokowana"
-      });
-      isValid = false;
-    }
-  }
 
   if (!isValidDate(values.dateOfBirth)) {
     form.setError("dateOfBirth", {
@@ -253,4 +217,8 @@ export function isUserOldEnough(
   }
 
   return age >= ageRestriction;
+}
+
+export function generateRandomPassword(length: number) {
+  return Math.random().toString(36).slice(-length);
 }

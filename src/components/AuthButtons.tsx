@@ -6,15 +6,15 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserMenu from "@/components/UserMenu";
-import { useCheckAuth } from "@/app/(main)/queries";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function AuthButtons() {
-  const { setTheme, theme } = useTheme();
-  const { data, isPending } = useCheckAuth();
+  const { theme, setTheme } = useTheme();
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <div className="hidden md:flex md:gap-2">
-      {data?.isAuthenticated ? (
+      {session?.session.token ? (
         <UserMenu />
       ) : isPending ? (
         <Skeleton className="h-10 w-10 rounded-full" />

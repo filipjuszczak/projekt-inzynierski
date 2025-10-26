@@ -13,7 +13,6 @@ const twelveYearsAgo = new Date(
 );
 
 export const signupFormSchema = z.object({
-  username: z.string().optional(),
   firstName: requiredString,
   lastName: requiredString,
   email: z
@@ -31,7 +30,7 @@ export const signupFormSchema = z.object({
 export type SignupValues = z.infer<typeof signupFormSchema>;
 
 export const loginFormSchema = z.object({
-  login: requiredString,
+  email: requiredString.email(),
   password: requiredString
 });
 

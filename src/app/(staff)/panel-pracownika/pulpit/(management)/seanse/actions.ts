@@ -10,28 +10,17 @@ import {
   ShowtimeStatus,
   ViewingMode
 } from "@prisma/client";
-import { authenticateUser } from "@/auth";
+import { authEmployee } from "@/lib/auth/helpers";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { showtimeSchema, type ShowtimeValues } from "@/lib/validation/showtime";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { NextResponse } from "next/server";
 
 export async function createShowtime(values: ShowtimeValues) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const { movieId, roomId, startTime, viewingMode, screenFormat } =
       showtimeSchema.parse(values);
@@ -146,7 +135,7 @@ export async function createShowtime(values: ShowtimeValues) {
         status: ShowtimeStatus.UPCOMING,
         viewingMode,
         screenFormat,
-        createdBy: session.userId
+        createdBy: session.user.id
       },
       select: { id: true }
     });
@@ -163,20 +152,8 @@ export async function createShowtime(values: ShowtimeValues) {
 
 export async function editShowtime(id: string, values: ShowtimeValues) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const { movieId, roomId, startTime, viewingMode, screenFormat } =
       showtimeSchema.parse(values);
@@ -284,7 +261,7 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
         status: ShowtimeStatus.UPCOMING,
         viewingMode,
         screenFormat,
-        updatedBy: session.userId
+        updatedBy: session.user.id
       }
     });
   } catch (error) {
@@ -300,20 +277,7 @@ export async function editShowtime(id: string, values: ShowtimeValues) {
 
 export async function deleteShowtime(id: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingShowtime = await prisma.showtime.findUnique({
       where: { id }
@@ -351,20 +315,7 @@ export async function deleteShowtime(id: string) {
 
 export async function markShowtimeAsOngoing(id: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingShowtime = await prisma.showtime.findUnique({
       where: { id }
@@ -391,20 +342,7 @@ export async function markShowtimeAsOngoing(id: string) {
 
 export async function markShowtimeAsFinished(id: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingShowtime = await prisma.showtime.findUnique({
       where: { id }

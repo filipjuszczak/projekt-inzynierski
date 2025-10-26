@@ -1,14 +1,10 @@
 "use client";
 
-import { redirect } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { useShallow } from "zustand/react/shallow";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LogOut } from "lucide-react";
-import { Role } from "@prisma/client";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { logOut } from "@/app/actions";
-import { useUserStore } from "@/hooks/use-user-store";
+import { authClient } from "@/lib/auth/auth-client";
 
 interface LogoutButtonProps {
   redirectTo: string;
@@ -19,28 +15,18 @@ export default function LogoutButton({
   redirectTo,
   asMenuItem
 }: LogoutButtonProps) {
-  const resetUserData = useUserStore(
-    useShallow((state) => state.resetUserData)
-  );
-
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
   async function handleLogout() {
-    const result = await logOut(Role.NORMAL);
-
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-
-    if ("success" in result && result.success) {
-      queryClient.clear();
-      resetUserData();
-      toast.success("Wylogowano pomyślnie!");
-      return redirect(redirectTo);
-    } else {
-      toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
-    }
+    authClient.signOut(undefined, {
+      onSuccess: () => {
+        toast.success("Wylogowano pomyślnie!");
+        router.push(redirectTo);
+      },
+      onError: () => {
+        toast.error("Wystąpił błąd podczas wylogowania.");
+      }
+    });
   }
 
   if (asMenuItem) {

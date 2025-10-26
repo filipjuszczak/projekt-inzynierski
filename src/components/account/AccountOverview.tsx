@@ -12,20 +12,20 @@ import {
 import { Avatar } from "@/components/ui/avatar";
 import AccountOverviewSkeleton from "@/components/account/skeletons/AccountOverviewSkeleton";
 import ErrorCard from "@/components/account/ErrorCard";
-import { useAccountData } from "@/app/(main)/konto/queries";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function AccountOverview() {
-  const { data, isLoading, isError } = useAccountData();
+  const { data: session, isPending, error } = authClient.useSession();
 
-  if (isLoading) {
+  if (isPending) {
     return <AccountOverviewSkeleton />;
   }
 
-  if (isError) {
+  if (error) {
     return <ErrorCard />;
   }
 
-  if (data) {
+  if (session) {
     return (
       <Card>
         <CardHeader>
@@ -37,12 +37,10 @@ export default function AccountOverview() {
             <User className="size-10" />
           </Avatar>
           <div>
-            <h2 className="text-2xl font-semibold">
-              {data.userData.firstName} {data.userData.lastName}
-            </h2>
-            <p className="text-gray-500">{data.userData.email}</p>
+            <h2 className="text-2xl font-semibold">{session.user.name}</h2>
+            <p className="text-gray-500">{session.user.email}</p>
             <p className="text-sm text-gray-500">
-              Członek od: {format(data.userData.createdAt, "dd.MM.yyyy")}
+              Członek od: {format(session.user.createdAt, "dd.MM.yyyy")}
             </p>
           </div>
         </CardContent>

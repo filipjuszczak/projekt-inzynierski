@@ -3,11 +3,13 @@ import prisma from "@/lib/prisma";
 export async function getEmployeeMetadata(id: string) {
   const employee = await prisma.user.findUnique({
     where: { id },
-    select: { firstName: true, lastName: true }
+    select: { name: true }
   });
 
+  const [firstName, lastName] = employee?.name.split(" ") || ["", ""];
+
   return {
-    firstName: employee?.firstName,
-    lastName: employee?.lastName
+    firstName: firstName,
+    lastName: lastName
   };
 }

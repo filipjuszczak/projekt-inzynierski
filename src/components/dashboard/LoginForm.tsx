@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { redirect } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { useShallow } from "zustand/react/shallow";
 import { AtSign, EyeIcon, EyeOffIcon, KeyRound } from "lucide-react";
-import { Role } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -20,47 +18,60 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { logIn } from "@/app/actions";
-import { useUserStore } from "@/hooks/use-user-store";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function LoginForm() {
-  const setUserData = useUserStore(useShallow((state) => state.setUserData));
+  const router = useRouter();
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      login: "",
+      email: "",
       password: ""
     }
   });
 
+  const { isSubmitting } = form.formState;
+
   async function onFormSubmit(credentials: Credentials) {
-    startTransition(async () => {
-      const result = await logIn(Role.EMPLOYEE, credentials);
+    try {
+      const response = await fetch("/api/auth/can-access-employee", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: credentials.email })
+      });
 
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
-      }
+      const data: { allowed?: boolean; error?: string } = await response.json();
 
-      if ("success" in result && result.success) {
-        setUserData({
-          firstName: result.userData.firstName,
-          lastName: result.userData.lastName,
-          username: result.userData.username,
-          email: result.userData.email,
-          dateOfBirth: result.userData.dateOfBirth,
-          role: result.userData.role
-        });
-        toast.success("Zalogowano pomyślnie.");
-        redirect("/panel-pracownika/pulpit");
-      } else {
-        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
+      if (!response.ok || !data.allowed) {
+        return toast.error(
+          "Nie masz uprawnień do panelu pracownika. Skontaktuj się z administratorem."
+        );
       }
-    });
+    } catch (e) {
+      return toast.error(
+        "Nie udało się zweryfikować uprawnień. Spróbuj ponownie później."
+      );
+    }
+
+    await authClient.signIn.email(
+      {
+        email: credentials.email,
+        password: credentials.password
+      },
+      {
+        onSuccess: () => {
+          toast.success("Logowanie pomyślne!");
+          router.push("/panel-pracownika/pulpit");
+        },
+        onError: () => {
+          toast.error("Wystąpił błąd podczas logowania.");
+        }
+      }
+    );
   }
 
   return (
@@ -75,13 +86,11 @@ export default function LoginForm() {
             className="space-y-4"
           >
             <FormField
-              name="login"
+              name="email"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name}>
-                    Nazwa użytkownika lub adres e-mail
-                  </FormLabel>
+                  <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
                   <FormControl>
                     <div className="relative flex items-center">
                       <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
@@ -140,7 +149,7 @@ export default function LoginForm() {
               )}
             />
             <LoadingButton
-              isPending={isPending}
+              isPending={isSubmitting}
               idleText="Zaloguj się"
               loadingText="Logowanie..."
               className="w-full"

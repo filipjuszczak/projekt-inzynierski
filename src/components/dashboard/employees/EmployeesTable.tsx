@@ -52,47 +52,33 @@ function createColumns(
       }
     },
     {
-      accessorKey: "username",
+      accessorKey: "name",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Nazwa użytkownika
+            Imię i nazwisko
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       }
     },
-    {
-      accessorKey: "firstName",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Imię
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      }
-    },
-    {
-      accessorKey: "lastName",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Nazwisko
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      }
-    },
+    // {
+    //   accessorKey: "lastName",
+    //   header: ({ column }) => {
+    //     return (
+    //       <Button
+    //         variant="ghost"
+    //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //       >
+    //         Nazwisko
+    //         <ArrowUpDown className="ml-2 h-4 w-4" />
+    //       </Button>
+    //     );
+    //   }
+    // },
     {
       accessorKey: "email",
       header: ({ column }) => {

@@ -4,28 +4,17 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Role } from "@prisma/client";
-import { authenticateUser } from "@/auth";
+import { authEmployee } from "@/lib/auth/helpers";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { roomSchema, type RoomValues } from "@/lib/validation/room";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { NextResponse } from "next/server";
 
 export async function createRoom(values: RoomValues) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const { number, numberOfRows, seatsPerRow } = roomSchema.parse(values);
 
@@ -42,7 +31,7 @@ export async function createRoom(values: RoomValues) {
         number,
         numberOfRows: Number(numberOfRows),
         seatsPerRow: Number(seatsPerRow),
-        createdBy: session.userId
+        createdBy: session.user.id
       }
     });
   } catch (error) {
@@ -59,6 +48,8 @@ export async function createRoom(values: RoomValues) {
 
 export async function editRoom(id: string, values: RoomValues) {
   try {
+    await authEmployee({ returnRedirect: true });
+
     const { number, numberOfRows, seatsPerRow } = roomSchema.parse(values);
 
     if (number) {
@@ -135,20 +126,7 @@ export async function editRoom(id: string, values: RoomValues) {
 
 export async function deleteRoom(id: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const showtime = await prisma.showtime.findFirst({
       where: { roomId: id }

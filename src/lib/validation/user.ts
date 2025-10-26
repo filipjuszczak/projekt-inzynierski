@@ -13,7 +13,6 @@ const twelveYearsAgo = new Date(
 );
 
 export const updateUserDataSchema = z.object({
-  username: requiredString.optional(),
   firstName: requiredString,
   lastName: requiredString,
   email: requiredString.email("Nieprawidłowy adres e-mail"),

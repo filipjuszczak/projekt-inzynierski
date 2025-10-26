@@ -32,7 +32,7 @@ export default function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <ThemeChanger />
-        <LogoutButton redirectTo="/logowanie" asMenuItem />
+        <LogoutButton redirectTo="/" asMenuItem />
       </DropdownMenuContent>
     </DropdownMenu>
   );

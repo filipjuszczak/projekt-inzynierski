@@ -4,26 +4,13 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Role } from "@prisma/client";
 import { getSessionCookie } from "@/lib/session";
-import { authenticateUser } from "@/auth";
+import { authEmployee } from "@/lib/auth/helpers";
 import prisma from "@/lib/prisma";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
 
 export async function setReservationAsPaid(orderId: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.ADMIN,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingOrder = await prisma.order.findUnique({
       where: { id: orderId }
@@ -48,20 +35,7 @@ export async function setReservationAsPaid(orderId: string) {
 
 export async function deleteReservation(orderId: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.ADMIN,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingOrder = await prisma.order.findUnique({
       where: { id: orderId },

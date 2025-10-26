@@ -24,7 +24,7 @@ export default function Seats({
     <div
       className="grid w-full gap-x-1 gap-y-2 md:gap-x-2 md:gap-y-6"
       style={{
-        gridTemplateColumns: `repeat(${numberOfRows},1fr)`
+        gridTemplateColumns: `repeat(${seatsPerRow},1fr)`
       }}
     >
       {generateSeats({

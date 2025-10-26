@@ -62,9 +62,6 @@ export default function ReservationsList() {
       }
     });
 
-    console.log(upcomingReservations);
-    console.log(pastReservations);
-
     return (
       <Card>
         <CardHeader>

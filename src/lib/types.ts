@@ -56,13 +56,7 @@ export interface ShowtimeData
 
 export type EmployeeData = Pick<
   User,
-  | "id"
-  | "username"
-  | "firstName"
-  | "lastName"
-  | "email"
-  | "dateOfBirth"
-  | "role"
+  "id" | "name" | "email" | "dateOfBirth" | "role"
 >;
 
 export interface UserReservation {
@@ -144,27 +138,15 @@ export interface Reservation
     }[];
   };
   user: {
-    firstName: string;
-    lastName: string;
+    name: string;
   } | null;
 }
 
-export interface AccountData {
-  userData: {
-    id: string;
-    username: string | undefined;
-    firstName: string;
-    lastName: string;
-    email: string;
-    dateOfBirth: Date;
-    newsletterConsent: boolean | null;
-    createdAt: Date;
-  };
-  recentUserActivity: {
-    type: UserActivities;
-    date: Date;
-  }[];
-}
+export type UserActivity = {
+  id: string;
+  type: UserActivities;
+  createdAt: Date;
+};
 
 export interface ReservationsData {
   reservations: {

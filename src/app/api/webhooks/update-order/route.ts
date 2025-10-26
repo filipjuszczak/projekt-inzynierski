@@ -1,10 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { UserActivities } from "@prisma/client";
 import { stripe } from "@/lib/stripe";
 import { resend } from "@/lib/resend";
+import TicketsEmail from "@/components/emails/TicketsEmail";
 import prisma from "@/lib/prisma";
+import { DEFAULT_EMAIL_SENDER } from "@/lib/constants";
 import type Stripe from "stripe";
 import type { SelectedSeat } from "@/lib/types";
-import TicketsEmail from "@/components/emails/TicketsEmail";
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
 
       const existingUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { firstName: true, email: true }
+        select: { id: true, name: true, email: true }
       });
 
       if (!existingUser) {
@@ -118,15 +120,21 @@ export async function POST(request: NextRequest) {
             )!.id,
             orderId: createdOrder.id
           }))
+        }),
+        prisma.userActivity.create({
+          data: {
+            userId: existingUser.id,
+            type: UserActivities.CREATED_RESERVATION
+          }
         })
       ]);
 
       await resend.emails.send({
-        from: "Cinema <notifications@notifications.filipjuszczak.pl>",
+        from: DEFAULT_EMAIL_SENDER,
         to: [existingUser.email],
         subject: "Cinema - Twoje bilety",
         react: TicketsEmail({
-          firstName: existingUser.firstName,
+          firstName: existingUser.name.split(" ")[0],
           showtime: {
             startTime: showtime.startTime,
             movie: showtime.movie.title,

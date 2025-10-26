@@ -1,22 +1,11 @@
 import prisma from "@/lib/prisma";
-import { validateSession } from "@/app/actions";
+import { validateBuySession } from "@/lib/auth/helpers";
 import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const sessionCookie =
-      request.cookies.get("auth_session") ||
-      request.cookies.get("guest_session");
-
-    if (!sessionCookie) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const session = await validateSession(sessionCookie);
-
-    if (!session || !session.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const buySession = await validateBuySession();
+    if (buySession instanceof Response) return buySession;
 
     const body = await request.json();
 
@@ -58,7 +47,7 @@ export async function POST(request: NextRequest) {
       return Response.json(
         {
           error:
-            "Nie można anulować rezerwacji miejsca, które zostało zakupione."
+            "Nie można anulować rezerwacji miejsca, które zostało już zakupione."
         },
         { status: 400 }
       );
@@ -82,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (seatReservation.sessionId !== session.id) {
+    if (seatReservation.sessionId !== buySession.id) {
       return Response.json(
         {
           error: "To miejsce zostało zarezerwowane przez innego użytkownika."
@@ -91,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (seatReservation.sessionId !== session.id) {
+    if (seatReservation.sessionId !== buySession.id) {
       return Response.json(
         {
           error: "Nie masz uprawnień do anulowania tej rezerwacji."

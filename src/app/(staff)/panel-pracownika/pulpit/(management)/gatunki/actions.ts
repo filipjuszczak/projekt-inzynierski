@@ -4,28 +4,17 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Role } from "@prisma/client";
-import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
+import { authEmployee } from "@/lib/auth/helpers";
 import { genreSchema, type GenreValues } from "@/lib/validation/genre";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { NextResponse } from "next/server";
 
 export async function createGenre(values: GenreValues) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const { name, ageRestriction } = genreSchema.parse(values);
 
@@ -41,7 +30,7 @@ export async function createGenre(values: GenreValues) {
       data: {
         name,
         ageRestriction: Number(ageRestriction),
-        createdBy: session.userId,
+        createdBy: session.user.id,
         updatedBy: null
       }
     });
@@ -59,20 +48,8 @@ export async function createGenre(values: GenreValues) {
 
 export async function editGenre(id: string, values: GenreValues) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const { name, ageRestriction } = genreSchema.parse(values);
 
@@ -89,7 +66,7 @@ export async function editGenre(id: string, values: GenreValues) {
       data: {
         name,
         ageRestriction: Number(ageRestriction),
-        updatedBy: session.userId
+        updatedBy: session.user.id
       }
     });
   } catch (error) {
@@ -106,20 +83,7 @@ export async function editGenre(id: string, values: GenreValues) {
 
 export async function deleteGenre(id: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingGenre = await prisma.genre.findFirst({
       where: { id }

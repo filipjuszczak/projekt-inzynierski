@@ -3,20 +3,16 @@ import { getShowtimes } from "@/app/(main)/repertuar/data";
 import type { ViewingMode, ScreenFormat } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const date = searchParams.get("date") ?? undefined;
-  const title = searchParams.get("title") ?? undefined;
-  const genre = searchParams.get("genre") ?? undefined;
-  const viewingMode = searchParams.get("viewingMode") as ViewingMode;
-  const screenFormat = searchParams.get("screenFormat") as ScreenFormat;
+  const { searchParams } = request.nextUrl;
+  const filters = {
+    date: searchParams.get("date") ?? undefined,
+    title: searchParams.get("title") ?? undefined,
+    genre: searchParams.get("genre") ?? undefined,
+    viewingMode: searchParams.get("viewingMode") as ViewingMode,
+    screenFormat: searchParams.get("screenFormat") as ScreenFormat
+  };
 
-  const showtimes = await getShowtimes({
-    date,
-    title,
-    genre,
-    viewingMode,
-    screenFormat
-  });
+  const showtimes = await getShowtimes(filters);
 
   return NextResponse.json(showtimes);
 }

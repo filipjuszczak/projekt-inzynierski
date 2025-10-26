@@ -1,11 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import ky from "ky";
-import type { AccountData } from "@/lib/types";
+import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { UserActivity } from "@/lib/types";
 
-export const useAccountData = () => {
+export const useUserActivities = () => {
   return useQuery({
-    queryKey: ["accountData"],
-    queryFn: () => ky.get("/api/account").json<AccountData>(),
+    queryKey: ["userActivities"],
+    queryFn: async (): Promise<UserActivity[]> => {
+      const response = await fetch("/api/user-activities");
+      if (!response.ok) throw new Error(GENERIC_ERROR_MESSAGE);
+      return response.json();
+    },
     staleTime: Infinity
   });
 };

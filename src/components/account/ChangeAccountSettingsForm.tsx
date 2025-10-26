@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,48 +15,54 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import LoadingButton from "@/components/LoadingButton";
-import { updateAccountSettings } from "@/app/(main)/konto/actions";
 import {
   updateAccountSettingsSchema,
   type UpdateAccountSettingsValues
 } from "@/lib/validation/user";
-import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { authClient } from "@/lib/auth/auth-client";
+import { trackUserActivityClient } from "@/lib/auth/track-activity";
+import { UserActivities } from "@prisma/client";
 
-interface ChangeAccountSettingsFormProps {
-  userId: string;
-  newsletterConsent: boolean;
-}
-
-export default function ChangeAccountSettingsForm({
-  userId,
-  newsletterConsent
-}: ChangeAccountSettingsFormProps) {
+export default function ChangeAccountSettingsForm() {
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<UpdateAccountSettingsValues>({
     resolver: zodResolver(updateAccountSettingsSchema),
     defaultValues: {
-      newsletterConsent
+      newsletterConsent: session?.user.newsletterConsent || false
     }
   });
 
+  const { isSubmitting } = form.formState;
+
   async function onFormSubmit(values: UpdateAccountSettingsValues) {
-    startTransition(async () => {
-      const result = await updateAccountSettings(userId, values);
+    const previousConsent = session?.user.newsletterConsent;
 
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
-      }
+    await authClient.updateUser(
+      {
+        newsletterConsent: values.newsletterConsent
+      },
+      {
+        onSuccess: async () => {
+          if (previousConsent !== values.newsletterConsent) {
+            await trackUserActivityClient(
+              values.newsletterConsent
+                ? UserActivities.NEWSLETTER_CONSENT_GRANTED
+                : UserActivities.NEWSLETTER_CONSENT_REVOKED
+            );
+          }
 
-      if ("success" in result && result.success) {
-        toast.success("Ustawienia konta zostały pomyślnie zapisane!");
-        await queryClient.invalidateQueries({ queryKey: ["accountData"] });
-      } else {
-        toast.error(GENERIC_ERROR_MESSAGE);
+          toast.success("Zmiana ustawień konta przebiegła pomyślnie!");
+          queryClient.invalidateQueries({ queryKey: ["userActivities"] });
+          router.refresh();
+        },
+        onError: () => {
+          toast.error("Wystąpił błąd podczas zmiany ustawień konta.");
+        }
       }
-    });
+    );
   }
 
   return (
@@ -84,7 +90,7 @@ export default function ChangeAccountSettingsForm({
           )}
         />
         <LoadingButton
-          isPending={isPending}
+          isPending={isSubmitting}
           idleText="Zapisz"
           loadingText="Zapisywanie..."
           className="w-full"

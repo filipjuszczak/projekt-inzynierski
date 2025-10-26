@@ -10,20 +10,20 @@ import {
 import UpdateUserDataForm from "@/components/account/UpdateUserDataForm";
 import PersonalInfoSkeleton from "@/components/account/skeletons/PersonalInfoSkeleton";
 import ErrorCard from "@/components/account/ErrorCard";
-import { useAccountData } from "@/app/(main)/konto/queries";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function PersonalInfo() {
-  const { data, isLoading, isError } = useAccountData();
+  const { data: session, isPending, error } = authClient.useSession();
 
-  if (isLoading) {
+  if (isPending) {
     return <PersonalInfoSkeleton />;
   }
 
-  if (isError) {
+  if (error) {
     return <ErrorCard />;
   }
 
-  if (data) {
+  if (session) {
     return (
       <Card>
         <CardHeader>
@@ -31,14 +31,7 @@ export default function PersonalInfo() {
           <CardDescription>Zaktualizuj swoje dane</CardDescription>
         </CardHeader>
         <CardContent>
-          <UpdateUserDataForm
-            id={data.userData.id}
-            username={data.userData.username || ""}
-            firstName={data.userData.firstName}
-            lastName={data.userData.lastName}
-            email={data.userData.email}
-            dateOfBirth={new Date(data.userData.dateOfBirth)}
-          />
+          <UpdateUserDataForm />
         </CardContent>
       </Card>
     );

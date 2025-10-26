@@ -1,29 +1,14 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { Role } from "@prisma/client";
-import { getSessionCookie } from "@/lib/session";
-import { authenticateUser } from "@/auth";
-import { USER_ACTIVITIES } from "@/lib/constants";
+import { NextResponse } from "next/server";
+import { authUser } from "@/lib/auth/helpers";
 import prisma from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const sessionCookie = await getSessionCookie();
-
-    if (!sessionCookie) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { session, user } = await authenticateUser(
-      Role.NORMAL,
-      sessionCookie
-    );
-
-    if (!session || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await authUser({ returnError: true });
+    if (session instanceof NextResponse) return session;
 
     const reservations = await prisma.order.findMany({
-      where: { userId: user.id },
+      where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,

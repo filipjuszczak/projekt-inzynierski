@@ -37,7 +37,7 @@ export default async function ShowtimePage({ params }: ShowtimePageProps) {
         <div className="space-y-8">
           <Frown className="mx-auto size-10 text-muted-foreground" />
           <h1 className="text-3xl font-bold">
-            Ups! Ten seans już się rozpoczął. Nie można kupić biletów.
+            Ups! Ten seans już się rozpoczął. Nie można już kupić biletów.
           </h1>
         </div>
       </main>

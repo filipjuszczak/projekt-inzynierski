@@ -19,72 +19,59 @@ import {
 
 export const TIME_ZONE = "Europe/Warsaw";
 
-export const MAX_UNSUCCESSFUL_LOGIN_ATTEMPTS = 5;
-
 export const MAX_SELECTED_SEATS = 5;
-
-export const HASHING_CONFIG = {
-  memoryCost: 19456,
-  timeCost: 2,
-  outputLen: 32,
-  parallelism: 1
-};
 
 export const VIEWING_MODE_LABELS = {
   [ViewingMode.SUBTITLES]: "Oryginalny (napisy)",
   [ViewingMode.DUBBING]: "Dubbing"
-};
+} as const;
 
 export const SCREEN_FORMAT_LABELS = {
   [ScreenFormat.TWO_D]: "2D",
   [ScreenFormat.THREE_D]: "3D",
   [ScreenFormat.IMAX]: "IMAX"
-};
+} as const;
 
 export const GENRE_LABELS = {
   0: "Brak ograniczenia wiekowego",
   12: "12+",
   15: "15+",
   18: "18+"
-};
+} as const;
 
 export const AGE_RESTRICTION_LABELS = {
   0: "Brak",
   12: "12+",
   15: "15+",
   18: "18+"
-};
+} as const;
 
 export const ROLE_LABELS = {
-  [Role.ADMIN]: "Administrator",
-  [Role.EMPLOYEE]: "Pracownik",
-  [Role.NORMAL]: "Użytkownik"
-};
+  [Role.admin]: "Administrator",
+  [Role.employee]: "Pracownik",
+  [Role.user]: "Użytkownik"
+} as const;
 
 export const TICKET_LABELS = {
   [TicketType.NORMAL]: "Normalny",
   [TicketType.REDUCED]: "Ulgowy"
-};
+} as const;
 
 export const RESERVATION_LABELS = {
   [OrderType.RESERVATION]: "Rezerwacja",
   [OrderType.PAID]: "Zakup"
-};
+} as const;
 
 export const SHOWTIME_STATUS_LABELS = {
   [ShowtimeStatus.UPCOMING]: "Nadchodzący",
   [ShowtimeStatus.ONGOING]: "Trwający",
   [ShowtimeStatus.FINISHED]: "Zakończony"
-};
+} as const;
 
 export const GENERIC_ERROR_MESSAGE =
   "Ups! Coś poszło nie tak. Spróbuj ponownie później.";
 
 export const USER_ACTIVITIES = {
-  [UserActivities.ACTIVATED_ACCOUNT]: {
-    icon: CircleCheck,
-    text: "Aktywacja konta"
-  },
   [UserActivities.DELETED_ACCOUNT]: {
     icon: CircleX,
     text: "Usunięcie konta"
@@ -93,11 +80,11 @@ export const USER_ACTIVITIES = {
     icon: KeyRound,
     text: "Zmiana hasła"
   },
-  [UserActivities.REQUESTED_PASSWORD_RESET]: {
+  [UserActivities.PASSWORD_RESET]: {
     icon: KeyRound,
-    text: "Prośba o reset hasła"
+    text: "Reset hasła"
   },
-  [UserActivities.DATA_CHANGED]: {
+  [UserActivities.PERSONAL_DATA_CHANGED]: {
     icon: FileText,
     text: "Aktualizacja danych"
   },
@@ -113,8 +100,17 @@ export const USER_ACTIVITIES = {
     icon: MailX,
     text: "Wycofanie zgody na newsletter"
   }
-};
+} as const;
 
 export const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
 
+export const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
+
 export const PAGE_SIZE = 8;
+
+export const FIRST_MOVIE_RELEASE_YEAR = 1888;
+
+export const BREAK_BETWEEN_SHOWTIMES = 15 * 60 * 1000;
+
+export const DEFAULT_EMAIL_SENDER =
+  "Sunema <notifications@notifications.filipjuszczak.pl>";

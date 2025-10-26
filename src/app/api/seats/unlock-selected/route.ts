@@ -1,22 +1,11 @@
 import prisma from "@/lib/prisma";
-import { validateSession } from "@/app/actions";
+import { validateBuySession } from "@/lib/auth/helpers";
 import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const sessionCookie =
-      request.cookies.get("auth_session") ||
-      request.cookies.get("guest_session");
-
-    if (!sessionCookie) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const session = await validateSession(sessionCookie);
-
-    if (!session || !session.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const buySession = await validateBuySession();
+    if (buySession instanceof Response) return buySession;
 
     const body = await request.json();
 
@@ -43,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     if (
       seatReservations.some(
-        (reservation) => reservation.sessionId !== session.id
+        (reservation) => reservation.sessionId !== buySession.id
       )
     ) {
       return Response.json({ success: false });

@@ -32,6 +32,34 @@ import { SCREEN_FORMAT_LABELS, VIEWING_MODE_LABELS } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { MovieData } from "@/lib/types";
 
+interface MoviesTableProps {
+  data: MovieData[];
+}
+
+export default function MoviesTable({ data }: MoviesTableProps) {
+  const router = useRouter();
+
+  async function handleDeleteMovie(movieId: string) {
+    const result = await deleteMovie(movieId);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+
+    if ("success" in result && result.success) {
+      toast.success("Film został usunięty.");
+      router.refresh();
+    } else {
+      toast.error("Wystąpił błąd podczas usuwania filmu.");
+    }
+  }
+
+  const columns = createColumns(handleDeleteMovie);
+
+  return <DataTable columns={columns} data={data} />;
+}
+
 type Columns = ColumnDef<MovieData>[];
 
 function createColumns(handleDeleteMovie: (movieId: string) => void): Columns {
@@ -208,32 +236,4 @@ function createColumns(handleDeleteMovie: (movieId: string) => void): Columns {
       }
     }
   ];
-}
-
-interface MoviesTableProps {
-  data: MovieData[];
-}
-
-export default function MoviesTable({ data }: MoviesTableProps) {
-  const router = useRouter();
-
-  async function handleDeleteMovie(movieId: string) {
-    const result = await deleteMovie(movieId);
-
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-
-    if ("success" in result && result.success) {
-      toast.success("Film został usunięty.");
-      router.refresh();
-    } else {
-      toast.error("Wystąpił błąd podczas usuwania filmu.");
-    }
-  }
-
-  const columns = createColumns(handleDeleteMovie);
-
-  return <DataTable columns={columns} data={data} />;
 }

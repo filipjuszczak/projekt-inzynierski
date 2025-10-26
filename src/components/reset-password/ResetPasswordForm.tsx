@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -14,23 +13,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { requestPasswordReset } from "@/app/(main)/(auth)/(forms)/actions";
 import {
   resetPasswordSchema,
   ResetPasswordValues
 } from "@/lib/validation/reset-password";
-import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { authClient } from "@/lib/auth/auth-client";
 
-interface ResetPasswordFormProps {
-  onSuccess: () => void;
-}
-
-export default function ResetPasswordForm({
-  onSuccess
-}: ResetPasswordFormProps) {
-  const [wasLinkSent, setWasLinkSent] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
+export default function ResetPasswordForm() {
   const form = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -38,25 +27,25 @@ export default function ResetPasswordForm({
     }
   });
 
+  const { isSubmitting, submitCount } = form.formState;
+
   async function onFormSubmit(values: ResetPasswordValues) {
-    startTransition(async () => {
-      const result = await requestPasswordReset(values.email);
-
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
+    await authClient.requestPasswordReset(
+      {
+        email: values.email,
+        redirectTo: "/zresetuj-haslo"
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            "Wysłaliśmy link resetujący hasło na podany adres e-mail."
+          );
+        },
+        onError: () => {
+          toast.error("Wystąpił błąd podczas wysłania prośby o reset hasła.");
+        }
       }
-
-      if ("success" in result && result.success) {
-        setWasLinkSent(true);
-        onSuccess();
-        toast.success(
-          "Wysłaliśmy link resetujący hasło na podany adres e-mail."
-        );
-      } else {
-        toast.error(GENERIC_ERROR_MESSAGE);
-      }
-    });
+    );
   }
 
   return (
@@ -76,10 +65,10 @@ export default function ResetPasswordForm({
           )}
         />
         <LoadingButton
-          isPending={isPending}
-          idleText="Zresetuj hasło"
+          isPending={isSubmitting}
+          idleText={submitCount > 0 ? "Link został wysłany" : "Zresetuj hasło"}
           loadingText="Wysyłanie..."
-          disabled={wasLinkSent}
+          disabled={submitCount > 0}
           className="w-full"
         />
       </form>

@@ -15,10 +15,9 @@ export async function generateMetadata({
   const { firstName, lastName } = await getEmployeeMetadata(id);
 
   return {
-    title:
-      firstName && lastName
-        ? `Edytuj pracownika ${firstName} ${lastName}`
-        : "Nie znaleziono pracownika"
+    title: firstName
+      ? `Edytuj pracownika ${firstName} ${lastName || ""}`
+      : "Nie znaleziono pracownika"
   };
 }
 
@@ -38,9 +37,7 @@ export default async function EditEmployeePage({
       <EmployeeForm
         id={employee.id}
         role={employee.role!}
-        username={employee.username || ""}
-        firstName={employee.firstName}
-        lastName={employee.lastName}
+        name={employee.name}
         email={employee.email}
         dateOfBirth={employee.dateOfBirth}
       />

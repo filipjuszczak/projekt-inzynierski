@@ -1,30 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { Role } from "@prisma/client";
-import { authenticateUser } from "@/auth";
-import { getSessionCookie } from "@/lib/session";
+// import { Role } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { authEmployee } from "@/lib/auth/helpers";
 
 export async function setFeaturedMovie(movieId: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingMovie = await prisma.movie.findUnique({
       where: { id: movieId }

@@ -108,15 +108,7 @@ function createColumns(
         const user = row.original.user;
 
         return (
-          <span>
-            {user ? (
-              <>
-                {user.firstName} {user.lastName}
-              </>
-            ) : (
-              "Użytkownik nie istnieje."
-            )}
-          </span>
+          <span>{user ? <>{user.name}</> : "Użytkownik nie istnieje."}</span>
         );
       }
     },
@@ -198,7 +190,7 @@ function createColumns(
                   <div>
                     <span className="text-muted-foreground">Użytkownik:</span>{" "}
                     {reservation.user
-                      ? `${reservation.user.firstName} ${reservation.user.lastName}`
+                      ? reservation.user.name
                       : "Użytkownik nie istnieje."}
                   </div>
                   <div>

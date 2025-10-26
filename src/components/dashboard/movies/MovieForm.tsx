@@ -187,7 +187,7 @@ export default function MovieForm({
             toast.error("Wystąpił błąd podczas przesyłania plakatu.");
           } else {
             const movieIdToUpdate = id || result.movieId;
-            const posterUrl = uploadResult[0].url;
+            const posterUrl = uploadResult[0].ufsUrl;
             const posterUpdateResult = await updatePosterUrl(
               movieIdToUpdate,
               posterUrl

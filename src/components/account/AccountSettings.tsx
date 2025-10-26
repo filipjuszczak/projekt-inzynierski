@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -15,32 +14,31 @@ import ChangeAccountSettingsForm from "@/components/account/ChangeAccountSetting
 import DeleteAccountButton from "@/components/account/DeleteAccountButton";
 import AccountSettingsSkeleton from "@/components/account/skeletons/AccountSettingsSkeleton";
 import ErrorCard from "@/components/account/ErrorCard";
-import { useAccountData } from "@/app/(main)/konto/queries";
+import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
 
 export default function AccountSettings() {
-  const { data, isLoading, isError } = useAccountData();
+  const { data: session, isPending, error } = authClient.useSession();
 
-  if (isLoading) {
+  if (isPending) {
     return <AccountSettingsSkeleton />;
   }
 
-  if (isError) {
+  if (error) {
     return <ErrorCard />;
   }
 
-  if (data) {
+  if (session) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Ustawienia konta</CardTitle>
-          <CardDescription>Zarządzaj swoimi ustawieniami konta</CardDescription>
+          <CardDescription>
+            Zarządzaj ustawieniami swojego konta
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          <ChangeAccountSettingsForm
-            userId={data.userData.id}
-            newsletterConsent={data.userData.newsletterConsent || false}
-          />
+          <ChangeAccountSettingsForm />
           <Separator />
           <div className="space-y-8">
             <div className="space-y-4">
@@ -58,7 +56,7 @@ export default function AccountSettings() {
               <div className="w-fit font-semibold leading-none tracking-tight">
                 Usuń konto
               </div>
-              <DeleteAccountButton userId={data.userData.id} />
+              <DeleteAccountButton />
             </div>
           </div>
         </CardContent>

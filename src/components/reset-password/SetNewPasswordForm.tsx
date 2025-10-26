@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -16,27 +17,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/LoadingButton";
-import { setNewPassword } from "@/app/(main)/(auth)/(forms)/actions";
 import {
   setNewPasswordSchema,
   SetNewPasswordValues
 } from "@/lib/validation/set-new-password";
-import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import { authClient } from "@/lib/auth/auth-client";
+import { trackUserActivityClient } from "@/lib/auth/track-activity";
+import { UserActivities } from "@prisma/client";
 
 interface SetNewPasswordFormProps {
-  email: string;
   token: string;
-  onSuccess: () => void;
 }
 
-export default function SetNewPasswordForm({
-  email,
-  token,
-  onSuccess
-}: SetNewPasswordFormProps) {
+export default function SetNewPasswordForm({ token }: SetNewPasswordFormProps) {
+  const router = useRouter();
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [passwordConditionsMet, setPasswordConditionsMet] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<SetNewPasswordValues>({
     resolver: zodResolver(setNewPasswordSchema),
@@ -49,52 +45,23 @@ export default function SetNewPasswordForm({
   const password = form.watch("password");
   const repeatPassword = form.watch("repeatPassword");
 
-  useEffect(() => {
-    function checkPasswordConditions() {
-      const minLength = password.length >= 8;
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      const hasNumber = /\d/.test(password);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      const passwordsMatch = password === repeatPassword;
-
-      return (
-        minLength &&
-        hasUppercase &&
-        hasLowercase &&
-        hasNumber &&
-        hasSpecialChar &&
-        passwordsMatch
-      );
-    }
-
-    setPasswordConditionsMet(checkPasswordConditions());
-  }, [password, repeatPassword]);
+  const { isSubmitting } = form.formState;
 
   async function onFormSubmit(values: SetNewPasswordValues) {
-    if (values.password !== values.repeatPassword) {
-      form.setError("repeatPassword", {
-        type: "value",
-        message: "Hasła nie są takie same"
-      });
-      return;
-    }
+    await authClient.resetPassword(
+      {
+        token,
+        newPassword: values.password
+      },
+      {
+        onSuccess: async () => {
+          await trackUserActivityClient(UserActivities.PASSWORD_RESET);
 
-    startTransition(async () => {
-      const result = await setNewPassword(email, token, values.password);
-
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
+          toast.success("Twoje hasło zostało pomyślnie zaktualizowane!");
+          router.push("/logowanie");
+        }
       }
-
-      if ("success" in result && result.success) {
-        onSuccess();
-        toast.success("Hasło zostało zaktualizowane.");
-      } else {
-        toast.error(GENERIC_ERROR_MESSAGE);
-      }
-    });
+    );
   }
 
   return (
@@ -170,65 +137,76 @@ export default function SetNewPasswordForm({
             </FormItem>
           )}
         />
-        <div className="space-y-2 text-sm">
-          <p>Hasło musi:</p>
-          <ul className="list-inside list-disc space-y-1">
-            <li
-              className={
-                password.length >= 8 ? "text-primary" : "text-destructive"
-              }
-            >
-              Mieć co najmniej 8 znaków
-            </li>
-            <li
-              className={
-                /[A-Z]/.test(password) ? "text-primary" : "text-destructive"
-              }
-            >
-              Zawierać co najmniej jedną wielką literę
-            </li>
-            <li
-              className={
-                /[a-z]/.test(password) ? "text-primary" : "text-destructive"
-              }
-            >
-              Zawierać co najmniej jedną małą literę
-            </li>
-            <li
-              className={
-                /\d/.test(password) ? "text-primary" : "text-destructive"
-              }
-            >
-              Zawierać co najmniej jedną cyfrę
-            </li>
-            <li
-              className={
-                /[!@#$%^&*(),.?":{}|<>]/.test(password)
-                  ? "text-primary"
-                  : "text-destructive"
-              }
-            >
-              Zawierać co najmniej jeden znak specjalny
-            </li>
-            <li
-              className={
-                password === repeatPassword
-                  ? "text-primary"
-                  : "text-destructive"
-              }
-            >
-              Hasła muszą być takie same
-            </li>
-          </ul>
-        </div>
+        <PasswordConditions
+          password={password}
+          repeatPassword={repeatPassword}
+        />
         <LoadingButton
-          isPending={isPending}
+          isPending={isSubmitting}
           idleText="Ustaw nowe hasło"
           loadingText="Wysyłanie..."
-          disabled={!passwordConditionsMet}
+          disabled={isSubmitting}
           className="w-full"
         />
       </form>
     </Form>
+  );
+}
+
+interface PasswordConditionsProps {
+  password: string;
+  repeatPassword: string;
+}
+
+function PasswordConditions({
+  password,
+  repeatPassword
+}: PasswordConditionsProps) {
+  return (
+    <div className="space-y-2 text-sm">
+      <p>Hasło musi:</p>
+      <ul className="list-inside list-disc space-y-1">
+        <li
+          className={password.length >= 8 ? "text-primary" : "text-destructive"}
+        >
+          Mieć co najmniej 8 znaków
+        </li>
+        <li
+          className={
+            /[A-Z]/.test(password) ? "text-primary" : "text-destructive"
+          }
+        >
+          Zawierać co najmniej jedną wielką literę
+        </li>
+        <li
+          className={
+            /[a-z]/.test(password) ? "text-primary" : "text-destructive"
+          }
+        >
+          Zawierać co najmniej jedną małą literę
+        </li>
+        <li
+          className={/\d/.test(password) ? "text-primary" : "text-destructive"}
+        >
+          Zawierać co najmniej jedną cyfrę
+        </li>
+        <li
+          className={
+            /[!@#$%^&*(),.?":{}|<>]/.test(password)
+              ? "text-primary"
+              : "text-destructive"
+          }
+        >
+          Zawierać co najmniej jeden znak specjalny
+        </li>
+        <li
+          className={
+            password === repeatPassword ? "text-primary" : "text-destructive"
+          }
+        >
+          Hasła muszą być takie same
+        </li>
+      </ul>
+    </div>
   );
 }

@@ -1,26 +1,15 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { OrderType, Role } from "@prisma/client";
-import { authenticateUser } from "@/auth";
-import { getSessionCookie } from "@/lib/session";
+import { OrderType } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { authUser } from "@/lib/auth/helpers";
 
 export async function cancelReservation(orderId: string) {
   try {
-    const sessionCookie = await getSessionCookie();
-    if (!sessionCookie) {
-      return redirect("/logowanie");
-    }
-
-    const { session, user } = await authenticateUser(
-      Role.NORMAL,
-      sessionCookie
-    );
-    if (!session || !session.userId) {
-      return redirect("/logowanie");
-    }
+    const session = await authUser({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -35,7 +24,7 @@ export async function cancelReservation(orderId: string) {
       return { error: "Nie można zrezygnować z zapłaconej rezerwacji." };
     }
 
-    if (order.userId !== user.id) {
+    if (order.userId !== session.user.id) {
       return {
         error: "Nie możesz zrezygnować z rezerwacji innego użytkownika."
       };

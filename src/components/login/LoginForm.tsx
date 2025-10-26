@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import { AtSign, EyeIcon, EyeOffIcon, KeyRound } from "lucide-react";
-import { Role } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -22,54 +20,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import LoadingButton from "@/components/LoadingButton";
-import { logIn } from "@/app/actions";
-import { useUserStore } from "@/hooks/use-user-store";
 import { loginFormSchema, type Credentials } from "@/lib/validation/auth";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function LoginForm() {
-  const setUserData = useUserStore(useShallow((state) => state.setUserData));
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const queryClient = useQueryClient();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const form = useForm<Credentials>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      login: "",
+      email: "",
       password: ""
     }
   });
 
+  const { isSubmitting } = form.formState;
+
   async function onFormSubmit(credentials: Credentials) {
-    startTransition(async () => {
-      const result = await logIn(Role.NORMAL, credentials);
+    await authClient.signIn.email(
+      {
+        email: credentials.email,
+        password: credentials.password,
+        callbackURL: "/"
+      },
+      {
+        onSuccess: () => {
+          toast.success("Logowanie pomyślne!");
+          router.push("/");
+        },
+        onError: (error) => {
+          let message = "Wystąpił błąd podczas logowania.";
+          if (error.error.code === "EMAIL_NOT_VERIFIED") {
+            message = "Potwierdź swój adres e-mail, zanim się zalogujesz.";
+          }
 
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
+          toast.error(message);
+        }
       }
-
-      if ("success" in result && result.success) {
-        setUserData({
-          firstName: result.userData.firstName,
-          lastName: result.userData.lastName,
-          username: result.userData.username,
-          email: result.userData.email,
-          dateOfBirth: result.userData.dateOfBirth,
-          role: result.userData.role
-        });
-
-        queryClient.setQueryData(["authentication"], () => ({
-          isAuthenticated: true
-        }));
-
-        toast.success("Zalogowano pomyślnie!");
-        return redirect("/");
-      } else {
-        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
-      }
-    });
+    );
   }
 
   return (
@@ -84,13 +74,11 @@ export default function LoginForm() {
             className="space-y-4"
           >
             <FormField
-              name="login"
+              name="email"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name}>
-                    Nazwa użytkownika lub adres e-mail
-                  </FormLabel>
+                  <FormLabel htmlFor={field.name}>Adres e-mail</FormLabel>
                   <FormControl>
                     <div className="relative flex items-center">
                       <AtSign className="pointer-events-none absolute left-2 top-2 size-5 text-muted-foreground" />
@@ -149,12 +137,12 @@ export default function LoginForm() {
               )}
             />
             <div>
-              <Link href="/zresetuj-haslo?step=request" className="text-sm">
+              <Link href="/zresetuj-haslo" className="text-sm">
                 Nie pamiętasz hasła?
               </Link>
             </div>
             <LoadingButton
-              isPending={isPending}
+              isPending={isSubmitting}
               idleText="Zaloguj się"
               loadingText="Logowanie..."
               className="w-full"

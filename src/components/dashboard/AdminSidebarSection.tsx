@@ -16,9 +16,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-import { useUserStore } from "@/hooks/use-user-store";
-import { useShallow } from "zustand/react/shallow";
 import { Role } from "@prisma/client";
+import { authClient } from "@/lib/auth/auth-client";
 
 const employeesMenuItems = [
   {
@@ -41,9 +40,8 @@ const employeesMenuItems = [
 ];
 
 export default function AdminSidebarSection() {
-  const role = useUserStore(useShallow((state) => state.role));
-
-  if (role !== Role.ADMIN) return null;
+  const { data: session } = authClient.useSession();
+  if (session?.user.role !== Role.admin) return null;
 
   return (
     <SidebarGroup>

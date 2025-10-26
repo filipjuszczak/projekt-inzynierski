@@ -10,30 +10,22 @@ import {
   ShowtimeStatus,
   ViewingMode
 } from "@prisma/client";
-import { authenticateUser } from "@/auth";
 import { getSessionCookie } from "@/lib/session";
 import prisma from "@/lib/prisma";
+import { authEmployee } from "@/lib/auth/helpers";
 import { movieSchema, type MovieValues } from "@/lib/validation/movie";
-import { GENERIC_ERROR_MESSAGE } from "@/lib/constants";
+import {
+  FIRST_MOVIE_RELEASE_YEAR,
+  GENERIC_ERROR_MESSAGE
+} from "@/lib/constants";
+import { NextResponse } from "next/server";
 
 export async function createMovie(values: MovieValues) {
   let createdMovie: { id: string };
 
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const {
       title,
@@ -54,8 +46,10 @@ export async function createMovie(values: MovieValues) {
       return { error: "Film o takim tytule już istnieje." };
     }
 
-    if (new Date(releaseDate).getFullYear() <= 1888) {
-      return { error: "Rok premiery filmu musi być większy niż 1888." };
+    if (new Date(releaseDate).getFullYear() <= FIRST_MOVIE_RELEASE_YEAR) {
+      return {
+        error: `Rok premiery filmu musi być większy niż ${FIRST_MOVIE_RELEASE_YEAR}.`
+      };
     }
 
     const availableViewingModes = Object.values(ViewingMode);
@@ -81,7 +75,7 @@ export async function createMovie(values: MovieValues) {
         shortDescription,
         duration: Number(duration),
         releaseDate,
-        createdBy: session.userId,
+        createdBy: session.user.id,
         updatedBy: null,
         viewingModes: {
           create: [...viewingModes.map((vm) => ({ viewingMode: vm }))]
@@ -117,20 +111,8 @@ export async function editMovie(movieId: string, values: MovieValues) {
   let updatedMovie;
 
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    const session = await authEmployee({ returnRedirect: true });
+    if (session instanceof NextResponse) return session;
 
     const {
       title,
@@ -180,7 +162,7 @@ export async function editMovie(movieId: string, values: MovieValues) {
           shortDescription,
           duration: Number(duration),
           releaseDate,
-          updatedBy: session.userId
+          updatedBy: session.user.id
         },
         select: {
           id: true
@@ -230,20 +212,7 @@ export async function editMovie(movieId: string, values: MovieValues) {
 
 export async function deleteMovie(movieId: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const existingShowtime = await prisma.showtime.findFirst({
       where: {
@@ -300,20 +269,7 @@ export async function deleteMovie(movieId: string) {
 
 export async function updatePosterUrl(movieId: string, posterUrl: string) {
   try {
-    const requestSessionCookie = await getSessionCookie();
-
-    if (!requestSessionCookie) {
-      return redirect("/panel-pracownika/logowanie");
-    }
-
-    const { session } = await authenticateUser(
-      Role.EMPLOYEE,
-      requestSessionCookie
-    );
-
-    if (!session || !session.userId) {
-      return redirect("/panel-pracownika/logowanie");
-    }
+    await authEmployee({ returnRedirect: true });
 
     const movie = await prisma.movie.findFirst({
       where: { id: movieId },

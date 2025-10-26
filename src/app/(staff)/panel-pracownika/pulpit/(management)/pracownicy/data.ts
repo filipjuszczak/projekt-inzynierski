@@ -5,14 +5,12 @@ export async function getEmployees() {
   const employees = await prisma.user.findMany({
     where: {
       role: {
-        in: [Role.EMPLOYEE, Role.ADMIN]
+        in: [Role.employee, Role.admin]
       }
     },
     select: {
       id: true,
-      username: true,
-      firstName: true,
-      lastName: true,
+      name: true,
       email: true,
       dateOfBirth: true,
       role: true
@@ -27,9 +25,7 @@ export async function getEmployeeById(id: string) {
     where: { id },
     select: {
       id: true,
-      username: true,
-      firstName: true,
-      lastName: true,
+      name: true,
       email: true,
       dateOfBirth: true,
       role: true

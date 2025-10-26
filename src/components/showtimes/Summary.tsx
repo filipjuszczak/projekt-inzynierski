@@ -74,12 +74,6 @@ export default function Summary({
       <CardContent className="space-y-8">
         <div className="grid gap-4 min-[640px]:grid-cols-2">
           <div className="relative mx-auto aspect-[2/3] max-h-[400px] w-full max-w-[250px]">
-            {/* <Image
-              src={showtime.movie.posterUrl || "/images/image-placeholder.svg"}
-              alt={`Plakat filmu ${showtime.movie.title}`}
-              fill
-              className="aspect-[2/3] rounded-lg object-cover"
-            /> */}
             <ImageWithLoader
               src={showtime.movie.posterUrl || "/images/image-placeholder.svg"}
               fill

@@ -28,6 +28,7 @@ import {
   type CheckoutFormValues
 } from "@/lib/validation/checkout";
 import type { SelectedSeat } from "@/lib/types";
+import { authClient } from "@/lib/auth/auth-client";
 
 interface CheckoutFormProps {
   totalPrice: number;
@@ -44,24 +45,18 @@ export default function CheckoutForm({
   onCheckoutStart,
   onCheckoutCancel
 }: CheckoutFormProps) {
-  const userData = useUserStore(
-    useShallow((state) => ({
-      firstName: state.firstName,
-      lastName: state.lastName,
-      email: state.email,
-      dateOfBirth: state.dateOfBirth
-    }))
-  );
-
+  const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
+
+  const [firstName, lastName] = session?.user.name.split(" ") || ["", ""];
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
-      firstName: userData.firstName || "",
-      lastName: userData.lastName || "",
-      email: userData.email || "",
-      dateOfBirth: new Date(userData.dateOfBirth || new Date()),
+      firstName: firstName || "",
+      lastName: lastName || "",
+      email: session?.user.email || "",
+      dateOfBirth: new Date(session?.user.dateOfBirth || new Date()),
       type: "buy"
     }
   });

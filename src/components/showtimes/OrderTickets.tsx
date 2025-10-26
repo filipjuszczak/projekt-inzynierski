@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import ky from "ky";
 import { toast } from "sonner";
 import { TicketType } from "@prisma/client";
 import SelectTickets from "@/components/showtimes/SelectTickets";
@@ -58,20 +57,36 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
   const selectedSeatsRef = useRef(selectedSeats);
 
   useEffect(() => {
-    const sessionId = searchParams.get("sessionId");
-    if (!sessionId) return;
+    async function initializeBuySession() {
+      try {
+        await fetch("/api/buy-session", {
+          method: "POST"
+        });
+      } catch (error) {
+        console.error("Failed to initialize buy session:", error);
+      }
+    }
+
+    initializeBuySession();
+  }, []);
+
+  useEffect(() => {
+    const buySessionId = searchParams.get("buySessionId");
+    if (!buySessionId) return;
 
     const selectedSeatsParams = searchParams.getAll("seat");
     if (selectedSeatsParams.length === 0) return;
 
     async function unlockSelectedSeats() {
-      await ky.post("/api/seats/unlock-selected", {
-        json: {
+      await fetch("/api/seats/unlock-selected", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           seats: selectedSeatsParams.map((seat) => {
             const [rowNumber, seatNumber] = seat.split("-");
             return { rowNumber, seatNumber };
           })
-        }
+        })
       });
     }
 
@@ -166,14 +181,26 @@ export default function OrderTickets({ showtime, tickets }: OrderTicketsProps) {
     seatNumber: number
   ) {
     try {
-      const apiEndpoint = `/api/seats/unlock`;
-      const { success } = await ky
-        .post(apiEndpoint, {
-          json: { showtimeId: showtime.id, rowNumber, seatNumber }
+      const response = await fetch("/api/seats/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          showtimeId: showtime.id,
+          rowNumber,
+          seatNumber
         })
-        .json<{ success: boolean }>();
+      });
 
-      if (success) {
+      const data = (await response.json()) as {
+        success?: boolean;
+        error?: string;
+      };
+
+      if (data.error) {
+        return toast.error(data.error || GENERIC_ERROR_MESSAGE);
+      }
+
+      if (data.success) {
         setSelectedSeats((prev) => prev.filter((s) => s.id !== id));
         setCurrentStep("select-seats");
       } else {

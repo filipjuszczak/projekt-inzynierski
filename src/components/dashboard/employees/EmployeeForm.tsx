@@ -34,11 +34,11 @@ import { employeeSchema, EmployeeValues } from "@/lib/validation/employee";
 
 const userRoleLabels = [
   {
-    role: Role.ADMIN,
+    role: Role.admin,
     label: "Administrator"
   },
   {
-    role: Role.EMPLOYEE,
+    role: Role.employee,
     label: "Pracownik"
   }
 ];
@@ -47,28 +47,27 @@ interface EmployeeFormProps {
   id?: string;
   role?: Role;
   username?: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
   email?: string;
   dateOfBirth?: Date;
 }
 
 export default function EmployeeForm({
   id = "",
-  role = Role.EMPLOYEE,
+  role = Role.employee,
   username = "",
-  firstName = "",
-  lastName = "",
+  name = "",
   email = "",
   dateOfBirth = new Date()
 }: EmployeeFormProps) {
   const [isPending, startTransition] = useTransition();
 
+  const [firstName, lastName] = name.split(" ");
+
   const form = useForm<EmployeeValues>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       role,
-      username,
       firstName,
       lastName,
       email,
@@ -132,19 +131,6 @@ export default function EmployeeForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="username"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
-              <FormControl>
-                <Input id={field.name} {...field} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -9,8 +9,7 @@ export async function getReservations() {
       createdAt: true,
       user: {
         select: {
-          firstName: true,
-          lastName: true
+          name: true
         }
       },
       showtime: {
@@ -25,12 +24,6 @@ export async function getReservations() {
               number: true
             }
           }
-          // seats: {
-          //   select: {
-          //     rowNumber: true,
-          //     seatNumber: true
-          //   }
-          // }
         }
       }
     }

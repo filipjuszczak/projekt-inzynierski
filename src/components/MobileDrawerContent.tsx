@@ -12,10 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import LogoutButton from "@/components/LogoutButton";
-import { useCheckAuth } from "@/app/(main)/queries";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function MobileDrawerContent() {
-  const { data, isPending } = useCheckAuth();
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <DrawerContent>
@@ -40,7 +40,7 @@ export default function MobileDrawerContent() {
           </ul>
         </nav>
         <Separator />
-        {data?.isAuthenticated ? (
+        {session?.session.token ? (
           <div>
             <nav>
               <ul>

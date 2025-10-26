@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePickerWithYears } from "@/components/ui/date-picker";
 import LoadingButton from "@/components/LoadingButton";
-import { signUp } from "@/app/(main)/(auth)/(forms)/actions";
+import { authClient } from "@/lib/auth/auth-client";
 import { signupFormSchema, type SignupValues } from "@/lib/validation/auth";
 import { validateSignupValues } from "@/lib/utils";
 
@@ -35,13 +35,10 @@ interface SignupFormProps {
 
 export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [passwordConditionsMet, setPasswordConditionsMet] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
-      username: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -55,47 +52,32 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
   const password = form.watch("password");
   const repeatPassword = form.watch("repeatPassword");
 
-  useEffect(() => {
-    function checkPasswordConditions() {
-      const minLength = password.length >= 8;
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      const hasNumber = /\d/.test(password);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      const passwordsMatch = password === repeatPassword;
-
-      return (
-        minLength &&
-        hasUppercase &&
-        hasLowercase &&
-        hasNumber &&
-        hasSpecialChar &&
-        passwordsMatch
-      );
-    }
-
-    setPasswordConditionsMet(checkPasswordConditions());
-  }, [password, repeatPassword]);
+  const { isSubmitting } = form.formState;
 
   async function onFormSubmit(values: SignupValues) {
     if (!validateSignupValues(form, values)) return;
 
-    startTransition(async () => {
-      const result = await signUp(values);
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
+    await authClient.signUp.email(
+      {
+        name: `${values.firstName} ${values.lastName}`,
+        email: values.email,
+        password: values.password,
+        dateOfBirth: values.dateOfBirth
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            "Konto zostało utworzone pomyślnie! Sprawdź swoją skrzynkę e-mail, aby aktywować konto."
+          );
+          onSuccessfulSignup();
+        },
+        onError: () => {
+          toast.error(
+            "Wystąpił błąd podczas tworzenia konta. Spróbuj ponownie później."
+          );
+        }
       }
-
-      if ("success" in result && result.success) {
-        onSuccessfulSignup();
-        toast.success(
-          "Konto zostało utworzone pomyślnie! Sprawdź swoją skrzynkę e-mail, aby aktywować konto."
-        );
-      } else {
-        toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.");
-      }
-    });
+    );
   }
 
   return (
@@ -112,19 +94,6 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
             onSubmit={form.handleSubmit(onFormSubmit)}
             className="space-y-6"
           >
-            <FormField
-              name="username"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor={field.name}>Nazwa użytkownika</FormLabel>
-                  <FormControl>
-                    <Input id={field.name} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 name="firstName"
@@ -334,10 +303,10 @@ export default function SignupForm({ onSuccessfulSignup }: SignupFormProps) {
             />
 
             <LoadingButton
-              isPending={isPending}
+              isPending={isSubmitting}
               idleText="Utwórz konto"
               loadingText="Wysyłanie..."
-              disabled={!passwordConditionsMet}
+              // disabled={!passwordConditionsMet}
               className="w-full"
             />
           </form>

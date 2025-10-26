@@ -9,68 +9,79 @@ datasource db {
 }
 
 enum Role {
-  NORMAL
-  EMPLOYEE
-  ADMIN
-}
-
-enum UserType {
-  GUEST
-  REGULAR
+  user
+  employee
+  admin
 }
 
 model User {
-  id                        String         @id @default(uuid())
-  type                      UserType       @default(REGULAR)
-  username                  String?        @unique
-  firstName                 String
-  lastName                  String
-  email                     String         @unique
-  dateOfBirth               DateTime
-  password                  String?
-  role                      Role?          @default(NORMAL)
-  isActivated               Boolean?       @default(false)
-  mustChangePassword        Boolean?       @default(false)
-  newsletterConsent         Boolean?       @default(false)
-  unsuccessfulLoginAttempts Int?           @default(0)
-  isLocked                  Boolean?       @default(false)
-  sessions                  Session[]
-  seats                     Seat[]
-  orders                    Order[]
-  tokens                    Token[]
-  activities                UserActivity[]
-  createdAt                 DateTime       @default(now())
-  updatedAt                 DateTime       @updatedAt
+  id                String         @id
+  name              String
+  email             String
+  emailVerified     Boolean        @default(false)
+  image             String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now()) @updatedAt
+  role              Role           @default(user)
+  banned            Boolean?       @default(false)
+  banReason         String?
+  banExpires        DateTime?
+  dateOfBirth       DateTime
+  newsletterConsent Boolean?
+  sessions          Session[]
+  accounts          Account[]
+  orders            Order[]
+  seats             Seat[]
+  userActivities    UserActivity[]
 
-  @@map("users")
+  @@unique([email])
+  @@map("user")
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String?
-  user      User?    @relation(references: [id], fields: [userId], onDelete: Cascade)
-  expiresAt DateTime
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
 
-  @@map("sessions")
+  @@unique([token])
+  @@map("session")
 }
 
-enum TokenType {
-  ACTIVATION
-  PASSWORD_RESET
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
 }
 
-model Token {
-  id        String    @id @default(uuid())
-  userId    String
-  type      TokenType
-  value     String
-  isActive  Boolean   @default(true)
-  expiresAt DateTime
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
-  @@map("tokens")
+  @@map("verification")
 }
 
 enum ScreenFormat {
@@ -279,11 +290,10 @@ model SeatReservation {
 }
 
 enum UserActivities {
-  ACTIVATED_ACCOUNT
   DELETED_ACCOUNT
   PASSWORD_CHANGED
-  REQUESTED_PASSWORD_RESET
-  DATA_CHANGED
+  PASSWORD_RESET
+  PERSONAL_DATA_CHANGED
   NEWSLETTER_CONSENT_GRANTED
   NEWSLETTER_CONSENT_REVOKED
   CREATED_RESERVATION
@@ -292,9 +302,17 @@ enum UserActivities {
 model UserActivity {
   id        String         @id @default(uuid())
   type      UserActivities
-  userId    String?
-  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: NoAction)
   createdAt DateTime       @default(now())
 
   @@map("users_activities")
+}
+
+model BuySession {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("buy_sessions")
 }
